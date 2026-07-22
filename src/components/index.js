@@ -56,3 +56,4 @@ export { default as ViewDetailsModal } from "./modals/ViewDetailsModal";
 export { default as DataTable } from "./tables/DataTable";
 export { default as TableActions } from "./tables/TableActions";
 export { default as TableFilters } from "./tables/TableFilters";
+export { default as TablePagination } from "./tables/TablePagination";

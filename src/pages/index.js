@@ -30,7 +30,7 @@ export { default as TeacherAssignmentPage } from "./admin/TeacherAssignmentPage"
 export { default as TermManagementPage } from "./admin/TermManagementPage";
 
 // Teacher Pages
-export { default as TeacherDashboardPage } from "./teacher/DashboardPage";
+export { default as TeacherDashboardPage } from "./teacher/TeacherDashboardPage";
 export { default as TeacherClassesPage } from "./teacher/MyClassesPage";
 export { default as TeacherMySubjectsPage } from "./teacher/MySubjectsPage";
 export { default as TeacherAssessmentPage } from "./teacher/AssessmentPage";
