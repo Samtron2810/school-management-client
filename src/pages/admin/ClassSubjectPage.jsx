@@ -80,6 +80,12 @@ export default function ClassSubjectPage() {
             icon={FaEdit}
             onClick={() => {
               setSelected(row);
+              setForm({
+                class: row.class || "",
+                subject: row.subject || "",
+                teacher: row.teacher || "",
+                status: row.status || "active",
+              });
               setFormOpen(true);
             }}
           />
@@ -127,6 +133,7 @@ export default function ClassSubjectPage() {
             icon={FaPlus}
             onClick={() => {
               setSelected(null);
+              setForm({ class: "", subject: "", teacher: "", status: "active" });
               setFormOpen(true);
             }}
           />
@@ -144,7 +151,11 @@ export default function ClassSubjectPage() {
           title="No assignments"
           description="Assign subjects to classes."
           actionLabel="Assign Subject"
-          onAction={() => setFormOpen(true)}
+          onAction={() => {
+            setSelected(null);
+            setForm({ class: "", subject: "", teacher: "", status: "active" });
+            setFormOpen(true);
+          }}
         />
       ) : (
         <DataTable columns={columns} data={filtered} />

@@ -8,7 +8,7 @@ export default function StudentLayout() {
 
   return (
     <div className="min-h-screen bg-white">
-      <Header />
+      <Header onToggleMobile={() => setMobileOpen((prev) => !prev)} />
       <div className="flex">
         <StudentSidebar
           mobileOpen={mobileOpen}

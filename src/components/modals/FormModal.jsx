@@ -10,9 +10,18 @@ export default function FormModal({
   submitLabel = "Save",
   loading = false,
 }) {
+  const handleSubmit = (e) => {
+    if (e && typeof e.preventDefault === "function") {
+      e.preventDefault();
+    }
+    if (onSubmit) {
+      onSubmit(e);
+    }
+  };
+
   return (
     <Modal isOpen={isOpen} onClose={onClose} title={title}>
-      <form onSubmit={onSubmit}>
+      <form onSubmit={handleSubmit}>
         <div className="space-y-4">{children}</div>
         <div className="flex justify-end gap-3 mt-6 pt-4 border-t border-gray-100">
           <Button type="button" variant="secondary" onClick={onClose}>
@@ -26,3 +35,4 @@ export default function FormModal({
     </Modal>
   );
 }
+

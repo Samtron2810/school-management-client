@@ -80,6 +80,12 @@ export default function SessionManagementPage() {
             icon={FaEdit}
             onClick={() => {
               setSelected(row);
+              setForm({
+                name: row.name || "",
+                startDate: row.startDate || "",
+                endDate: row.endDate || "",
+                status: row.status || "upcoming",
+              });
               setFormOpen(true);
             }}
           />
@@ -127,6 +133,7 @@ export default function SessionManagementPage() {
             icon={FaPlus}
             onClick={() => {
               setSelected(null);
+              setForm({ name: "", startDate: "", endDate: "", status: "upcoming" });
               setFormOpen(true);
             }}
           />
@@ -144,7 +151,11 @@ export default function SessionManagementPage() {
           title="No sessions found"
           description="Get started by adding a new session."
           actionLabel="Add Session"
-          onAction={() => setFormOpen(true)}
+          onAction={() => {
+            setSelected(null);
+            setForm({ name: "", startDate: "", endDate: "", status: "upcoming" });
+            setFormOpen(true);
+          }}
         />
       ) : (
         <DataTable columns={columns} data={filtered} />

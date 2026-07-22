@@ -80,6 +80,12 @@ export default function EnrollmentPage() {
             icon={FaEdit}
             onClick={() => {
               setSelected(row);
+              setForm({
+                student: row.student || "",
+                class: row.class || "",
+                date: row.date || "",
+                status: row.status || "active",
+              });
               setFormOpen(true);
             }}
           />
@@ -127,6 +133,7 @@ export default function EnrollmentPage() {
             icon={FaPlus}
             onClick={() => {
               setSelected(null);
+              setForm({ student: "", class: "", date: "", status: "active" });
               setFormOpen(true);
             }}
           />
@@ -144,7 +151,11 @@ export default function EnrollmentPage() {
           title="No enrollments"
           description="Start enrolling students into classes."
           actionLabel="New Enrollment"
-          onAction={() => setFormOpen(true)}
+          onAction={() => {
+            setSelected(null);
+            setForm({ student: "", class: "", date: "", status: "active" });
+            setFormOpen(true);
+          }}
         />
       ) : (
         <DataTable columns={columns} data={filtered} />

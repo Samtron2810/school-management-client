@@ -1,9 +1,10 @@
-import { useState } from "react";
-import { Link } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import { FaEnvelope, FaLock, FaEye, FaEyeSlash } from "react-icons/fa";
 import Input from "../../components/ui/Input";
 import SubmitButton from "../../components/buttons/SubmitButton";
 import logo from "../../assets/logos/Tronschool-logo.png";
+import useAuth from "../../hooks/useAuth";
 
 export default function LoginPage() {
   const [form, setForm] = useState({ email: "", password: "" });
@@ -11,19 +12,44 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
+  const { login, isAuthenticated, user } = useAuth();
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  useEffect(() => {
+    if (isAuthenticated && user) {
+      const role = user?.role?.toLowerCase() || "admin";
+      navigate(`/${role}/dashboard`, { replace: true });
+    }
+  }, [isAuthenticated, user, navigate]);
+
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
     setError("");
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (!form.email || !form.password) {
       setError("Please fill in all fields");
       return;
     }
     setLoading(true);
-    setTimeout(() => setLoading(false), 2000);
+    setError("");
+    try {
+      const session = await login(form);
+      const role = session?.user?.role?.toLowerCase() || "admin";
+      const from = location.state?.from?.pathname;
+      if (from && from !== "/login") {
+        navigate(from, { replace: true });
+      } else {
+        navigate(`/${role}/dashboard`, { replace: true });
+      }
+    } catch (err) {
+      setError(err?.response?.data?.message || "Invalid credentials");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (

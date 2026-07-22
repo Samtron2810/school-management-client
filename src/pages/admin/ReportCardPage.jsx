@@ -90,6 +90,14 @@ export default function ReportCardPage() {
             icon={FaEdit}
             onClick={() => {
               setSelected(row);
+              setForm({
+                student: row.student || "",
+                class: row.class || "",
+                term: row.term || "",
+                session: row.session || "",
+                grade: row.grade || "",
+                status: row.status || "draft",
+              });
               setFormOpen(true);
             }}
           />
@@ -144,6 +152,14 @@ export default function ReportCardPage() {
             icon={FaPlus}
             onClick={() => {
               setSelected(null);
+              setForm({
+                student: "",
+                class: "",
+                term: "",
+                session: "",
+                grade: "",
+                status: "draft",
+              });
               setFormOpen(true);
             }}
           />
@@ -161,7 +177,18 @@ export default function ReportCardPage() {
           title="No report cards"
           description="Generate report cards for students."
           actionLabel="Generate Report"
-          onAction={() => setFormOpen(true)}
+          onAction={() => {
+            setSelected(null);
+            setForm({
+              student: "",
+              class: "",
+              term: "",
+              session: "",
+              grade: "",
+              status: "draft",
+            });
+            setFormOpen(true);
+          }}
         />
       ) : (
         <DataTable columns={columns} data={filtered} />

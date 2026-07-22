@@ -85,6 +85,13 @@ export default function AssessmentManagementPage() {
             icon={FaEdit}
             onClick={() => {
               setSelected(row);
+              setForm({
+                title: row.title || "",
+                subject: row.subject || "",
+                class: row.class || "",
+                date: row.date || "",
+                status: row.status || "upcoming",
+              });
               setFormOpen(true);
             }}
           />
@@ -138,6 +145,13 @@ export default function AssessmentManagementPage() {
             icon={FaPlus}
             onClick={() => {
               setSelected(null);
+              setForm({
+                title: "",
+                subject: "",
+                class: "",
+                date: "",
+                status: "upcoming",
+              });
               setFormOpen(true);
             }}
           />
@@ -155,7 +169,17 @@ export default function AssessmentManagementPage() {
           title="No assessments found"
           description="Get started by adding a new assessment."
           actionLabel="Add Assessment"
-          onAction={() => setFormOpen(true)}
+          onAction={() => {
+            setSelected(null);
+            setForm({
+              title: "",
+              subject: "",
+              class: "",
+              date: "",
+              status: "upcoming",
+            });
+            setFormOpen(true);
+          }}
         />
       ) : (
         <DataTable columns={columns} data={filtered} />

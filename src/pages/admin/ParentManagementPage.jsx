@@ -84,6 +84,13 @@ export default function ParentManagementPage() {
             icon={FaEdit}
             onClick={() => {
               setSelected(row);
+              setForm({
+                name: row.name || "",
+                email: row.email || "",
+                phone: row.phone || "",
+                children: row.children || "",
+                status: row.status || "active",
+              });
               setFormOpen(true);
             }}
           />
@@ -131,6 +138,7 @@ export default function ParentManagementPage() {
             icon={FaPlus}
             onClick={() => {
               setSelected(null);
+              setForm({ name: "", email: "", phone: "", children: "", status: "active" });
               setFormOpen(true);
             }}
           />
@@ -148,7 +156,11 @@ export default function ParentManagementPage() {
           title="No parents found"
           description="Get started by adding a new parent."
           actionLabel="Add Parent"
-          onAction={() => setFormOpen(true)}
+          onAction={() => {
+            setSelected(null);
+            setForm({ name: "", email: "", phone: "", children: "", status: "active" });
+            setFormOpen(true);
+          }}
         />
       ) : (
         <DataTable columns={columns} data={filtered} />

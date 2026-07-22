@@ -8,7 +8,7 @@ export default function AdminLayout() {
 
   return (
     <div className="min-h-screen bg-white">
-      <Header />
+      <Header onToggleMobile={() => setMobileOpen((prev) => !prev)} />
       <div className="flex">
         <AdminSidebar mobileOpen={mobileOpen} onToggleMobile={setMobileOpen} />
         <main className="flex-1 p-6 overflow-y-auto">

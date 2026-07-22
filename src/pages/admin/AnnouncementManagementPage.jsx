@@ -82,6 +82,13 @@ export default function AnnouncementManagementPage() {
             icon={FaEdit}
             onClick={() => {
               setSelected(row);
+              setForm({
+                title: row.title || "",
+                target: row.target || "All",
+                date: row.date || "",
+                content: row.content || "",
+                status: row.status || "active",
+              });
               setFormOpen(true);
             }}
           />
@@ -137,6 +144,13 @@ export default function AnnouncementManagementPage() {
             icon={FaPlus}
             onClick={() => {
               setSelected(null);
+              setForm({
+                title: "",
+                target: "All",
+                date: "",
+                content: "",
+                status: "active",
+              });
               setFormOpen(true);
             }}
           />
@@ -154,7 +168,17 @@ export default function AnnouncementManagementPage() {
           title="No announcements"
           description="Create your first announcement."
           actionLabel="New Announcement"
-          onAction={() => setFormOpen(true)}
+          onAction={() => {
+            setSelected(null);
+            setForm({
+              title: "",
+              target: "All",
+              date: "",
+              content: "",
+              status: "active",
+            });
+            setFormOpen(true);
+          }}
         />
       ) : (
         <DataTable columns={columns} data={filtered} />

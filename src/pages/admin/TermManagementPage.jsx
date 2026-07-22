@@ -85,6 +85,13 @@ export default function TermManagementPage() {
             icon={FaEdit}
             onClick={() => {
               setSelected(row);
+              setForm({
+                name: row.name || "",
+                session: row.session || "",
+                startDate: row.startDate || "",
+                endDate: row.endDate || "",
+                status: row.status || "upcoming",
+              });
               setFormOpen(true);
             }}
           />
@@ -138,6 +145,13 @@ export default function TermManagementPage() {
             icon={FaPlus}
             onClick={() => {
               setSelected(null);
+              setForm({
+                name: "",
+                session: "",
+                startDate: "",
+                endDate: "",
+                status: "upcoming",
+              });
               setFormOpen(true);
             }}
           />
@@ -155,7 +169,17 @@ export default function TermManagementPage() {
           title="No terms found"
           description="Get started by adding a new term."
           actionLabel="Add Term"
-          onAction={() => setFormOpen(true)}
+          onAction={() => {
+            setSelected(null);
+            setForm({
+              name: "",
+              session: "",
+              startDate: "",
+              endDate: "",
+              status: "upcoming",
+            });
+            setFormOpen(true);
+          }}
         />
       ) : (
         <DataTable columns={columns} data={filtered} />

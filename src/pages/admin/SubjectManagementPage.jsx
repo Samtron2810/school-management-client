@@ -83,6 +83,12 @@ export default function SubjectManagementPage() {
             icon={FaEdit}
             onClick={() => {
               setSelectedSubject(row);
+              setForm({
+                name: row.name || "",
+                code: row.code || "",
+                teacher: row.teacher || "",
+                credits: row.credits || "",
+              });
               setFormOpen(true);
             }}
           />
@@ -132,6 +138,7 @@ export default function SubjectManagementPage() {
             icon={FaPlus}
             onClick={() => {
               setSelectedSubject(null);
+              setForm({ name: "", code: "", teacher: "", credits: "" });
               setFormOpen(true);
             }}
           />

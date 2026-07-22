@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { NavLink } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
 import {
   FaTachometerAlt,
   FaUserGraduate,
@@ -13,6 +13,7 @@ import {
   FaChevronLeft,
   FaChevronRight,
 } from "react-icons/fa";
+import useAuth from "../../hooks/useAuth";
 
 const navItems = [
   { label: "Dashboard", path: "/parent/dashboard", icon: FaTachometerAlt },
@@ -47,6 +48,14 @@ const navItems = [
 
 export default function ParentSidebar({ mobileOpen, onToggleMobile }) {
   const [collapsed, setCollapsed] = useState(false);
+  const { logout } = useAuth();
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    onToggleMobile?.(false);
+    logout();
+    navigate("/login", { replace: true });
+  };
 
   useEffect(() => {
     const handleResize = () => {
@@ -114,9 +123,7 @@ export default function ParentSidebar({ mobileOpen, onToggleMobile }) {
 
         <div className="px-2 pb-4">
           <button
-            onClick={() => {
-              // TODO: Replace with modal confirmation
-            }}
+            onClick={handleLogout}
             className="flex items-center gap-3 w-full px-3 py-2.5 rounded-lg text-crimson hover:bg-white/10 hover:text-crimson transition-colors"
           >
             <FaSignOutAlt className="text-lg min-w-5" />

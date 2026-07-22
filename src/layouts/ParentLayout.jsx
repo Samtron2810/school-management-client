@@ -8,7 +8,7 @@ export default function ParentLayout() {
 
   return (
     <div className="min-h-screen bg-white">
-      <Header />
+      <Header onToggleMobile={() => setMobileOpen((prev) => !prev)} />
       <div className="flex">
         <ParentSidebar mobileOpen={mobileOpen} onToggleMobile={setMobileOpen} />
         <main className="flex-1 p-6 overflow-y-auto">

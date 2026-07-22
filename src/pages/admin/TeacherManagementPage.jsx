@@ -74,6 +74,11 @@ export default function TeacherManagementPage() {
             icon={FaEdit}
             onClick={() => {
               setSelectedTeacher(row);
+              setForm({
+                name: row.name || "",
+                email: row.email || "",
+                subject: row.subject || "",
+              });
               setFormOpen(true);
             }}
           />
@@ -123,6 +128,7 @@ export default function TeacherManagementPage() {
             icon={FaPlus}
             onClick={() => {
               setSelectedTeacher(null);
+              setForm({ name: "", email: "", subject: "" });
               setFormOpen(true);
             }}
           />

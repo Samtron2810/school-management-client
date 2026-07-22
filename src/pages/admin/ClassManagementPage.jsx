@@ -83,6 +83,12 @@ export default function ClassManagementPage() {
             icon={FaEdit}
             onClick={() => {
               setSelectedClass(row);
+              setForm({
+                name: row.name || "",
+                section: row.section || "",
+                teacher: row.teacher || "",
+                students: row.students || "",
+              });
               setFormOpen(true);
             }}
           />
@@ -130,6 +136,7 @@ export default function ClassManagementPage() {
             icon={FaPlus}
             onClick={() => {
               setSelectedClass(null);
+              setForm({ name: "", section: "", teacher: "", students: "" });
               setFormOpen(true);
             }}
           />

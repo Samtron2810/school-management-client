@@ -85,6 +85,13 @@ export default function PromotionPage() {
             icon={FaEdit}
             onClick={() => {
               setSelected(row);
+              setForm({
+                student: row.student || "",
+                currentClass: row.currentClass || "",
+                newClass: row.newClass || "",
+                session: row.session || "",
+                status: row.status || "pending",
+              });
               setFormOpen(true);
             }}
           />
@@ -138,6 +145,13 @@ export default function PromotionPage() {
             icon={FaPlus}
             onClick={() => {
               setSelected(null);
+              setForm({
+                student: "",
+                currentClass: "",
+                newClass: "",
+                session: "",
+                status: "pending",
+              });
               setFormOpen(true);
             }}
           />
@@ -155,7 +169,17 @@ export default function PromotionPage() {
           title="No promotions"
           description="Start promoting students to the next class."
           actionLabel="New Promotion"
-          onAction={() => setFormOpen(true)}
+          onAction={() => {
+            setSelected(null);
+            setForm({
+              student: "",
+              currentClass: "",
+              newClass: "",
+              session: "",
+              status: "pending",
+            });
+            setFormOpen(true);
+          }}
         />
       ) : (
         <DataTable columns={columns} data={filtered} />

@@ -85,6 +85,13 @@ export default function TeacherAssignmentPage() {
             icon={FaEdit}
             onClick={() => {
               setSelected(row);
+              setForm({
+                teacher: row.teacher || "",
+                subject: row.subject || "",
+                class: row.class || "",
+                session: row.session || "",
+                status: row.status || "active",
+              });
               setFormOpen(true);
             }}
           />
@@ -138,6 +145,13 @@ export default function TeacherAssignmentPage() {
             icon={FaPlus}
             onClick={() => {
               setSelected(null);
+              setForm({
+                teacher: "",
+                subject: "",
+                class: "",
+                session: "",
+                status: "active",
+              });
               setFormOpen(true);
             }}
           />
@@ -155,7 +169,17 @@ export default function TeacherAssignmentPage() {
           title="No assignments"
           description="Assign teachers to subjects and classes."
           actionLabel="New Assignment"
-          onAction={() => setFormOpen(true)}
+          onAction={() => {
+            setSelected(null);
+            setForm({
+              teacher: "",
+              subject: "",
+              class: "",
+              session: "",
+              status: "active",
+            });
+            setFormOpen(true);
+          }}
         />
       ) : (
         <DataTable columns={columns} data={filtered} />

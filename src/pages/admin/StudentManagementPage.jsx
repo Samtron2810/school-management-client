@@ -74,6 +74,11 @@ export default function StudentManagementPage() {
             icon={FaEdit}
             onClick={() => {
               setSelectedStudent(row);
+              setForm({
+                name: row.name || "",
+                email: row.email || "",
+                class: row.class || "",
+              });
               setFormOpen(true);
             }}
           />
@@ -123,6 +128,7 @@ export default function StudentManagementPage() {
             icon={FaPlus}
             onClick={() => {
               setSelectedStudent(null);
+              setForm({ name: "", email: "", class: "" });
               setFormOpen(true);
             }}
           />

@@ -80,6 +80,12 @@ export default function UserManagementPage() {
             icon={FaEdit}
             onClick={() => {
               setSelected(row);
+              setForm({
+                name: row.name || "",
+                email: row.email || "",
+                role: row.role || "Student",
+                status: row.status || "active",
+              });
               setFormOpen(true);
             }}
           />
@@ -127,6 +133,7 @@ export default function UserManagementPage() {
             icon={FaPlus}
             onClick={() => {
               setSelected(null);
+              setForm({ name: "", email: "", role: "Student", status: "active" });
               setFormOpen(true);
             }}
           />
@@ -144,7 +151,11 @@ export default function UserManagementPage() {
           title="No users found"
           description="Get started by adding a new user."
           actionLabel="Add User"
-          onAction={() => setFormOpen(true)}
+          onAction={() => {
+            setSelected(null);
+            setForm({ name: "", email: "", role: "Student", status: "active" });
+            setFormOpen(true);
+          }}
         />
       ) : (
         <DataTable columns={columns} data={filtered} />
