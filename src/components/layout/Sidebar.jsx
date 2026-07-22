@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { NavLink } from "react-router-dom";
 import {
   FaTachometerAlt,
@@ -13,6 +13,9 @@ import {
   FaFileAlt,
   FaUserCheck,
   FaUserFriends,
+  FaSignOutAlt,
+  FaBars,
+  FaTimes,
   FaChevronLeft,
   FaChevronRight,
 } from "react-icons/fa";
@@ -32,63 +35,95 @@ const navItems = [
   { label: "Parents", path: "/admin/parents", icon: FaUserFriends },
 ];
 
-export default function Sidebar() {
+export default function Sidebar({ mobileOpen, onToggleMobile }) {
   const [collapsed, setCollapsed] = useState(false);
 
+  // Close mobile sidebar on resize to md+
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth >= 768 && onToggleMobile) {
+        onToggleMobile(false);
+      }
+    };
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, [onToggleMobile]);
+
   return (
-    <aside
-      className={`bg-sidebar min-h-screen flex flex-col transition-all duration-300 ${
-        collapsed ? "w-16" : "w-64"
-      }`}
-    >
-      {/* Branding */}
-      <div className="flex items-center justify-center h-16 border-b border-white/20">
-        {!collapsed && (
-          <h1 className="text-xl font-bold">
-            <span className="text-primary">Tron</span>
-            <span className="text-electric-blue">School</span>
-          </h1>
-        )}
-        {collapsed && (
-          <h1 className="text-xl font-bold">
-            <span className="text-primary">T</span>
-            <span className="text-electric-blue">S</span>
-          </h1>
-        )}
-      </div>
+    <>
+      {/* Mobile toggle button (always visible on small screens) */}
+      <button
+        onClick={() => onToggleMobile(!mobileOpen)}
+        className="fixed top-4 left-4 z-50 md:hidden bg-sidebar text-white p-2.5 rounded-lg shadow-lg"
+      >
+        {mobileOpen ? <FaTimes /> : <FaBars />}
+      </button>
 
-      {/* Navigation Links */}
-      <nav className="flex-1 overflow-y-auto py-4">
-        <ul className="space-y-1 px-2">
-          {navItems.map((item) => (
-            <li key={item.path}>
-              <NavLink
-                to={item.path}
-                className={({ isActive }) =>
-                  `flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors ${
-                    isActive
-                      ? "bg-white/20 text-white"
-                      : "text-slate-gray hover:bg-white/10 hover:text-white"
-                  }`
-                }
-              >
-                <item.icon className="text-lg min-w-5" />
-                {!collapsed && <span className="text-sm">{item.label}</span>}
-              </NavLink>
-            </li>
-          ))}
-        </ul>
-      </nav>
+      {/* Sidebar */}
+      <aside
+        className={`bg-sidebar min-h-screen flex flex-col transition-all duration-300 z-40 overflow-x-hidden
+          ${collapsed ? "md:w-16" : "md:w-64"}
+          ${
+            mobileOpen
+              ? "fixed inset-y-0 left-0 w-64 translate-x-0"
+              : "fixed inset-y-0 left-0 w-64 -translate-x-full md:relative md:translate-x-0"
+          }`}
+      >
+        {/* Toggle Button (top, below branding area, independent) */}
+        <div className="flex items-center justify-end px-3 pt-4 pb-2">
+          <button
+            onClick={() => setCollapsed(!collapsed)}
+            className="hidden md:flex items-center justify-center w-8 h-8 rounded-lg bg-royal-blue text-white hover:bg-royal-blue/80 transition-colors"
+          >
+            {collapsed ? <FaChevronRight /> : <FaChevronLeft />}
+          </button>
+        </div>
 
-      {/* Collapse Button */}
-      <div className="p-3 border-t border-white/20">
-        <button
-          onClick={() => setCollapsed(!collapsed)}
-          className="flex items-center justify-center w-full py-2 rounded-lg bg-royal-blue text-white hover:bg-royal-blue/80 transition-colors"
-        >
-          {collapsed ? <FaChevronRight /> : <FaChevronLeft />}
-        </button>
-      </div>
-    </aside>
+        {/* Navigation Links */}
+        <nav className="flex-1 overflow-y-auto py-2">
+          <ul className="space-y-1 px-2">
+            {navItems.map((item) => (
+              <li key={item.path}>
+                <NavLink
+                  to={item.path}
+                  onClick={() => onToggleMobile?.(false)}
+                  className={({ isActive }) =>
+                    `flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors ${
+                      isActive
+                        ? "bg-white/20 text-white"
+                        : "text-slate-gray hover:bg-white/10 hover:text-white"
+                    }`
+                  }
+                >
+                  <item.icon className="text-lg min-w-5" />
+                  {!collapsed && <span className="text-sm">{item.label}</span>}
+                </NavLink>
+              </li>
+            ))}
+          </ul>
+        </nav>
+
+        {/* Logout at the bottom */}
+        <div className="px-2 pb-4">
+          <button
+            onClick={() => {
+              // TODO: Replace with modal confirmation
+            }}
+            className="flex items-center gap-3 w-full px-3 py-2.5 rounded-lg text-crimson hover:bg-white/10 hover:text-crimson transition-colors"
+          >
+            <FaSignOutAlt className="text-lg min-w-5" />
+            {!collapsed && <span className="text-sm">Logout</span>}
+          </button>
+        </div>
+      </aside>
+
+      {/* Mobile overlay backdrop */}
+      {mobileOpen && (
+        <div
+          className="fixed inset-0 bg-black/50 z-30 md:hidden"
+          onClick={() => onToggleMobile(false)}
+        />
+      )}
+    </>
   );
 }
