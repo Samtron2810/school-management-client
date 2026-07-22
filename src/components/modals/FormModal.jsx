@@ -1,0 +1,28 @@
+import Modal from "../ui/Modal";
+import Button from "../ui/Button";
+
+export default function FormModal({
+  isOpen,
+  onClose,
+  title,
+  children,
+  onSubmit,
+  submitLabel = "Save",
+  loading = false,
+}) {
+  return (
+    <Modal isOpen={isOpen} onClose={onClose} title={title}>
+      <form onSubmit={onSubmit}>
+        <div className="space-y-4">{children}</div>
+        <div className="flex justify-end gap-3 mt-6 pt-4 border-t border-gray-100">
+          <Button type="button" variant="secondary" onClick={onClose}>
+            Cancel
+          </Button>
+          <Button type="submit" loading={loading}>
+            {submitLabel}
+          </Button>
+        </div>
+      </form>
+    </Modal>
+  );
+}

@@ -3,16 +3,10 @@ import { NavLink } from "react-router-dom";
 import {
   FaTachometerAlt,
   FaUserGraduate,
-  FaChalkboardTeacher,
-  FaSchool,
-  FaBook,
   FaCalendarCheck,
-  FaClipboardList,
-  FaBullhorn,
-  FaCalendarAlt,
-  FaFileAlt,
-  FaUserCheck,
-  FaUserFriends,
+  FaClipboardCheck,
+  FaBook,
+  FaEnvelope,
   FaSignOutAlt,
   FaBars,
   FaTimes,
@@ -21,24 +15,39 @@ import {
 } from "react-icons/fa";
 
 const navItems = [
-  { label: "Dashboard", path: "/admin/dashboard", icon: FaTachometerAlt },
-  { label: "Students", path: "/admin/students", icon: FaUserGraduate },
-  { label: "Teachers", path: "/admin/teachers", icon: FaChalkboardTeacher },
-  { label: "Classes", path: "/admin/classes", icon: FaSchool },
-  { label: "Subjects", path: "/admin/subjects", icon: FaBook },
-  { label: "Attendance", path: "/admin/attendance", icon: FaCalendarCheck },
-  { label: "Assessments", path: "/admin/assessments", icon: FaClipboardList },
-  { label: "Announcements", path: "/admin/announcements", icon: FaBullhorn },
-  { label: "Sessions", path: "/admin/sessions", icon: FaCalendarAlt },
-  { label: "Reports", path: "/admin/reports", icon: FaFileAlt },
-  { label: "Enrollments", path: "/admin/enrollments", icon: FaUserCheck },
-  { label: "Parents", path: "/admin/parents", icon: FaUserFriends },
+  { label: "Dashboard", path: "/parent/dashboard", icon: FaTachometerAlt },
+  { label: "My Children", path: "/parent/children", icon: FaUserGraduate },
+  {
+    label: "Child's Assessments",
+    path: "/parent/child-assessments",
+    icon: FaClipboardCheck,
+  },
+  {
+    label: "Child's Attendance",
+    path: "/parent/child-attendance",
+    icon: FaCalendarCheck,
+  },
+  { label: "Child's Lessons", path: "/parent/child-lessons", icon: FaBook },
+  {
+    label: "Child's Report Cards",
+    path: "/parent/child-report-cards",
+    icon: FaClipboardCheck,
+  },
+  {
+    label: "Child's Results",
+    path: "/parent/child-results",
+    icon: FaClipboardCheck,
+  },
+  {
+    label: "Message Teacher",
+    path: "/parent/message-teacher",
+    icon: FaEnvelope,
+  },
 ];
 
-export default function Sidebar({ mobileOpen, onToggleMobile }) {
+export default function ParentSidebar({ mobileOpen, onToggleMobile }) {
   const [collapsed, setCollapsed] = useState(false);
 
-  // Close mobile sidebar on resize to md+
   useEffect(() => {
     const handleResize = () => {
       if (window.innerWidth >= 768 && onToggleMobile) {
@@ -51,15 +60,6 @@ export default function Sidebar({ mobileOpen, onToggleMobile }) {
 
   return (
     <>
-      {/* Mobile toggle button (always visible on small screens) */}
-      <button
-        onClick={() => onToggleMobile(!mobileOpen)}
-        className="fixed top-4 left-4 z-50 md:hidden bg-sidebar text-white p-2.5 rounded-lg shadow-lg"
-      >
-        {mobileOpen ? <FaTimes /> : <FaBars />}
-      </button>
-
-      {/* Sidebar */}
       <aside
         className={`bg-sidebar min-h-screen flex flex-col transition-all duration-300 z-40 overflow-x-hidden
           ${collapsed ? "md:w-16" : "md:w-64"}
@@ -69,7 +69,7 @@ export default function Sidebar({ mobileOpen, onToggleMobile }) {
               : "fixed inset-y-0 left-0 w-64 -translate-x-full md:relative md:translate-x-0"
           }`}
       >
-        {/* Toggle Button (top, below branding area, independent) */}
+        {/* Toggle Button - top of sidebar, above navlinks */}
         <div className="flex items-center justify-end px-3 pt-4 pb-2">
           <button
             onClick={() => setCollapsed(!collapsed)}
@@ -79,7 +79,16 @@ export default function Sidebar({ mobileOpen, onToggleMobile }) {
           </button>
         </div>
 
-        {/* Navigation Links */}
+        {/* Mobile close button */}
+        <div className="md:hidden flex items-center justify-end px-3 pb-2">
+          <button
+            onClick={() => onToggleMobile(false)}
+            className="text-white hover:text-gray-200"
+          >
+            <FaTimes />
+          </button>
+        </div>
+
         <nav className="flex-1 overflow-y-auto py-2">
           <ul className="space-y-1 px-2">
             {navItems.map((item) => (
@@ -103,7 +112,6 @@ export default function Sidebar({ mobileOpen, onToggleMobile }) {
           </ul>
         </nav>
 
-        {/* Logout at the bottom */}
         <div className="px-2 pb-4">
           <button
             onClick={() => {
@@ -117,7 +125,6 @@ export default function Sidebar({ mobileOpen, onToggleMobile }) {
         </div>
       </aside>
 
-      {/* Mobile overlay backdrop */}
       {mobileOpen && (
         <div
           className="fixed inset-0 bg-black/50 z-30 md:hidden"

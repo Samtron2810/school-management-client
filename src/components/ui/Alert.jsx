@@ -1,0 +1,41 @@
+import {
+  FaInfoCircle,
+  FaCheckCircle,
+  FaExclamationTriangle,
+  FaTimesCircle,
+} from "react-icons/fa";
+
+const alertStyles = {
+  info: "bg-light-blue text-royal-blue border-royal-blue/20",
+  success: "bg-green-50 text-green-700 border-green-200",
+  warning: "bg-yellow-50 text-yellow-700 border-yellow-200",
+  error: "bg-red-50 text-crimson border-red-200",
+};
+
+const alertIcons = {
+  info: FaInfoCircle,
+  success: FaCheckCircle,
+  warning: FaExclamationTriangle,
+  error: FaTimesCircle,
+};
+
+export default function Alert({ type = "info", message, onClose }) {
+  const Icon = alertIcons[type];
+
+  return (
+    <div
+      className={`flex items-start gap-3 px-4 py-3 rounded-lg border ${alertStyles[type]}`}
+    >
+      <Icon className="mt-0.5 shrink-0" />
+      <p className="text-sm flex-1">{message}</p>
+      {onClose && (
+        <button
+          onClick={onClose}
+          className="shrink-0 hover:opacity-70 transition-opacity"
+        >
+          <FaTimesCircle />
+        </button>
+      )}
+    </div>
+  );
+}
