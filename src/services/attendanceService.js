@@ -1,12 +1,21 @@
-import api from "./api";
+import api, { unwrap } from "./api";
 
-const base = "/attendance";
-
+// Backend: /attendance.
+// Statuses are exactly: "Present" | "Absent" | "Late" | "Excused".
 export const attendanceService = {
-  list: (params) => api.get(base, { params }).then((res) => res.data),
-  mark: (payload) => api.post(base, payload).then((res) => res.data),
-  update: (id, payload) => api.put(`${base}/${id}`, payload).then((res) => res.data),
-  summary: (params) => api.get(`${base}/summary`, { params }).then((res) => res.data),
+  // payload: { teacherAssignment, date,
+  //            records: [{ student, status, remark? }] }
+  mark: (payload) => unwrap(api.post("/attendance", payload)),
+  update: (id, payload) => unwrap(api.patch(`/attendance/${id}`, payload)),
+  remove: (id) => unwrap(api.delete(`/attendance/${id}`)), // admin only
+
+  // Queries
+  byDate: (teacherAssignmentId, params) =>
+    unwrap(api.get(`/attendance/date/${teacherAssignmentId}`, { params })),
+  forStudent: (studentId, params) =>
+    unwrap(api.get(`/attendance/student/${studentId}`, { params })),
+  summaryForStudent: (studentId, params) =>
+    unwrap(api.get(`/attendance/summary/${studentId}`, { params })),
 };
 
 export default attendanceService;

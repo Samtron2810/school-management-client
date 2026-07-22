@@ -1,6 +1,11 @@
 import { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { FaUserCircle, FaSignOutAlt, FaChevronDown, FaBars } from "react-icons/fa";
+import {
+  FaUserCircle,
+  FaSignOutAlt,
+  FaChevronDown,
+  FaBars,
+} from "react-icons/fa";
 import logo from "../../assets/logos/Tronschool-logo.png";
 import useAuth from "../../hooks/useAuth";
 
@@ -20,9 +25,9 @@ export default function Header({ onToggleMobile }) {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
     setDropdownOpen(false);
-    logout();
+    await logout();
     navigate("/login", { replace: true });
   };
 

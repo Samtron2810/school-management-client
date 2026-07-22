@@ -1,15 +1,29 @@
-import api from "./api";
+import api, { unwrap } from "./api";
 
-const base = "/assessments";
-
+// Backend: /assessments (teacher/admin manage; students take via
+// studentAttemptService + studentAnswerService).
+// create payload: { title, teacherAssignment, availableFrom, availableTo,
+//   type: "Quiz"|"Test"|"Assignment"|"Examination", duration?, instructions?,
+//   maxAttempts?, passingScore?, shuffleQuestions?, shuffleOptions?,
+//   showScoreImmediately?, showCorrectAnswers?,
+//   questions?: [{ question, marks, order, isBonus?, isRequired? }] }
 export const assessmentService = {
-  list: (params) => api.get(base, { params }).then((res) => res.data),
-  get: (id) => api.get(`${base}/${id}`).then((res) => res.data),
-  create: (payload) => api.post(base, payload).then((res) => res.data),
-  update: (id, payload) => api.put(`${base}/${id}`, payload).then((res) => res.data),
-  submit: (id, payload) => api.post(`${base}/${id}/submit`, payload).then((res) => res.data),
-  grade: (id, payload) => api.post(`${base}/${id}/grade`, payload).then((res) => res.data),
-  remove: (id) => api.delete(`${base}/${id}`).then((res) => res.data),
+  list: (params) => unwrap(api.get("/assessments", { params })),
+  available: (params) => unwrap(api.get("/assessments/available", { params })), // student
+  get: (id) => unwrap(api.get(`/assessments/${id}`)),
+  create: (payload) => unwrap(api.post("/assessments", payload)),
+  update: (id, payload) => unwrap(api.patch(`/assessments/${id}`, payload)),
+  remove: (id) => unwrap(api.delete(`/assessments/${id}`)), // admin only
+
+  publish: (id) => unwrap(api.patch(`/assessments/${id}/publish`)),
+  unpublish: (id) => unwrap(api.patch(`/assessments/${id}/unpublish`)),
+
+  // payload: { questionIds: [] } or { questions: [{ question, marks, order }] }
+  addQuestions: (id, payload) =>
+    unwrap(api.post(`/assessments/${id}/questions`, payload)),
+  // payload: { questionIds: [] } — axios needs `data` for DELETE bodies
+  removeQuestions: (id, payload) =>
+    unwrap(api.delete(`/assessments/${id}/questions`, { data: payload })),
 };
 
 export default assessmentService;

@@ -1,4 +1,10 @@
-import { createContext, useCallback, useEffect, useMemo, useState } from "react";
+import {
+  createContext,
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
 import authService from "../services/authService";
 
 export const AuthContext = createContext(null);
@@ -25,8 +31,8 @@ export function AuthProvider({ children }) {
     return session;
   }, []);
 
-  const logout = useCallback(() => {
-    authService.logout();
+  const logout = useCallback(async () => {
+    await authService.logout();
     setUser(null);
     setToken(null);
   }, []);

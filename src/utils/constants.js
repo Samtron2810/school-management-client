@@ -9,9 +9,10 @@ export const USER_ROLES = {
 
 export const TOKEN_KEY = "tronschool_token";
 export const USER_KEY = "tronschool_user";
+export const CSRF_KEY = "tronschool_csrf";
 
 export const API_BASE_URL =
-  import.meta.env.VITE_API_URL || "http://localhost:5000/api";
+  import.meta.env.VITE_API_URL || "http://localhost:5000/api/v1";
 
 export const STATUS = {
   ACTIVE: "active",

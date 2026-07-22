@@ -1,13 +1,10 @@
-import api from "./api";
+import api, { unwrap } from "./api";
 
-const base = "/classes";
-
+// Backend: POST /classes, GET /classes (admin only).
 export const classService = {
-  list: (params) => api.get(base, { params }).then((res) => res.data),
-  get: (id) => api.get(`${base}/${id}`).then((res) => res.data),
-  create: (payload) => api.post(base, payload).then((res) => res.data),
-  update: (id, payload) => api.put(`${base}/${id}`, payload).then((res) => res.data),
-  remove: (id) => api.delete(`${base}/${id}`).then((res) => res.data),
+  // payload: { className, arm, level? }
+  create: (payload) => unwrap(api.post("/classes", payload)),
+  list: (params) => unwrap(api.get("/classes", { params })),
 };
 
 export default classService;

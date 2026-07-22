@@ -1,13 +1,12 @@
-import api from "./api";
+import api, { unwrap } from "./api";
 
-const base = "/students";
-
+// Backend: POST /students, GET /students (admin only).
 export const studentService = {
-  list: (params) => api.get(base, { params }).then((res) => res.data),
-  get: (id) => api.get(`${base}/${id}`).then((res) => res.data),
-  create: (payload) => api.post(base, payload).then((res) => res.data),
-  update: (id, payload) => api.put(`${base}/${id}`, payload).then((res) => res.data),
-  remove: (id) => api.delete(`${base}/${id}`).then((res) => res.data),
+  // payload: { firstName, lastName, username, email, password,
+  //            admissionNumber?, gender: "Male"|"Female",
+  //            dateOfBirth?, admissionDate? }
+  create: (payload) => unwrap(api.post("/students", payload)),
+  list: (params) => unwrap(api.get("/students", { params })),
 };
 
 export default studentService;

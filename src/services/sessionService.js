@@ -1,13 +1,10 @@
-import api from "./api";
+import api, { unwrap } from "./api";
 
-const base = "/sessions";
-
+// Backend: POST /sessions, GET /sessions (admin only).
 export const sessionService = {
-  list: (params) => api.get(base, { params }).then((res) => res.data),
-  get: (id) => api.get(`${base}/${id}`).then((res) => res.data),
-  create: (payload) => api.post(base, payload).then((res) => res.data),
-  update: (id, payload) => api.put(`${base}/${id}`, payload).then((res) => res.data),
-  remove: (id) => api.delete(`${base}/${id}`).then((res) => res.data),
+  // payload: { name, startDate, endDate }
+  create: (payload) => unwrap(api.post("/sessions", payload)),
+  list: (params) => unwrap(api.get("/sessions", { params })),
 };
 
 export default sessionService;

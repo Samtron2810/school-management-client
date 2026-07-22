@@ -1,10 +1,14 @@
-import api from "./api";
+import api, { unwrap } from "./api";
 
+// The backend serves ONE role-aware endpoint: GET /dashboard.
+// The payload is assembled server-side from req.user.role.
 export const dashboardService = {
-  admin: () => api.get("/dashboard/admin").then((res) => res.data),
-  teacher: () => api.get("/dashboard/teacher").then((res) => res.data),
-  student: () => api.get("/dashboard/student").then((res) => res.data),
-  parent: () => api.get("/dashboard/parent").then((res) => res.data),
+  getDashboard: () => unwrap(api.get("/dashboard")),
+  // Convenience aliases — all hit the same role-scoped endpoint.
+  admin: () => unwrap(api.get("/dashboard")),
+  teacher: () => unwrap(api.get("/dashboard")),
+  student: () => unwrap(api.get("/dashboard")),
+  parent: () => unwrap(api.get("/dashboard")),
 };
 
 export default dashboardService;

@@ -1,13 +1,20 @@
-import api from "./api";
+import api, { unwrap } from "./api";
 
-const base = "/results";
-
+// Backend: /results (+ generated report cards).
 export const resultService = {
-  list: (params) => api.get(base, { params }).then((res) => res.data),
-  get: (id) => api.get(`${base}/${id}`).then((res) => res.data),
-  publish: (id) => api.post(`${base}/${id}/publish`).then((res) => res.data),
-  reportCard: (params) =>
-    api.get(`${base}/report-card`, { params }).then((res) => res.data),
+  list: (params) => unwrap(api.get("/results", { params })), // role-scoped
+  get: (id) => unwrap(api.get(`/results/${id}`)),
+  reportCard: (studentId) =>
+    unwrap(api.get(`/results/report-card/${studentId}`)),
+
+  // teacher/admin
+  create: (payload) => unwrap(api.post("/results", payload)),
+  fromAttempt: (attemptId, payload = {}) =>
+    unwrap(api.post(`/results/attempts/${attemptId}`, payload)),
+  // payload: score data → computed grade helper (admin/teacher)
+  computeGrade: (payload) => unwrap(api.post("/results/compute-grade", payload)),
+  update: (id, payload) => unwrap(api.patch(`/results/${id}`, payload)),
+  remove: (id) => unwrap(api.delete(`/results/${id}`)),
 };
 
 export default resultService;

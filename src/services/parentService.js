@@ -1,13 +1,23 @@
-import api from "./api";
+import api, { unwrap } from "./api";
 
-const base = "/parents";
-
+// Backend: POST /parents, GET /parents, GET /parents/:id (admin only).
+// Parent↔child links live under /parent-students.
 export const parentService = {
-  list: (params) => api.get(base, { params }).then((res) => res.data),
-  get: (id) => api.get(`${base}/${id}`).then((res) => res.data),
-  getChildren: (id) => api.get(`${base}/${id}/children`).then((res) => res.data),
-  messageTeacher: (payload) =>
-    api.post(`${base}/message-teacher`, payload).then((res) => res.data),
+  // payload: { firstName, lastName, username, email, password,
+  //            parentId?, gender?, occupation?, workplace?, address? }
+  create: (payload) => unwrap(api.post("/parents", payload)),
+  list: (params) => unwrap(api.get("/parents", { params })),
+  get: (id) => unwrap(api.get(`/parents/${id}`)),
+
+  // --- Parent ↔ student linking (admin) ---
+  // payload: { parent, student, relationship? }
+  linkStudent: (payload) => unwrap(api.post("/parent-students", payload)),
+  getChildren: (parentId) =>
+    unwrap(api.get(`/parent-students/parent/${parentId}`)),
+  getParentsOfStudent: (studentId) =>
+    unwrap(api.get(`/parent-students/student/${studentId}`)),
+  removeLink: (linkId) =>
+    unwrap(api.patch(`/parent-students/${linkId}/remove`)),
 };
 
 export default parentService;
