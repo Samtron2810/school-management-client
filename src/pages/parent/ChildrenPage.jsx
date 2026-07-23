@@ -20,12 +20,12 @@ export default function ChildrenPage() {
     <div>
       <PageHeader
         title="My Children"
-        subtitle="Children linked to your account with recorded results"
+        subtitle="Children linked to your account and their current class"
       />
       {children.length === 0 ? (
         <EmptyState
           title="No children found"
-          description="Your children appear here once the school links them to your account and records their first result. Contact the school administrator if a child is missing."
+          description="Your children appear here once the school links them to your account. Contact the school administrator if a child is missing."
         />
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -33,14 +33,17 @@ export default function ChildrenPage() {
             <Card key={child.id}>
               <div className="flex items-center gap-3 mb-4">
                 <Avatar name={child.name} size="lg" />
-                <div className="min-w-0">
+                <div className="min-w-0 flex-1">
                   <h3 className="text-base font-semibold text-primary truncate">
                     {child.name}
                   </h3>
                   <p className="text-xs text-slate-gray mt-0.5">
-                    Class: {child.className}
+                    Class: {child.className} · {child.admissionNumber}
                   </p>
                 </div>
+                {child.relationship && (
+                  <Badge variant="info">{child.relationship}</Badge>
+                )}
               </div>
               <div className="flex items-center justify-between pt-3 border-t border-gray-100">
                 <span className="flex items-center gap-2 text-sm text-slate-gray">

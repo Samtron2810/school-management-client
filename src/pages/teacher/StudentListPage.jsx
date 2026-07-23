@@ -1,72 +1,157 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
-import resultService from "../../services/resultService";
-import useApi from "../../hooks/useApi";
+import teacherAssignmentService from "../../services/teacherAssignmentService";
+import useMyTeaching from "../../hooks/useMyTeaching";
 import { asArray, displayName } from "../../utils/apiData";
 
-import ManagePage from "../../components/ManagePage";
-import GradeBadge from "../../components/GradeBadge";
-import Badge from "../../components/ui/Badge";
+import PageHeader from "../../components/common/PageHeader";
+import Loader from "../../components/common/Loader";
+import ErrorState from "../../components/common/ErrorState";
+import EmptyState from "../../components/common/EmptyState";
+import DataTable from "../../components/tables/DataTable";
+import SearchInput from "../../components/common/SearchInput";
+import Card from "../../components/ui/Card";
+import Select from "../../components/ui/Select";
+import StatusBadge from "../../components/common/StatusBadge";
 
-// The API has no teacher-scoped roster endpoint (GET /students is admin-only),
-// so this roster is derived from the teacher's own results feed — every
-// student who has at least one result recorded by/for this teacher.
+// Teacher roster: the real class roster for each of the teacher's
+// assignments (GET /teacher-assignments/:id/students).
 export default function StudentListPage() {
-  const { data, loading, error, refetch } = useApi(resultService.list);
+  const { assignments, loading, error, refetch } = useMyTeaching();
+
+  const [assignmentId, setAssignmentId] = useState("");
+  const [roster, setRoster] = useState(null);
+  const [rosterLoading, setRosterLoading] = useState(false);
+  const [rosterError, setRosterError] = useState(null);
+  const [reloadKey, setReloadKey] = useState(0);
   const [search, setSearch] = useState("");
 
-  const students = useMemo(() => {
-    const map = new Map();
-    asArray(data).forEach((result) => {
-      const id = result.student?._id || result.student;
-      if (!id) return;
-      const entry = map.get(id) || {
-        id,
-        name: displayName(result.student?.user) || "Student",
-        admissionNumber: result.student?.admissionNumber || "—",
-        results: 0,
-        latestGrade: result.grade,
-      };
-      entry.results += 1;
-      entry.latestGrade = result.grade;
-      map.set(id, entry);
-    });
-    return Array.from(map.values());
-  }, [data]);
+  const assignmentOptions = assignments.map((assignment) => ({
+    value: assignment.id,
+    label: assignment.label,
+  }));
 
-  const filtered = students.filter((student) =>
-    `${student.name} ${student.admissionNumber}`.toLowerCase().includes(search.toLowerCase()),
+  // Default to the first assignment once the teaching context arrives.
+  useEffect(() => {
+    if (!assignmentId && assignments.length > 0) {
+      const id = assignments[0].id;
+      const timer = setTimeout(() => setAssignmentId(id), 0);
+      return () => clearTimeout(timer);
+    }
+    return undefined;
+  }, [assignments, assignmentId]);
+
+  useEffect(() => {
+    if (!assignmentId) return undefined;
+    let cancelled = false;
+    const timer = setTimeout(async () => {
+      setRosterLoading(true);
+      setRosterError(null);
+      try {
+        const payload = await teacherAssignmentService.students(assignmentId);
+        if (!cancelled) setRoster(asArray(payload));
+      } catch (err) {
+        if (!cancelled) {
+          setRosterError(err);
+          setRoster(null);
+        }
+      } finally {
+        if (!cancelled) setRosterLoading(false);
+      }
+    }, 0);
+    return () => {
+      cancelled = true;
+      clearTimeout(timer);
+    };
+  }, [assignmentId, reloadKey]);
+
+  const rows = useMemo(
+    () =>
+      (roster || []).map((entry) => {
+        const student = entry.student || {};
+        return {
+          id: student._id || entry.student,
+          name: displayName(student.user) || "Student",
+          admissionNumber: student.admissionNumber || "—",
+          gender: student.gender || "—",
+          roll: entry.rollNumber ?? "—",
+          status: student.isActive === false ? "inactive" : "active",
+        };
+      }),
+    [roster],
+  );
+
+  const filtered = rows.filter((row) =>
+    `${row.name} ${row.admissionNumber}`
+      .toLowerCase()
+      .includes(search.toLowerCase()),
   );
 
   const columns = [
     { header: "Student", accessor: "name" },
     { header: "Admission No.", accessor: "admissionNumber" },
+    { header: "Gender", accessor: "gender" },
+    { header: "Roll No.", accessor: "roll" },
     {
-      header: "Results",
-      accessor: "results",
-      render: (row) => <Badge variant="info">{row.results} recorded</Badge>,
-    },
-    {
-      header: "Latest Grade",
-      accessor: "latestGrade",
-      render: (row) => <GradeBadge grade={row.latestGrade} />,
+      header: "Status",
+      accessor: "status",
+      render: (row) => <StatusBadge status={row.status} />,
     },
   ];
 
+  if (loading) return <Loader text="Loading your classes..." />;
+  if (error) return <ErrorState onRetry={refetch} />;
+
   return (
-    <ManagePage
-      title="My Students"
-      subtitle="Students with recorded results for your subjects (full rosters are managed by admins)"
-      searchValue={search}
-      onSearchChange={setSearch}
-      searchPlaceholder="Search students..."
-      columns={columns}
-      rows={filtered}
-      loading={loading}
-      error={error}
-      onRetry={refetch}
-      emptyTitle="No students yet"
-      emptyDescription="Students appear here once they have results for your subjects."
-    />
+    <div>
+      <PageHeader
+        title="My Students"
+        subtitle="Class rosters for your teacher assignments"
+      />
+
+      <Card className="mb-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <Select
+            label="Class Subject"
+            name="assignment"
+            value={assignmentId}
+            onChange={(e) => setAssignmentId(e.target.value)}
+            options={assignmentOptions}
+            placeholder={
+              assignmentOptions.length
+                ? "Select class subject"
+                : "No assigned class subjects yet"
+            }
+          />
+          <div className="flex items-end">
+            <div className="flex-1">
+              <SearchInput
+                value={search}
+                onChange={setSearch}
+                placeholder="Search students..."
+              />
+            </div>
+          </div>
+        </div>
+      </Card>
+
+      {rosterLoading ? (
+        <Loader text="Loading roster..." />
+      ) : rosterError ? (
+        <ErrorState onRetry={() => setReloadKey((key) => key + 1)} />
+      ) : roster === null ? (
+        <EmptyState
+          title="Select a class subject"
+          description="Choose one of your assigned class subjects to view its roster."
+        />
+      ) : filtered.length === 0 ? (
+        <EmptyState
+          title="No students on this roster"
+          description="Active students enrolled in this class will appear here."
+        />
+      ) : (
+        <DataTable columns={columns} data={filtered} pageSize={15} />
+      )}
+    </div>
   );
 }

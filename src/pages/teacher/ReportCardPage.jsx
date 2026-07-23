@@ -2,6 +2,7 @@ import { useMemo, useState } from "react";
 
 import resultService from "../../services/resultService";
 import useApi from "../../hooks/useApi";
+import useMyTeaching from "../../hooks/useMyTeaching";
 import { asArray, displayName } from "../../utils/apiData";
 
 import PageHeader from "../../components/common/PageHeader";
@@ -12,9 +13,11 @@ import Card from "../../components/ui/Card";
 import Select from "../../components/ui/Select";
 import Button from "../../components/ui/Button";
 import ReportCardView from "../../components/ReportCardView";
+import ClassReportCards from "../../components/ClassReportCards";
 
 export default function TeacherReportCardPage() {
   const { data, loading, error, refetch } = useApi(resultService.list);
+  const { assignments, loading: teachingLoading } = useMyTeaching();
   const [studentId, setStudentId] = useState("");
   const [card, setCard] = useState(null);
   const [cardLoading, setCardLoading] = useState(false);
@@ -30,6 +33,20 @@ export default function TeacherReportCardPage() {
     return Array.from(map.values());
   }, [data]);
 
+  // One option per distinct class the teacher teaches (for bulk generation).
+  const classOptions = useMemo(() => {
+    const map = new Map();
+    assignments.forEach((assignment) => {
+      if (assignment.classId && !map.has(assignment.classId)) {
+        map.set(assignment.classId, {
+          value: assignment.classId,
+          label: assignment.className,
+        });
+      }
+    });
+    return Array.from(map.values());
+  }, [assignments]);
+
   const loadCard = async () => {
     if (!studentId) return;
     setCardLoading(true);
@@ -43,7 +60,7 @@ export default function TeacherReportCardPage() {
     }
   };
 
-  if (loading) return <Loader text="Loading..." />;
+  if (loading || teachingLoading) return <Loader text="Loading..." />;
   if (error) return <ErrorState onRetry={refetch} />;
 
   return (

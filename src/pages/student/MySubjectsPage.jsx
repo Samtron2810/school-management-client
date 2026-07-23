@@ -1,8 +1,8 @@
 import { useMemo } from "react";
 
-import lessonService from "../../services/lessonService";
+import classSubjectService from "../../services/classSubjectService";
 import useApi from "../../hooks/useApi";
-import { asArray, displayName } from "../../utils/apiData";
+import { asArray, classLabel } from "../../utils/apiData";
 
 import Loader from "../../components/common/Loader";
 import ErrorState from "../../components/common/ErrorState";
@@ -11,52 +11,60 @@ import PageHeader from "../../components/common/PageHeader";
 import Card from "../../components/ui/Card";
 import Badge from "../../components/ui/Badge";
 
-// Student class-subjects aren't directly exposed by the API (class-subjects
-// is admin-only), so subjects are derived from the lessons published for
-// the student's class — each lesson embeds its class-subject and teacher.
+// Student subjects come straight from GET /class-subjects/my — the real
+// subject list for the student's current class (no lesson needed first).
 export default function MySubjectsPage() {
-  const { data, loading, error, refetch } = useApi(lessonService.myLessons);
+  const { data, loading, error, refetch } = useApi(classSubjectService.my);
 
-  const subjects = useMemo(() => {
-    const map = new Map();
-    asArray(data).forEach((lesson) => {
-      const subject = lesson.teacherAssignment?.subject || lesson.classSubject?.subject;
-      const name = subject?.name || lesson.classSubject?.name || "General";
-      const entry = map.get(name) || {
-        name,
-        code: subject?.code || "—",
-        teacher: displayName(lesson.teacherAssignment?.teacher?.user || lesson.teacher?.user) || "—",
-        lessons: 0,
-      };
-      entry.lessons += 1;
-      map.set(name, entry);
-    });
-    return Array.from(map.values());
-  }, [data]);
+  const subjects = useMemo(
+    () =>
+      asArray(data).map((classSubject) => ({
+        _id: classSubject._id,
+        name: classSubject.subject?.name || "Subject",
+        code: classSubject.subject?.code || "—",
+        compulsory: classSubject.isCompulsory !== false,
+        className: classLabel(classSubject.schoolClass),
+      })),
+    [data],
+  );
 
   if (loading) return <Loader text="Loading your subjects..." />;
   if (error) return <ErrorState onRetry={refetch} />;
 
+  const className = subjects[0]?.className;
+
   return (
     <div>
-      <PageHeader title="My Subjects" subtitle="Subjects with lessons available for your class" />
+      <PageHeader
+        title="My Subjects"
+        subtitle={
+          className && className !== "—"
+            ? `Subjects registered for ${className} this term`
+            : "Subjects registered for your class this term"
+        }
+      />
       {subjects.length === 0 ? (
         <EmptyState
           title="No subjects yet"
-          description="Subjects appear here once teachers publish lessons for your class."
+          description="Your subjects appear here once the school registers subjects for your class."
         />
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {subjects.map((subject) => (
-            <Card key={subject.name}>
+            <Card key={subject._id}>
               <div className="flex items-start justify-between">
                 <div>
-                  <h3 className="text-lg font-semibold text-primary">{subject.name}</h3>
-                  <p className="text-xs text-slate-gray mt-0.5">{subject.code}</p>
+                  <h3 className="text-lg font-semibold text-primary">
+                    {subject.name}
+                  </h3>
+                  <p className="text-xs text-slate-gray mt-0.5">
+                    {subject.code}
+                  </p>
                 </div>
-                <Badge variant="info">{subject.lessons} lesson{subject.lessons === 1 ? "" : "s"}</Badge>
+                <Badge variant={subject.compulsory ? "primary" : "info"}>
+                  {subject.compulsory ? "Compulsory" : "Elective"}
+                </Badge>
               </div>
-              <p className="text-sm text-slate-gray mt-3">Teacher: {subject.teacher}</p>
             </Card>
           ))}
         </div>

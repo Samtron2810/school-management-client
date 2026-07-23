@@ -118,6 +118,19 @@ export async function me() {
   return user;
 }
 
+// PATCH /auth/me — update your own profile
+// (payload: { firstName?, lastName?, otherName?, phoneNumber?, avatarUrl? }).
+// The response is the updated user doc; persist it like me() does.
+export async function updateMe(payload) {
+  const user = await unwrap(api.patch("/auth/me", payload));
+  if (user) {
+    const normalized = normalizeUser(user);
+    setStorageItem(USER_KEY, normalized);
+    return normalized;
+  }
+  return user;
+}
+
 // POST /auth/logout — best effort: blacklist the token server-side,
 // but always clear the local session afterwards.
 export async function logout() {
@@ -159,4 +172,5 @@ export default {
   login,
   logout,
   me,
+  updateMe,
 };

@@ -1,6 +1,6 @@
 import { useState } from "react";
 import toast from "react-hot-toast";
-import { FaLink } from "react-icons/fa";
+import { FaEdit, FaLink } from "react-icons/fa";
 
 import parentService from "../../services/parentService";
 import studentService from "../../services/studentService";
@@ -40,15 +40,36 @@ export default function ParentManagementPage() {
   const [search, setSearch] = useState("");
   const [formOpen, setFormOpen] = useState(false);
   const [linkOpen, setLinkOpen] = useState(false);
+  const [selected, setSelected] = useState(null);
   const [form, setForm] = useState(emptyForm);
   const [linkForm, setLinkForm] = useState(emptyLinkForm);
   const [saving, setSaving] = useState(false);
 
-  // Backend requires a caller-supplied unique parentId with no update
-  // route, so we pre-fill the next sequential ID (editable).
+  // The server auto-generates parent IDs from School Settings when the
+  // field is left blank — pre-fill the next sequential ID as a hint.
   const openForm = () => {
+    setSelected(null);
     const existingIds = asArray(data).map((parent) => parent.parentId);
     setForm({ ...emptyForm, parentId: suggestId(ID_PREFIX, existingIds) });
+    setFormOpen(true);
+  };
+
+  const openEdit = (parent) => {
+    const user = parent.user || {};
+    setSelected(parent);
+    setForm({
+      firstName: user.firstName || "",
+      lastName: user.lastName || "",
+      username: user.username || "",
+      email: user.email || "",
+      password: "",
+      parentId: parent.parentId || "",
+      gender: parent.gender || "",
+      occupation: parent.occupation || "",
+      workplace: parent.workplace || "",
+      address: parent.address || "",
+      isActive: parent.isActive !== false,
+    });
     setFormOpen(true);
   };
 
@@ -63,6 +84,7 @@ export default function ParentManagementPage() {
       occupation: parent.occupation || "—",
       workplace: parent.workplace || "—",
       status: parent.isActive === false ? "inactive" : "active",
+      __doc: parent,
       __search: `${name} ${user.username} ${user.email} ${parent.occupation}`.toLowerCase(),
     };
   });
@@ -86,6 +108,17 @@ export default function ParentManagementPage() {
       accessor: "status",
       render: (row) => <StatusBadge status={row.status} />,
     },
+    {
+      header: "Actions",
+      render: (row) => (
+        <Button
+          variant="ghost"
+          size="sm"
+          icon={FaEdit}
+          onClick={() => openEdit(row.__doc)}
+        />
+      ),
+    },
   ];
 
   const set = (field) => (e) =>
@@ -96,17 +129,28 @@ export default function ParentManagementPage() {
   const submit = async () => {
     setSaving(true);
     try {
-      const payload = { ...form };
-      Object.keys(payload).forEach((key) => {
-        if (payload[key] === "") delete payload[key];
-      });
-      await parentService.create(payload);
-      toast.success("Parent created successfully");
+      if (selected) {
+        const payload = { ...form };
+        Object.keys(payload).forEach((key) => {
+          if (payload[key] === "") delete payload[key];
+        });
+        delete payload.password;
+        await parentService.update(selected._id, payload);
+        toast.success("Parent updated");
+      } else {
+        const payload = { ...form };
+        Object.keys(payload).forEach((key) => {
+          if (payload[key] === "") delete payload[key];
+        });
+        await parentService.create(payload);
+        toast.success("Parent created successfully");
+      }
       setFormOpen(false);
+      setSelected(null);
       setForm(emptyForm);
       refetch();
     } catch {
-      // handled by the axios interceptor toast
+      // handled by the axios interceptor toast (e.g. duplicate parent ID)
     } finally {
       setSaving(false);
     }
@@ -154,8 +198,11 @@ export default function ParentManagementPage() {
 
       <FormModal
         isOpen={formOpen}
-        onClose={() => setFormOpen(false)}
-        title="Add Parent"
+        onClose={() => {
+          setFormOpen(false);
+          setSelected(null);
+        }}
+        title={selected ? "Edit Parent" : "Add Parent"}
         onSubmit={submit}
         loading={saving}
       >
@@ -167,9 +214,11 @@ export default function ParentManagementPage() {
           <Input label="Username" name="username" value={form.username} onChange={set("username")} required />
           <Input label="Email" name="email" type="email" value={form.email} onChange={set("email")} required />
         </div>
-        <Input label="Password" name="password" type="password" value={form.password} onChange={set("password")} required />
+        {!selected && (
+          <Input label="Password" name="password" type="password" value={form.password} onChange={set("password")} required />
+        )}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <Input label="Parent ID" name="parentId" value={form.parentId} onChange={set("parentId")} placeholder="Auto-suggested; edit to match your numbering" />
+          <Input label="Parent ID" name="parentId" value={form.parentId} onChange={set("parentId")} placeholder="Leave blank to auto-generate" />
           <Select
             label="Gender"
             name="gender"
@@ -187,6 +236,22 @@ export default function ParentManagementPage() {
           <Input label="Workplace" name="workplace" value={form.workplace} onChange={set("workplace")} />
         </div>
         <Textarea label="Address" name="address" value={form.address} onChange={set("address")} rows={2} />
+        {selected && (
+          <div className="flex items-center gap-3">
+            <input
+              id="parent-active"
+              type="checkbox"
+              checked={form.isActive}
+              onChange={(e) =>
+                setForm((prev) => ({ ...prev, isActive: e.target.checked }))
+              }
+              className="w-4 h-4 accent-royal-blue"
+            />
+            <label htmlFor="parent-active" className="text-sm text-primary">
+              Parent is active
+            </label>
+          </div>
+        )}
       </FormModal>
 
       <FormModal

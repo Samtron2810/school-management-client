@@ -1,5 +1,6 @@
 import { useState } from "react";
 import toast from "react-hot-toast";
+import { FaEdit, FaTrashAlt } from "react-icons/fa";
 
 import classSubjectService from "../../services/classSubjectService";
 import classService from "../../services/classService";
@@ -9,9 +10,12 @@ import { asArray, classLabel } from "../../utils/apiData";
 
 import ManagePage from "../../components/ManagePage";
 import FormModal from "../../components/modals/FormModal";
+import ConfirmDeleteModal from "../../components/modals/ConfirmDeleteModal";
 import Select from "../../components/ui/Select";
+import Button from "../../components/ui/Button";
+import Toggle from "../../components/ui/Toggle";
 
-const emptyForm = { schoolClass: "", subject: "" };
+const emptyForm = { schoolClass: "", subject: "", isCompulsory: true };
 
 export default function ClassSubjectPage() {
   const { data, loading, error, refetch } = useApi(classSubjectService.list);
@@ -20,6 +24,8 @@ export default function ClassSubjectPage() {
 
   const [search, setSearch] = useState("");
   const [formOpen, setFormOpen] = useState(false);
+  const [deleteOpen, setDeleteOpen] = useState(false);
+  const [selected, setSelected] = useState(null);
   const [form, setForm] = useState(emptyForm);
   const [saving, setSaving] = useState(false);
 
@@ -33,6 +39,8 @@ export default function ClassSubjectPage() {
       class: cls,
       subject: subj,
       code: subject?.code || "—",
+      compulsory: link.isCompulsory === false ? "Elective" : "Compulsory",
+      __doc: link,
       __search: `${cls} ${subj} ${subject?.code}`.toLowerCase(),
     };
   });
@@ -52,21 +60,91 @@ export default function ClassSubjectPage() {
     { header: "Class", accessor: "class" },
     { header: "Subject", accessor: "subject" },
     { header: "Subject Code", accessor: "code" },
+    { header: "Type", accessor: "compulsory" },
+    {
+      header: "Actions",
+      render: (row) => (
+        <div className="flex items-center gap-1">
+          <Button
+            variant="ghost"
+            size="sm"
+            icon={FaEdit}
+            onClick={() => openEdit(row.__doc)}
+          />
+          <Button
+            variant="ghost"
+            size="sm"
+            icon={FaTrashAlt}
+            onClick={() => {
+              setSelected(row.__doc);
+              setDeleteOpen(true);
+            }}
+          />
+        </div>
+      ),
+    },
   ];
 
   const set = (field) => (e) =>
     setForm((prev) => ({ ...prev, [field]: e.target.value }));
 
+  const openCreate = () => {
+    setSelected(null);
+    setForm(emptyForm);
+    setFormOpen(true);
+  };
+
+  const openEdit = (link) => {
+    setSelected(link);
+    setForm({
+      schoolClass: link.schoolClass?._id || link.schoolClass || "",
+      subject: link.subject?._id || link.subject || "",
+      isCompulsory: link.isCompulsory !== false,
+      isActive: link.isActive !== false,
+    });
+    setFormOpen(true);
+  };
+
   const handleSubmit = async () => {
     setSaving(true);
     try {
-      await classSubjectService.create(form);
-      toast.success("Subject linked to class");
+      if (selected) {
+        await classSubjectService.update(selected._id, {
+          schoolClass: form.schoolClass,
+          subject: form.subject,
+          isCompulsory: form.isCompulsory,
+          isActive: form.isActive,
+        });
+        toast.success("Class subject updated");
+      } else {
+        await classSubjectService.create({
+          schoolClass: form.schoolClass,
+          subject: form.subject,
+          isCompulsory: form.isCompulsory,
+        });
+        toast.success("Subject linked to class");
+      }
       setFormOpen(false);
+      setSelected(null);
       setForm(emptyForm);
       refetch();
     } catch {
-      // handled by the axios interceptor toast
+      // handled by the axios interceptor toast (e.g. pair already linked)
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleDelete = async () => {
+    setSaving(true);
+    try {
+      await classSubjectService.remove(selected._id);
+      toast.success("Class subject removed");
+      setDeleteOpen(false);
+      setSelected(null);
+      refetch();
+    } catch {
+      // server blocks removing a link referenced by lessons/assessments
     } finally {
       setSaving(false);
     }
@@ -78,7 +156,7 @@ export default function ClassSubjectPage() {
         title="Class Subjects"
         subtitle="Subjects assigned to each class"
         actionLabel="Link Class Subject"
-        onAdd={() => setFormOpen(true)}
+        onAdd={openCreate}
         searchValue={search}
         onSearchChange={setSearch}
         searchPlaceholder="Search class subjects..."
@@ -93,8 +171,11 @@ export default function ClassSubjectPage() {
 
       <FormModal
         isOpen={formOpen}
-        onClose={() => setFormOpen(false)}
-        title="Link Class Subject"
+        onClose={() => {
+          setFormOpen(false);
+          setSelected(null);
+        }}
+        title={selected ? "Edit Class Subject" : "Link Class Subject"}
         onSubmit={handleSubmit}
         loading={saving}
       >
@@ -116,7 +197,31 @@ export default function ClassSubjectPage() {
           placeholder="Select subject"
           required
         />
+        <Toggle
+          label="Compulsory subject"
+          enabled={form.isCompulsory}
+          onChange={(value) =>
+            setForm((prev) => ({ ...prev, isCompulsory: value }))
+          }
+        />
+        {selected && (
+          <Toggle
+            label="Active"
+            enabled={form.isActive}
+            onChange={(value) =>
+              setForm((prev) => ({ ...prev, isActive: value }))
+            }
+          />
+        )}
       </FormModal>
+
+      <ConfirmDeleteModal
+        isOpen={deleteOpen}
+        onClose={() => setDeleteOpen(false)}
+        onConfirm={handleDelete}
+        title="Remove Class Subject"
+        message={`Remove ${selected?.subject?.name || "this subject"} from ${classLabel(selected?.schoolClass)}? The server will refuse while lessons or assessments reference the link.`}
+      />
     </>
   );
 }

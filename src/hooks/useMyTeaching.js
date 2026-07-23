@@ -1,44 +1,68 @@
 import { useMemo } from "react";
 import useApi from "./useApi";
+import teacherAssignmentService from "../services/teacherAssignmentService";
 import lessonService from "../services/lessonService";
-import { asArray, classLabel } from "../utils/apiData";
+import { asArray, classLabel, displayName } from "../utils/apiData";
 
-// Derives the signed-in teacher's teaching context from their lessons
-// (teacher-scoped GET /lessons/my returns teacherAssignment populated with
-// subject + schoolClass). This is the only teacher-accessible source of
-// teacherAssignment ids — the raw /teacher-assignments list is admin-only.
+// Teacher helper: the signed-in teacher's teaching context comes from the
+// dedicated GET /teacher-assignments/my endpoint — the full assignment set
+// is available even before any lesson is published. Lessons are still
+// fetched (role-scoped GET /lessons/my) for pages that list lessons, since
+// MyClassesPage/MySubjectsPage display per-class lesson counts.
 export default function useMyTeaching() {
-  const { data, loading, error, refetch } = useApi(lessonService.myLessons);
+  const assignmentsApi = useApi(teacherAssignmentService.my);
+  const lessonsApi = useApi(lessonService.myLessons);
 
-  const lessons = asArray(data);
+  const lessons = asArray(lessonsApi.data);
 
   const assignments = useMemo(() => {
-    const map = new Map();
-    lessons.forEach((lesson) => {
-      const assignment = lesson.teacherAssignment;
-      const id = assignment?._id || assignment;
-      if (!id) return;
-      map.set(id, {
-        id,
-        subject: assignment.subject?.name || "—",
-        className: classLabel(assignment.schoolClass),
-        label: `${classLabel(assignment.schoolClass)} · ${assignment.subject?.name || "—"}`,
-        session: assignment.session?.name || lesson.session?.name,
-        term: assignment.term?.name || lesson.term?.name,
-      });
+    return asArray(assignmentsApi.data).map((assignment) => {
+      const className = classLabel(assignment.schoolClass);
+      const subject = assignment.subject?.name || "—";
+      return {
+        id: assignment._id,
+        classId: assignment.schoolClass?._id || assignment.schoolClass || null,
+        subjectId: assignment.subject?._id || assignment.subject || null,
+        subject,
+        className,
+        label: `${className} · ${subject}`,
+        session: assignment.session?.name,
+        term: assignment.term?.name,
+        teacherName: displayName(assignment.teacher?.user) || null,
+        isActive: assignment.isActive !== false,
+        __doc: assignment,
+      };
     });
-    return Array.from(map.values());
-  }, [lessons]);
+  }, [assignmentsApi.data]);
 
   const subjects = useMemo(
-    () => [...new Set(assignments.map((assignment) => assignment.subject).filter((s) => s !== "—"))],
+    () => [
+      ...new Set(
+        assignments.map((assignment) => assignment.subject).filter((s) => s !== "—"),
+      ),
+    ],
     [assignments],
   );
 
   const classes = useMemo(
-    () => [...new Set(assignments.map((assignment) => assignment.className).filter((c) => c !== "—"))],
+    () => [
+      ...new Set(
+        assignments.map((assignment) => assignment.className).filter((c) => c !== "—"),
+      ),
+    ],
     [assignments],
   );
 
-  return { lessons, assignments, subjects, classes, loading, error, refetch };
+  return {
+    lessons,
+    assignments,
+    subjects,
+    classes,
+    loading: assignmentsApi.loading || lessonsApi.loading,
+    error: assignmentsApi.error || lessonsApi.error,
+    refetch: () => {
+      assignmentsApi.refetch();
+      lessonsApi.refetch();
+    },
+  };
 }

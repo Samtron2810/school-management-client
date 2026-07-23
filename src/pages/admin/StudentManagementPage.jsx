@@ -1,5 +1,6 @@
 import { useState } from "react";
 import toast from "react-hot-toast";
+import { FaEdit } from "react-icons/fa";
 
 import studentService from "../../services/studentService";
 import useApi from "../../hooks/useApi";
@@ -10,6 +11,7 @@ import ManagePage from "../../components/ManagePage";
 import FormModal from "../../components/modals/FormModal";
 import Input from "../../components/ui/Input";
 import Select from "../../components/ui/Select";
+import Button from "../../components/ui/Button";
 import StatusBadge from "../../components/common/StatusBadge";
 
 const ID_PREFIX = "STU-";
@@ -31,16 +33,37 @@ export default function StudentManagementPage() {
   const { data, loading, error, refetch } = useApi(studentService.list);
   const [search, setSearch] = useState("");
   const [formOpen, setFormOpen] = useState(false);
+  const [selected, setSelected] = useState(null);
   const [form, setForm] = useState(emptyForm);
+  const [saving, setSaving] = useState(false);
 
-  // Backend requires a caller-supplied unique admissionNumber with no
-  // update route, so we pre-fill the next sequential ID (editable).
+  // The server auto-generates admission numbers from School Settings when
+  // the field is left blank — pre-fill the next sequential ID as a hint.
   const openForm = () => {
+    setSelected(null);
     const existingIds = asArray(data).map((student) => student.admissionNumber);
     setForm({ ...emptyForm, admissionNumber: suggestId(ID_PREFIX, existingIds) });
     setFormOpen(true);
   };
-  const [saving, setSaving] = useState(false);
+
+  const openEdit = (student) => {
+    const user = student.user || {};
+    setSelected(student);
+    setForm({
+      firstName: user.firstName || "",
+      lastName: user.lastName || "",
+      otherName: user.otherName || "",
+      username: user.username || "",
+      email: user.email || "",
+      password: "",
+      admissionNumber: student.admissionNumber || "",
+      gender: student.gender || "Male",
+      dateOfBirth: student.dateOfBirth ? String(student.dateOfBirth).slice(0, 10) : "",
+      admissionDate: student.admissionDate ? String(student.admissionDate).slice(0, 10) : "",
+      isActive: student.isActive !== false,
+    });
+    setFormOpen(true);
+  };
 
   const rows = asArray(data).map((student) => {
     const user = student.user || student;
@@ -53,6 +76,7 @@ export default function StudentManagementPage() {
       admissionNumber: student.admissionNumber || "—",
       gender: student.gender || "—",
       status: student.isActive === false ? "inactive" : "active",
+      __doc: student,
       __search: `${name} ${user.username} ${user.email} ${student.admissionNumber}`.toLowerCase(),
     };
   });
@@ -70,6 +94,17 @@ export default function StudentManagementPage() {
       accessor: "status",
       render: (row) => <StatusBadge status={row.status} />,
     },
+    {
+      header: "Actions",
+      render: (row) => (
+        <Button
+          variant="ghost"
+          size="sm"
+          icon={FaEdit}
+          onClick={() => openEdit(row.__doc)}
+        />
+      ),
+    },
   ];
 
   const set = (field) => (e) =>
@@ -78,17 +113,35 @@ export default function StudentManagementPage() {
   const handleSubmit = async () => {
     setSaving(true);
     try {
-      const payload = { ...form };
-      Object.keys(payload).forEach((key) => {
-        if (payload[key] === "") delete payload[key];
-      });
-      await studentService.create(payload);
-      toast.success("Student created successfully");
+      if (selected) {
+        const payload = {
+          firstName: form.firstName,
+          lastName: form.lastName,
+          otherName: form.otherName || undefined,
+          username: form.username,
+          email: form.email,
+          admissionNumber: form.admissionNumber || undefined,
+          gender: form.gender,
+          dateOfBirth: form.dateOfBirth || undefined,
+          admissionDate: form.admissionDate || undefined,
+          isActive: form.isActive,
+        };
+        await studentService.update(selected._id, payload);
+        toast.success("Student updated");
+      } else {
+        const payload = { ...form };
+        Object.keys(payload).forEach((key) => {
+          if (payload[key] === "") delete payload[key];
+        });
+        await studentService.create(payload);
+        toast.success("Student created successfully");
+      }
       setFormOpen(false);
+      setSelected(null);
       setForm(emptyForm);
       refetch();
     } catch {
-      // handled by the axios interceptor toast
+      // handled by the axios interceptor toast (e.g. duplicate username)
     } finally {
       setSaving(false);
     }
@@ -115,8 +168,11 @@ export default function StudentManagementPage() {
 
       <FormModal
         isOpen={formOpen}
-        onClose={() => setFormOpen(false)}
-        title="Add Student"
+        onClose={() => {
+          setFormOpen(false);
+          setSelected(null);
+        }}
+        title={selected ? "Edit Student" : "Add Student"}
         onSubmit={handleSubmit}
         loading={saving}
       >
@@ -129,9 +185,11 @@ export default function StudentManagementPage() {
           <Input label="Username" name="username" value={form.username} onChange={set("username")} required />
           <Input label="Email" name="email" type="email" value={form.email} onChange={set("email")} required />
         </div>
-        <Input label="Password" name="password" type="password" value={form.password} onChange={set("password")} required />
+        {!selected && (
+          <Input label="Password" name="password" type="password" value={form.password} onChange={set("password")} required />
+        )}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <Input label="Admission Number" name="admissionNumber" value={form.admissionNumber} onChange={set("admissionNumber")} placeholder="Auto-suggested; edit to match your numbering" />
+          <Input label="Admission Number" name="admissionNumber" value={form.admissionNumber} onChange={set("admissionNumber")} placeholder="Leave blank to auto-generate" />
           <Select
             label="Gender"
             name="gender"
@@ -147,6 +205,28 @@ export default function StudentManagementPage() {
           <Input label="Date of Birth" name="dateOfBirth" type="date" value={form.dateOfBirth} onChange={set("dateOfBirth")} />
           <Input label="Admission Date" name="admissionDate" type="date" value={form.admissionDate} onChange={set("admissionDate")} />
         </div>
+        {selected && (
+          <div className="flex items-center gap-3">
+            <input
+              id="student-active"
+              type="checkbox"
+              checked={form.isActive}
+              onChange={(e) =>
+                setForm((prev) => ({ ...prev, isActive: e.target.checked }))
+              }
+              className="w-4 h-4 accent-royal-blue"
+            />
+            <label htmlFor="student-active" className="text-sm text-primary">
+              Student is active
+            </label>
+          </div>
+        )}
+        {selected && (
+          <p className="text-xs text-slate-gray">
+            Passwords are reset from the Users page; inactive students can't
+            sign in.
+          </p>
+        )}
       </FormModal>
     </>
   );

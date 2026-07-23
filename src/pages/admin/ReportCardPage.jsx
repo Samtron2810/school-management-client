@@ -3,8 +3,9 @@ import toast from "react-hot-toast";
 
 import resultService from "../../services/resultService";
 import studentService from "../../services/studentService";
+import classService from "../../services/classService";
 import useApi from "../../hooks/useApi";
-import { asArray, displayName } from "../../utils/apiData";
+import { asArray, classLabel, displayName } from "../../utils/apiData";
 
 import PageHeader from "../../components/common/PageHeader";
 import Loader from "../../components/common/Loader";
@@ -16,10 +17,12 @@ import Select from "../../components/ui/Select";
 import Button from "../../components/ui/Button";
 import GradeBadge from "../../components/GradeBadge";
 import ReportCardView from "../../components/ReportCardView";
+import ClassReportCards from "../../components/ClassReportCards";
 
 export default function ReportCardPage() {
   const resultsApi = useApi(resultService.list);
   const studentsApi = useApi(studentService.list);
+  const classesApi = useApi(classService.list);
 
   const [studentId, setStudentId] = useState("");
   const [card, setCard] = useState(null);
@@ -29,6 +32,10 @@ export default function ReportCardPage() {
   const studentOptions = asArray(studentsApi.data).map((student) => ({
     value: student._id,
     label: `${displayName(student.user || student)}${student.admissionNumber ? ` (${student.admissionNumber})` : ""}`,
+  }));
+  const classOptions = asArray(classesApi.data).map((schoolClass) => ({
+    value: schoolClass._id,
+    label: classLabel(schoolClass),
   }));
 
   const loadCard = async (targetId) => {
@@ -69,7 +76,9 @@ export default function ReportCardPage() {
     term: result.term?.name || "—",
   }));
 
-  if (resultsApi.loading || studentsApi.loading) return <Loader text="Loading results..." />;
+  if (resultsApi.loading || studentsApi.loading || classesApi.loading) {
+    return <Loader text="Loading results..." />;
+  }
   if (resultsApi.error) return <ErrorState onRetry={resultsApi.refetch} />;
 
   return (
@@ -112,6 +121,8 @@ export default function ReportCardPage() {
           description="Pick a student above to generate their report card."
         />
       )}
+
+      <ClassReportCards classOptions={classOptions} />
 
       <h2 className="text-lg font-semibold text-primary mt-8 mb-4">All Results</h2>
       {resultRows.length === 0 ? (

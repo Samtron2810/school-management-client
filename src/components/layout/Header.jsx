@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { FaUserCircle, FaSignOutAlt, FaChevronDown, FaBars } from "react-icons/fa";
 import logo from "../../assets/logos/Tronschool-logo.png";
 import useAuth from "../../hooks/useAuth";
+import NotificationBell from "./NotificationBell";
 
 export default function Header({ onToggleMobile }) {
   const [dropdownOpen, setDropdownOpen] = useState(false);
@@ -57,6 +58,8 @@ export default function Header({ onToggleMobile }) {
 
       {/* Right side actions */}
       <div className="flex items-center gap-4">
+        <NotificationBell />
+
         {/* Profile Dropdown */}
         <div className="relative" ref={dropdownRef}>
           <button

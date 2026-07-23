@@ -1,5 +1,6 @@
 import { useState } from "react";
 import toast from "react-hot-toast";
+import { FaEdit } from "react-icons/fa";
 
 import teacherService from "../../services/teacherService";
 import useApi from "../../hooks/useApi";
@@ -11,6 +12,7 @@ import ManagePage from "../../components/ManagePage";
 import FormModal from "../../components/modals/FormModal";
 import Input from "../../components/ui/Input";
 import Select from "../../components/ui/Select";
+import Button from "../../components/ui/Button";
 import StatusBadge from "../../components/common/StatusBadge";
 
 const ID_PREFIX = "TCH-";
@@ -34,6 +36,7 @@ export default function TeacherManagementPage() {
   const { data, loading, error, refetch } = useApi(teacherService.list);
   const [search, setSearch] = useState("");
   const [formOpen, setFormOpen] = useState(false);
+  const [selected, setSelected] = useState(null);
   const [form, setForm] = useState(emptyForm);
   const [saving, setSaving] = useState(false);
 
@@ -52,6 +55,7 @@ export default function TeacherManagementPage() {
       specialization: teacher.specialization || "—",
       employmentDate: formatDate(teacher.employmentDate) || "—",
       status: teacher.isActive === false ? "inactive" : "active",
+      __doc: teacher,
       __search: `${name} ${user.username} ${user.email} ${teacher.teacherId} ${teacher.qualification} ${teacher.specialization}`.toLowerCase(),
     };
   });
@@ -73,33 +77,79 @@ export default function TeacherManagementPage() {
       accessor: "status",
       render: (row) => <StatusBadge status={row.status} />,
     },
+    {
+      header: "Actions",
+      render: (row) => (
+        <Button
+          variant="ghost"
+          size="sm"
+          icon={FaEdit}
+          onClick={() => openEdit(row.__doc)}
+        />
+      ),
+    },
   ];
 
   const set = (field) => (e) =>
     setForm((prev) => ({ ...prev, [field]: e.target.value }));
 
-  // Backend requires a caller-supplied unique teacherId and exposes no
-  // update route, so we pre-fill the next sequential ID (editable).
+  // The server auto-generates teacher IDs from School Settings when the
+  // field is left blank — pre-fill the next sequential ID as a hint.
   const openForm = () => {
+    setSelected(null);
     const existingIds = asArray(data).map((teacher) => teacher.teacherId);
     setForm({ ...emptyForm, teacherId: suggestId(ID_PREFIX, existingIds) });
+    setFormOpen(true);
+  };
+
+  const openEdit = (teacher) => {
+    const user = teacher.user || {};
+    setSelected(teacher);
+    setForm({
+      firstName: user.firstName || "",
+      lastName: user.lastName || "",
+      username: user.username || "",
+      email: user.email || "",
+      password: "",
+      teacherId: teacher.teacherId || "",
+      gender: teacher.gender || "",
+      employmentDate: teacher.employmentDate
+        ? String(teacher.employmentDate).slice(0, 10)
+        : "",
+      phoneNumber: teacher.phoneNumber || user.phoneNumber || "",
+      address: teacher.address || "",
+      qualification: teacher.qualification || "",
+      specialization: teacher.specialization || "",
+      isActive: teacher.isActive !== false,
+    });
     setFormOpen(true);
   };
 
   const handleSubmit = async () => {
     setSaving(true);
     try {
-      const payload = { ...form };
-      Object.keys(payload).forEach((key) => {
-        if (payload[key] === "") delete payload[key];
-      });
-      await teacherService.create(payload);
-      toast.success("Teacher created successfully");
+      if (selected) {
+        const payload = { ...form };
+        Object.keys(payload).forEach((key) => {
+          if (payload[key] === "") delete payload[key];
+        });
+        delete payload.password;
+        await teacherService.update(selected._id, payload);
+        toast.success("Teacher updated");
+      } else {
+        const payload = { ...form };
+        Object.keys(payload).forEach((key) => {
+          if (payload[key] === "") delete payload[key];
+        });
+        await teacherService.create(payload);
+        toast.success("Teacher created successfully");
+      }
       setFormOpen(false);
+      setSelected(null);
       setForm(emptyForm);
       refetch();
     } catch {
-      // handled by the axios interceptor toast
+      // handled by the axios interceptor toast (e.g. duplicate teacher ID)
     } finally {
       setSaving(false);
     }
@@ -126,8 +176,11 @@ export default function TeacherManagementPage() {
 
       <FormModal
         isOpen={formOpen}
-        onClose={() => setFormOpen(false)}
-        title="Add Teacher"
+        onClose={() => {
+          setFormOpen(false);
+          setSelected(null);
+        }}
+        title={selected ? "Edit Teacher" : "Add Teacher"}
         onSubmit={handleSubmit}
         loading={saving}
       >
@@ -139,14 +192,16 @@ export default function TeacherManagementPage() {
           <Input label="Username" name="username" value={form.username} onChange={set("username")} required />
           <Input label="Email" name="email" type="email" value={form.email} onChange={set("email")} required />
         </div>
-        <Input label="Password" name="password" type="password" value={form.password} onChange={set("password")} required />
+        {!selected && (
+          <Input label="Password" name="password" type="password" value={form.password} onChange={set("password")} required />
+        )}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <Input
             label="Teacher ID"
             name="teacherId"
             value={form.teacherId}
             onChange={set("teacherId")}
-            placeholder="Auto-suggested; edit to match your numbering"
+            placeholder="Leave blank to auto-generate"
           />
           <Select
             label="Gender"
@@ -169,10 +224,28 @@ export default function TeacherManagementPage() {
           <Input label="Specialization" name="specialization" value={form.specialization} onChange={set("specialization")} placeholder="e.g. Mathematics" />
         </div>
         <Input label="Address" name="address" value={form.address} onChange={set("address")} />
-        <p className="text-xs text-slate-gray">
-          These profile details can only be set during registration — the
-          backend has no teacher-update endpoint.
-        </p>
+        {selected && (
+          <>
+            <div className="flex items-center gap-3">
+              <input
+                id="teacher-active"
+                type="checkbox"
+                checked={form.isActive}
+                onChange={(e) =>
+                  setForm((prev) => ({ ...prev, isActive: e.target.checked }))
+                }
+                className="w-4 h-4 accent-royal-blue"
+              />
+              <label htmlFor="teacher-active" className="text-sm text-primary">
+                Teacher is active
+              </label>
+            </div>
+            <p className="text-xs text-slate-gray">
+              Passwords are reset from the Users page; inactive teachers can't
+              sign in.
+            </p>
+          </>
+        )}
       </FormModal>
     </>
   );
