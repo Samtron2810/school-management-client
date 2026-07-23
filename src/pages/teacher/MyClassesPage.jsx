@@ -1,67 +1,61 @@
 import { useState } from "react";
-import { FaBook, FaSearch } from "react-icons/fa";
-import SearchInput from "../../components/common/SearchInput";
-import DataTable from "../../components/tables/DataTable";
-import StatusBadge from "../../components/common/StatusBadge";
 
-const initialClasses = [
-  {
-    id: 1,
-    name: "JSS 1",
-    subject: "Mathematics",
-    students: 35,
-    schedule: "Mon, Wed, Fri",
-    status: "active",
-  },
-  {
-    id: 2,
-    name: "JSS 2",
-    subject: "English",
-    students: 32,
-    schedule: "Tue, Thu, Fri",
-    status: "active",
-  },
-  {
-    id: 3,
-    name: "SSS 1",
-    subject: "Physics",
-    students: 28,
-    schedule: "Mon, Wed",
-    status: "inactive",
-  },
-];
+import useMyTeaching from "../../hooks/useMyTeaching";
+
+import Loader from "../../components/common/Loader";
+import ErrorState from "../../components/common/ErrorState";
+import EmptyState from "../../components/common/EmptyState";
+import Card from "../../components/ui/Card";
+import Badge from "../../components/ui/Badge";
+import PageHeader from "../../components/common/PageHeader";
+import SearchInput from "../../components/common/SearchInput";
 
 export default function MyClassesPage() {
-  const [classes, setClasses] = useState(initialClasses);
+  const { lessons, classes, assignments, loading, error, refetch } = useMyTeaching();
   const [search, setSearch] = useState("");
 
-  const filtered = classes.filter((c) =>
-    c.name.toLowerCase().includes(search.toLowerCase()),
-  );
+  const rows = classes
+    .map((className) => ({
+      className,
+      subjects: assignments.filter((a) => a.className === className).map((a) => a.subject),
+      lessons: lessons.filter(
+        (lesson) =>
+          lesson.teacherAssignment &&
+          lesson.teacherAssignment.schoolClass &&
+          `${lesson.teacherAssignment.schoolClass.className || ""} ${lesson.teacherAssignment.schoolClass.arm || ""}`.trim() === className,
+      ).length,
+    }))
+    .filter((row) => row.className.toLowerCase().includes(search.toLowerCase()));
 
-  const columns = [
-    { header: "Class", accessor: "name" },
-    { header: "Subject", accessor: "subject" },
-    { header: "Students", accessor: "students" },
-    { header: "Schedule", accessor: "schedule" },
-    {
-      header: "Status",
-      accessor: "status",
-      render: (row) => <StatusBadge status={row.status} />,
-    },
-  ];
+  if (loading) return <Loader text="Loading your classes..." />;
+  if (error) return <ErrorState onRetry={refetch} />;
 
   return (
     <div>
-      <h1 className="text-2xl font-bold text-primary mb-6">My Classes</h1>
+      <PageHeader title="My Classes" subtitle="Classes you teach this session/term" />
       <div className="mb-4">
-        <SearchInput
-          value={search}
-          onChange={setSearch}
-          placeholder="Search classes..."
-        />
+        <SearchInput value={search} onChange={setSearch} placeholder="Search classes..." />
       </div>
-      <DataTable columns={columns} data={filtered} />
+      {rows.length === 0 ? (
+        <EmptyState
+          title="No classes yet"
+          description="Your classes appear once you have lessons for a class subject. Ask an admin to assign you to class subjects."
+        />
+      ) : (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          {rows.map((row) => (
+            <Card key={row.className}>
+              <h3 className="text-lg font-semibold text-primary">{row.className}</h3>
+              <div className="mt-2 flex flex-wrap gap-2">
+                {row.subjects.map((subject) => (
+                  <Badge key={subject} variant="info">{subject}</Badge>
+                ))}
+              </div>
+              <p className="text-sm text-slate-gray mt-3">{row.lessons} lesson{row.lessons === 1 ? "" : "s"} recorded</p>
+            </Card>
+          ))}
+        </div>
+      )}
     </div>
   );
 }

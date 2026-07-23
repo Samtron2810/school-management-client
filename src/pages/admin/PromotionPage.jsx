@@ -1,245 +1,165 @@
 import { useState } from "react";
-import {
-  FaUserGraduate,
-  FaPlus,
-  FaSearch,
-  FaTrashAlt,
-  FaEdit,
-  FaEye,
-} from "react-icons/fa";
-import PageHeader from "../../components/common/PageHeader";
-import DataTable from "../../components/tables/DataTable";
-import ActionButton from "../../components/buttons/ActionButton";
-import SearchInput from "../../components/common/SearchInput";
-import StatusBadge from "../../components/common/StatusBadge";
-import EmptyState from "../../components/common/EmptyState";
-import FormModal from "../../components/modals/FormModal";
-import ConfirmDeleteModal from "../../components/modals/ConfirmDeleteModal";
-import Input from "../../components/ui/Input";
-import Select from "../../components/ui/Select";
-import Button from "../../components/ui/Button";
+import toast from "react-hot-toast";
 
-const initialPromotions = [
-  {
-    id: 1,
-    student: "John Doe",
-    currentClass: "JSS 2",
-    newClass: "JSS 3",
-    session: "2025/2026",
-    status: "completed",
-  },
-  {
-    id: 2,
-    student: "Jane Smith",
-    currentClass: "SSS 1",
-    newClass: "SSS 2",
-    session: "2025/2026",
-    status: "pending",
-  },
-  {
-    id: 3,
-    student: "Bob Johnson",
-    currentClass: "JSS 1",
-    newClass: "JSS 2",
-    session: "2025/2026",
-    status: "completed",
-  },
-];
+import promotionService from "../../services/promotionService";
+import classService from "../../services/classService";
+import sessionService from "../../services/sessionService";
+import termService from "../../services/termService";
+import useApi from "../../hooks/useApi";
+import { asArray, classLabel, displayName } from "../../utils/apiData";
+import formatDate from "../../utils/formatDate";
+
+import ManagePage from "../../components/ManagePage";
+import FormModal from "../../components/modals/FormModal";
+import Select from "../../components/ui/Select";
+import Badge from "../../components/ui/Badge";
+
+const emptyForm = { fromClass: "", toClass: "", targetSession: "", targetTerm: "" };
 
 export default function PromotionPage() {
-  const [promotions, setPromotions] = useState(initialPromotions);
+  const { data, loading, error, refetch } = useApi(promotionService.list);
+  const classesApi = useApi(classService.list);
+  const sessionsApi = useApi(sessionService.list);
+  const termsApi = useApi(termService.list);
+
   const [search, setSearch] = useState("");
   const [formOpen, setFormOpen] = useState(false);
-  const [deleteOpen, setDeleteOpen] = useState(false);
-  const [selected, setSelected] = useState(null);
-  const [form, setForm] = useState({
-    student: "",
-    currentClass: "",
-    newClass: "",
-    session: "",
-    status: "pending",
+  const [form, setForm] = useState(emptyForm);
+  const [saving, setSaving] = useState(false);
+
+  const rows = asArray(data).map((promotion) => {
+    const results = asArray(promotion.results);
+    const promoted = results.filter((r) => r.status === "Promoted").length;
+    return {
+      _id: promotion._id,
+      fromClass: classLabel(promotion.fromClass),
+      toClass: classLabel(promotion.toClass),
+      route: `${promotion.sourceSession?.name || "current"} → ${promotion.targetSession?.name || "—"}`,
+      targetTerm: promotion.targetTerm?.name || "—",
+      processed: (
+        <>
+          <Badge variant="info">{results.length} processed</Badge>{" "}
+          <Badge variant="success">{promoted} promoted</Badge>
+        </>
+      ),
+      by: displayName(promotion.promotedBy) || "—",
+      date: formatDate(promotion.createdAt),
+      __search: `${classLabel(promotion.fromClass)} ${classLabel(promotion.toClass)}`.toLowerCase(),
+    };
   });
 
-  const filtered = promotions.filter((p) =>
-    p.student.toLowerCase().includes(search.toLowerCase()),
-  );
+  const filtered = rows.filter((row) => row.__search.includes(search.toLowerCase()));
+
+  const classOptions = asArray(classesApi.data).map((schoolClass) => ({
+    value: schoolClass._id,
+    label: classLabel(schoolClass),
+  }));
+  const sessionOptions = asArray(sessionsApi.data).map((session) => ({
+    value: session._id,
+    label: session.name,
+  }));
+  const termOptions = asArray(termsApi.data).map((term) => ({
+    value: term._id,
+    label: term.name,
+  }));
 
   const columns = [
-    { header: "Student", accessor: "student" },
-    { header: "Current Class", accessor: "currentClass" },
-    { header: "New Class", accessor: "newClass" },
-    { header: "Session", accessor: "session" },
-    {
-      header: "Status",
-      accessor: "status",
-      render: (row) => <StatusBadge status={row.status} />,
-    },
-    {
-      header: "Actions",
-      render: (row) => (
-        <div className="flex items-center gap-1">
-          <Button variant="ghost" size="sm" icon={FaEye} onClick={() => {}} />
-          <Button
-            variant="ghost"
-            size="sm"
-            icon={FaEdit}
-            onClick={() => {
-              setSelected(row);
-              setForm({
-                student: row.student || "",
-                currentClass: row.currentClass || "",
-                newClass: row.newClass || "",
-                session: row.session || "",
-                status: row.status || "pending",
-              });
-              setFormOpen(true);
-            }}
-          />
-          <Button
-            variant="ghost"
-            size="sm"
-            icon={FaTrashAlt}
-            onClick={() => {
-              setSelected(row);
-              setDeleteOpen(true);
-            }}
-          />
-        </div>
-      ),
-    },
+    { header: "From", accessor: "fromClass" },
+    { header: "To", accessor: "toClass" },
+    { header: "Session Route", accessor: "route" },
+    { header: "Target Term", accessor: "targetTerm" },
+    { header: "Outcome", accessor: "processed" },
+    { header: "By", accessor: "by" },
+    { header: "Date", accessor: "date" },
   ];
 
-  const handleSave = () => {
-    if (selected) {
-      setPromotions(
-        promotions.map((p) => (p.id === selected.id ? { ...p, ...form } : p)),
-      );
-    } else {
-      setPromotions([...promotions, { id: Date.now(), ...form }]);
-    }
-    setFormOpen(false);
-    setSelected(null);
-    setForm({
-      student: "",
-      currentClass: "",
-      newClass: "",
-      session: "",
-      status: "pending",
-    });
-  };
+  const set = (field) => (e) =>
+    setForm((prev) => ({ ...prev, [field]: e.target.value }));
 
-  const handleDelete = () => {
-    setPromotions(promotions.filter((p) => p.id !== selected.id));
-    setDeleteOpen(false);
-    setSelected(null);
+  const handleSubmit = async () => {
+    setSaving(true);
+    try {
+      await promotionService.promote(form);
+      toast.success("Students promoted successfully");
+      setFormOpen(false);
+      setForm(emptyForm);
+      refetch();
+    } catch {
+      // handled by the axios interceptor toast
+    } finally {
+      setSaving(false);
+    }
   };
 
   return (
-    <div>
-      <PageHeader
-        title="Student Promotion"
-        subtitle="Manage student class promotions"
-        actions={
-          <ActionButton
-            label="New Promotion"
-            icon={FaPlus}
-            onClick={() => {
-              setSelected(null);
-              setForm({
-                student: "",
-                currentClass: "",
-                newClass: "",
-                session: "",
-                status: "pending",
-              });
-              setFormOpen(true);
-            }}
-          />
-        }
+    <>
+      <ManagePage
+        title="Promotions"
+        subtitle="Promote students between classes for a new session/term"
+        actionLabel="Run Promotion"
+        onAdd={() => setFormOpen(true)}
+        searchValue={search}
+        onSearchChange={setSearch}
+        searchPlaceholder="Search promotions..."
+        columns={columns}
+        rows={filtered}
+        loading={loading}
+        error={error}
+        onRetry={refetch}
+        emptyTitle="No promotions yet"
+        emptyDescription="Run the first class promotion."
       />
-      <div className="mb-4">
-        <SearchInput
-          value={search}
-          onChange={setSearch}
-          placeholder="Search promotions..."
-        />
-      </div>
-      {filtered.length === 0 ? (
-        <EmptyState
-          title="No promotions"
-          description="Start promoting students to the next class."
-          actionLabel="New Promotion"
-          onAction={() => {
-            setSelected(null);
-            setForm({
-              student: "",
-              currentClass: "",
-              newClass: "",
-              session: "",
-              status: "pending",
-            });
-            setFormOpen(true);
-          }}
-        />
-      ) : (
-        <DataTable columns={columns} data={filtered} />
-      )}
+
       <FormModal
         isOpen={formOpen}
-        onClose={() => {
-          setFormOpen(false);
-          setSelected(null);
-        }}
-        title={selected ? "Edit Promotion" : "New Promotion"}
-        onSubmit={handleSave}
+        onClose={() => setFormOpen(false)}
+        title="Run Promotion"
+        onSubmit={handleSubmit}
+        submitLabel="Promote"
+        loading={saving}
       >
-        <Input
-          label="Student Name"
-          name="student"
-          value={form.student}
-          onChange={(e) => setForm({ ...form, student: e.target.value })}
-          required
-        />
-        <Input
-          label="Current Class"
-          name="currentClass"
-          value={form.currentClass}
-          onChange={(e) => setForm({ ...form, currentClass: e.target.value })}
-          required
-        />
-        <Input
-          label="New Class"
-          name="newClass"
-          value={form.newClass}
-          onChange={(e) => setForm({ ...form, newClass: e.target.value })}
-          required
-        />
-        <Input
-          label="Session"
-          name="session"
-          value={form.session}
-          onChange={(e) => setForm({ ...form, session: e.target.value })}
+        <Select
+          label="From Class"
+          name="fromClass"
+          value={form.fromClass}
+          onChange={set("fromClass")}
+          options={classOptions}
+          placeholder="Select current class"
           required
         />
         <Select
-          label="Status"
-          name="status"
-          value={form.status}
-          onChange={(e) => setForm({ ...form, status: e.target.value })}
-          options={[
-            { value: "pending", label: "Pending" },
-            { value: "completed", label: "Completed" },
-          ]}
+          label="To Class"
+          name="toClass"
+          value={form.toClass}
+          onChange={set("toClass")}
+          options={classOptions}
+          placeholder="Select new class"
           required
         />
+        <Select
+          label="Target Session"
+          name="targetSession"
+          value={form.targetSession}
+          onChange={set("targetSession")}
+          options={sessionOptions}
+          placeholder="Select target session"
+          required
+        />
+        <Select
+          label="Target Term"
+          name="targetTerm"
+          value={form.targetTerm}
+          onChange={set("targetTerm")}
+          options={termOptions}
+          placeholder="Select target term"
+          required
+        />
+        <p className="text-xs text-slate-gray">
+          All students with an active enrollment in the source class (current
+          session/term) are promoted. This action runs on the server and cannot
+          be undone from here.
+        </p>
       </FormModal>
-      <ConfirmDeleteModal
-        isOpen={deleteOpen}
-        onClose={() => setDeleteOpen(false)}
-        onConfirm={handleDelete}
-        title="Delete Promotion"
-        message="Are you sure you want to delete this promotion record?"
-      />
-    </div>
+    </>
   );
 }

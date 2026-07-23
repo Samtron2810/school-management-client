@@ -5,10 +5,8 @@ import {
   FaUserGraduate,
   FaCalendarCheck,
   FaClipboardCheck,
-  FaBook,
-  FaEnvelope,
+  FaBullhorn,
   FaSignOutAlt,
-  FaBars,
   FaTimes,
   FaChevronLeft,
   FaChevronRight,
@@ -28,7 +26,6 @@ const navItems = [
     path: "/parent/child-attendance",
     icon: FaCalendarCheck,
   },
-  { label: "Child's Lessons", path: "/parent/child-lessons", icon: FaBook },
   {
     label: "Child's Report Cards",
     path: "/parent/child-report-cards",
@@ -39,11 +36,7 @@ const navItems = [
     path: "/parent/child-results",
     icon: FaClipboardCheck,
   },
-  {
-    label: "Message Teacher",
-    path: "/parent/message-teacher",
-    icon: FaEnvelope,
-  },
+  { label: "Announcements", path: "/parent/announcements", icon: FaBullhorn },
 ];
 
 export default function ParentSidebar({ mobileOpen, onToggleMobile }) {

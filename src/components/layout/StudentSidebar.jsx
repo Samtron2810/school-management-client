@@ -6,9 +6,8 @@ import {
   FaChalkboardTeacher,
   FaClipboardCheck,
   FaCalendarCheck,
-  FaUserGraduate,
+  FaBullhorn,
   FaSignOutAlt,
-  FaBars,
   FaTimes,
   FaChevronLeft,
   FaChevronRight,
@@ -30,22 +29,13 @@ const navItems = [
   },
   { label: "My Lessons", path: "/student/my-lessons", icon: FaBook },
   { label: "My Results", path: "/student/my-results", icon: FaClipboardCheck },
-  {
-    label: "My Timetable",
-    path: "/student/my-timetable",
-    icon: FaCalendarCheck,
-  },
   { label: "Attendance", path: "/student/attendance", icon: FaCalendarCheck },
   {
     label: "Report Cards",
     path: "/student/report-cards",
     icon: FaClipboardCheck,
   },
-  {
-    label: "Take Assessment",
-    path: "/student/take-assessment",
-    icon: FaClipboardCheck,
-  },
+  { label: "Announcements", path: "/student/announcements", icon: FaBullhorn },
 ];
 
 export default function StudentSidebar({ mobileOpen, onToggleMobile }) {

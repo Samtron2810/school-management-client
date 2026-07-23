@@ -1,3 +1,5 @@
+import { FaSpinner } from "react-icons/fa";
+
 const variantStyles = {
   primary: "bg-royal-blue text-white hover:bg-royal-blue/80",
   secondary: "bg-gray-100 text-slate-gray hover:bg-gray-200",
@@ -21,19 +23,20 @@ export default function Button({
   onClick,
   type = "button",
   icon: Icon,
+  loading = false,
 }) {
   return (
     <button
       type={type}
       onClick={onClick}
-      disabled={disabled}
+      disabled={disabled || loading}
       className={`inline-flex items-center justify-center gap-2 font-medium rounded-lg transition-colors ${
         variantStyles[variant]
       } ${sizeClasses[size]} ${
-        disabled ? "opacity-50 cursor-not-allowed" : "cursor-pointer"
+        disabled || loading ? "opacity-50 cursor-not-allowed" : "cursor-pointer"
       } ${className}`}
     >
-      {Icon && <Icon className="text-base" />}
+      {loading ? <FaSpinner className="animate-spin" /> : Icon && <Icon className="text-base" />}
       {children}
     </button>
   );

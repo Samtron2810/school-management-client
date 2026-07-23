@@ -7,8 +7,8 @@ import {
   FaClipboardCheck,
   FaCalendarCheck,
   FaUserGraduate,
+  FaBullhorn,
   FaSignOutAlt,
-  FaBars,
   FaTimes,
   FaChevronLeft,
   FaChevronRight,
@@ -29,11 +29,6 @@ const navItems = [
     icon: FaClipboardCheck,
   },
   { label: "Attendance", path: "/teacher/attendance", icon: FaCalendarCheck },
-  {
-    label: "Grade Assessments",
-    path: "/teacher/grade-assessments",
-    icon: FaClipboardCheck,
-  },
   { label: "Lesson Plans", path: "/teacher/lesson-plans", icon: FaBook },
   { label: "Question Bank", path: "/teacher/question-bank", icon: FaBook },
   {
@@ -43,6 +38,7 @@ const navItems = [
   },
   { label: "Students", path: "/teacher/students", icon: FaUserGraduate },
   { label: "Results", path: "/teacher/results", icon: FaClipboardCheck },
+  { label: "Announcements", path: "/teacher/announcements", icon: FaBullhorn },
 ];
 
 export default function TeacherSidebar({ mobileOpen, onToggleMobile }) {

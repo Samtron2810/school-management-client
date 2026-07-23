@@ -1,13 +1,6 @@
-import {
-  createContext,
-  useCallback,
-  useEffect,
-  useMemo,
-  useState,
-} from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import authService from "../services/authService";
-
-export const AuthContext = createContext(null);
+import AuthContext from "./auth-context";
 
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(() => authService.getStoredUser());
@@ -15,13 +8,16 @@ export function AuthProvider({ children }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (token && authService.isTokenExpired(token)) {
-      authService.logout();
-      setUser(null);
-      setToken(null);
-    }
-
-    setLoading(false);
+    // Scheduled so the state updates land outside the effect body.
+    const id = setTimeout(() => {
+      if (token && authService.isTokenExpired(token)) {
+        authService.logout();
+        setUser(null);
+        setToken(null);
+      }
+      setLoading(false);
+    }, 0);
+    return () => clearTimeout(id);
   }, [token]);
 
   const login = useCallback(async (credentials) => {

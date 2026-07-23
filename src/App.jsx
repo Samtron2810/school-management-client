@@ -28,12 +28,11 @@ import TeacherAssignmentPage from "./pages/admin/TeacherAssignmentPage";
 import TermManagementPage from "./pages/admin/TermManagementPage";
 
 // Teacher Pages
-import TeacherDashboardPage from "./pages/teacher/TeacherDashboardPage";
+import TeacherDashboardPage from "./pages/teacher/DashboardPage";
 import TeacherMyClassesPage from "./pages/teacher/MyClassesPage";
 import TeacherMySubjectsPage from "./pages/teacher/MySubjectsPage";
 import TeacherAssessmentPage from "./pages/teacher/AssessmentPage";
 import TeacherAttendancePage from "./pages/teacher/AttendancePage";
-import TeacherGradeAssessmentPage from "./pages/teacher/GradeAssessmentPage";
 import TeacherLessonPlanPage from "./pages/teacher/LessonPlanPage";
 import TeacherQuestionBankPage from "./pages/teacher/QuestionBankPage";
 import TeacherReportCardPage from "./pages/teacher/ReportCardPage";
@@ -47,7 +46,6 @@ import StudentMySubjectsPage from "./pages/student/MySubjectsPage";
 import StudentMyAssessmentsPage from "./pages/student/MyAssessmentsPage";
 import StudentMyLessonsPage from "./pages/student/MyLessonsPage";
 import StudentMyResultsPage from "./pages/student/MyResultsPage";
-import StudentMyTimetablePage from "./pages/student/MyTimetablePage";
 import StudentAttendancePage from "./pages/student/AttendancePage";
 import StudentReportCardPage from "./pages/student/ReportCardPage";
 import StudentTakeAssessmentPage from "./pages/student/TakeAssessmentPage";
@@ -57,17 +55,11 @@ import ParentDashboardPage from "./pages/parent/DashboardPage";
 import ParentChildrenPage from "./pages/parent/ChildrenPage";
 import ParentChildAssessmentsPage from "./pages/parent/ChildAssessmentsPage";
 import ParentChildAttendancePage from "./pages/parent/ChildAttendancePage";
-import ParentChildLessonsPage from "./pages/parent/ChildLessonsPage";
 import ParentChildReportCardPage from "./pages/parent/ChildReportCardPage";
 import ParentChildResultsPage from "./pages/parent/ChildResultsPage";
-import ParentMessageTeacherPage from "./pages/parent/MessageTeacherPage";
 
-// Auth Pages
+// Auth Pages (the backend only supports login — accounts are created by admins)
 import LoginPage from "./pages/auth/LoginPage";
-import RegisterPage from "./pages/auth/RegisterPage";
-import ForgotPasswordPage from "./pages/auth/ForgotPasswordPage";
-import ResetPasswordPage from "./pages/auth/ResetPasswordPage";
-import VerifyOTPPage from "./pages/auth/VerifyOTPPage";
 
 // Error Pages
 import NotFoundPage from "./pages/errors/NotFoundPage";
@@ -78,6 +70,7 @@ import ServerErrorPage from "./pages/errors/ServerErrorPage";
 import ProtectedRoute from "./routes/ProtectedRoute";
 import RoleRoute from "./routes/RoleRoute";
 import ProfilePage from "./pages/shared/ProfilePage";
+import AnnouncementsPage from "./pages/shared/AnnouncementsPage";
 
 function App() {
   return (
@@ -89,13 +82,6 @@ function App() {
             <Route path="/" element={<Navigate to="/login" replace />} />
             <Route element={<AuthLayout />}>
               <Route path="/login" element={<LoginPage />} />
-              <Route path="/register" element={<RegisterPage />} />
-              <Route path="/forgot-password" element={<ForgotPasswordPage />} />
-              <Route
-                path="/reset-password/:token"
-                element={<ResetPasswordPage />}
-              />
-              <Route path="/verify-otp" element={<VerifyOTPPage />} />
             </Route>
 
             {/* Error Routes */}
@@ -161,10 +147,6 @@ function App() {
                     element={<TeacherAttendancePage />}
                   />
                   <Route
-                    path="grade-assessments"
-                    element={<TeacherGradeAssessmentPage />}
-                  />
-                  <Route
                     path="lesson-plans"
                     element={<TeacherLessonPlanPage />}
                   />
@@ -178,6 +160,10 @@ function App() {
                   />
                   <Route path="students" element={<TeacherStudentListPage />} />
                   <Route path="results" element={<TeacherViewResultsPage />} />
+                  <Route
+                    path="announcements"
+                    element={<AnnouncementsPage />}
+                  />
                   <Route path="profile" element={<ProfilePage />} />
                 </Route>
               </Route>
@@ -199,10 +185,6 @@ function App() {
                   <Route path="my-lessons" element={<StudentMyLessonsPage />} />
                   <Route path="my-results" element={<StudentMyResultsPage />} />
                   <Route
-                    path="my-timetable"
-                    element={<StudentMyTimetablePage />}
-                  />
-                  <Route
                     path="attendance"
                     element={<StudentAttendancePage />}
                   />
@@ -213,6 +195,10 @@ function App() {
                   <Route
                     path="take-assessment"
                     element={<StudentTakeAssessmentPage />}
+                  />
+                  <Route
+                    path="announcements"
+                    element={<AnnouncementsPage />}
                   />
                   <Route path="profile" element={<ProfilePage />} />
                 </Route>
@@ -233,10 +219,6 @@ function App() {
                     element={<ParentChildAttendancePage />}
                   />
                   <Route
-                    path="child-lessons"
-                    element={<ParentChildLessonsPage />}
-                  />
-                  <Route
                     path="child-report-cards"
                     element={<ParentChildReportCardPage />}
                   />
@@ -245,8 +227,8 @@ function App() {
                     element={<ParentChildResultsPage />}
                   />
                   <Route
-                    path="message-teacher"
-                    element={<ParentMessageTeacherPage />}
+                    path="announcements"
+                    element={<AnnouncementsPage />}
                   />
                   <Route path="profile" element={<ProfilePage />} />
                 </Route>

@@ -1,217 +1,227 @@
 import { useState } from "react";
-import {
-  FaUserFriends,
-  FaPlus,
-  FaSearch,
-  FaTrashAlt,
-  FaEdit,
-  FaEye,
-} from "react-icons/fa";
-import PageHeader from "../../components/common/PageHeader";
-import DataTable from "../../components/tables/DataTable";
-import ActionButton from "../../components/buttons/ActionButton";
-import SearchInput from "../../components/common/SearchInput";
-import StatusBadge from "../../components/common/StatusBadge";
-import EmptyState from "../../components/common/EmptyState";
-import FormModal from "../../components/modals/FormModal";
-import ConfirmDeleteModal from "../../components/modals/ConfirmDeleteModal";
-import Input from "../../components/ui/Input";
-import Button from "../../components/ui/Button";
+import toast from "react-hot-toast";
+import { FaLink } from "react-icons/fa";
 
-const initialParents = [
-  {
-    id: 1,
-    name: "Mr. & Mrs. Doe",
-    email: "doe@example.com",
-    phone: "08012345678",
-    children: 2,
-    status: "active",
-  },
-  {
-    id: 2,
-    name: "Mr. & Mrs. Smith",
-    email: "smith@example.com",
-    phone: "08087654321",
-    children: 1,
-    status: "active",
-  },
-  {
-    id: 3,
-    name: "Mr. & Mrs. Johnson",
-    email: "johnson@example.com",
-    phone: "08033445566",
-    children: 3,
-    status: "inactive",
-  },
-];
+import parentService from "../../services/parentService";
+import studentService from "../../services/studentService";
+import useApi from "../../hooks/useApi";
+import { asArray, displayName } from "../../utils/apiData";
+import suggestId from "../../utils/idSuggestion";
+
+import ManagePage from "../../components/ManagePage";
+import FormModal from "../../components/modals/FormModal";
+import Input from "../../components/ui/Input";
+import Select from "../../components/ui/Select";
+import Textarea from "../../components/ui/Textarea";
+import Button from "../../components/ui/Button";
+import StatusBadge from "../../components/common/StatusBadge";
+
+const ID_PREFIX = "PAR-";
+
+const emptyForm = {
+  firstName: "",
+  lastName: "",
+  username: "",
+  email: "",
+  password: "",
+  parentId: "",
+  gender: "",
+  occupation: "",
+  workplace: "",
+  address: "",
+};
+
+const emptyLinkForm = { parent: "", student: "", relationship: "" };
 
 export default function ParentManagementPage() {
-  const [parents, setParents] = useState(initialParents);
+  const { data, loading, error, refetch } = useApi(parentService.list);
+  const studentsApi = useApi(studentService.list);
+
   const [search, setSearch] = useState("");
   const [formOpen, setFormOpen] = useState(false);
-  const [deleteOpen, setDeleteOpen] = useState(false);
-  const [selected, setSelected] = useState(null);
-  const [form, setForm] = useState({
-    name: "",
-    email: "",
-    phone: "",
-    children: "",
-    status: "active",
+  const [linkOpen, setLinkOpen] = useState(false);
+  const [form, setForm] = useState(emptyForm);
+  const [linkForm, setLinkForm] = useState(emptyLinkForm);
+  const [saving, setSaving] = useState(false);
+
+  // Backend requires a caller-supplied unique parentId with no update
+  // route, so we pre-fill the next sequential ID (editable).
+  const openForm = () => {
+    const existingIds = asArray(data).map((parent) => parent.parentId);
+    setForm({ ...emptyForm, parentId: suggestId(ID_PREFIX, existingIds) });
+    setFormOpen(true);
+  };
+
+  const rows = asArray(data).map((parent) => {
+    const user = parent.user || parent;
+    const name = displayName(user);
+    return {
+      _id: parent._id,
+      name,
+      username: user.username || "—",
+      email: user.email || "—",
+      occupation: parent.occupation || "—",
+      workplace: parent.workplace || "—",
+      status: parent.isActive === false ? "inactive" : "active",
+      __search: `${name} ${user.username} ${user.email} ${parent.occupation}`.toLowerCase(),
+    };
   });
 
-  const filtered = parents.filter((p) =>
-    p.name.toLowerCase().includes(search.toLowerCase()),
-  );
+  const filtered = rows.filter((row) => row.__search.includes(search.toLowerCase()));
+
+  const parentOptions = rows.map((row) => ({ value: row._id, label: row.name }));
+  const studentOptions = asArray(studentsApi.data).map((student) => ({
+    value: student._id,
+    label: displayName(student.user || student),
+  }));
 
   const columns = [
-    { header: "Parent Name", accessor: "name" },
+    { header: "Name", accessor: "name" },
+    { header: "Username", accessor: "username" },
     { header: "Email", accessor: "email" },
-    { header: "Phone", accessor: "phone" },
-    { header: "Children", accessor: "children" },
+    { header: "Occupation", accessor: "occupation" },
+    { header: "Workplace", accessor: "workplace" },
     {
       header: "Status",
       accessor: "status",
       render: (row) => <StatusBadge status={row.status} />,
     },
-    {
-      header: "Actions",
-      render: (row) => (
-        <div className="flex items-center gap-1">
-          <Button variant="ghost" size="sm" icon={FaEye} onClick={() => {}} />
-          <Button
-            variant="ghost"
-            size="sm"
-            icon={FaEdit}
-            onClick={() => {
-              setSelected(row);
-              setForm({
-                name: row.name || "",
-                email: row.email || "",
-                phone: row.phone || "",
-                children: row.children || "",
-                status: row.status || "active",
-              });
-              setFormOpen(true);
-            }}
-          />
-          <Button
-            variant="ghost"
-            size="sm"
-            icon={FaTrashAlt}
-            onClick={() => {
-              setSelected(row);
-              setDeleteOpen(true);
-            }}
-          />
-        </div>
-      ),
-    },
   ];
 
-  const handleSave = () => {
-    if (selected) {
-      setParents(
-        parents.map((p) => (p.id === selected.id ? { ...p, ...form } : p)),
-      );
-    } else {
-      setParents([...parents, { id: Date.now(), ...form }]);
+  const set = (field) => (e) =>
+    setForm((prev) => ({ ...prev, [field]: e.target.value }));
+  const setLink = (field) => (e) =>
+    setLinkForm((prev) => ({ ...prev, [field]: e.target.value }));
+
+  const submit = async () => {
+    setSaving(true);
+    try {
+      const payload = { ...form };
+      Object.keys(payload).forEach((key) => {
+        if (payload[key] === "") delete payload[key];
+      });
+      await parentService.create(payload);
+      toast.success("Parent created successfully");
+      setFormOpen(false);
+      setForm(emptyForm);
+      refetch();
+    } catch {
+      // handled by the axios interceptor toast
+    } finally {
+      setSaving(false);
     }
-    setFormOpen(false);
-    setSelected(null);
-    setForm({ name: "", email: "", phone: "", children: "", status: "active" });
   };
 
-  const handleDelete = () => {
-    setParents(parents.filter((p) => p.id !== selected.id));
-    setDeleteOpen(false);
-    setSelected(null);
+  const submitLink = async () => {
+    setSaving(true);
+    try {
+      const payload = { ...linkForm };
+      if (!payload.relationship) delete payload.relationship;
+      await parentService.linkStudent(payload);
+      toast.success("Parent linked to student");
+      setLinkOpen(false);
+      setLinkForm(emptyLinkForm);
+    } catch {
+      // handled by the axios interceptor toast
+    } finally {
+      setSaving(false);
+    }
   };
 
   return (
-    <div>
-      <PageHeader
+    <>
+      <ManagePage
         title="Parent Management"
-        subtitle="Manage parent and guardian records"
-        actions={
-          <ActionButton
-            label="Add Parent"
-            icon={FaPlus}
-            onClick={() => {
-              setSelected(null);
-              setForm({ name: "", email: "", phone: "", children: "", status: "active" });
-              setFormOpen(true);
-            }}
-          />
+        subtitle="View parents and link them to students"
+        actionLabel="Add Parent"
+        onAdd={openForm}
+        searchValue={search}
+        onSearchChange={setSearch}
+        searchPlaceholder="Search parents..."
+        columns={columns}
+        rows={filtered}
+        loading={loading}
+        error={error}
+        onRetry={refetch}
+        emptyTitle="No parents found"
+        emptyDescription="Register your first parent to get started."
+        toolbar={
+          <Button variant="outline" icon={FaLink} onClick={() => setLinkOpen(true)}>
+            Link to Student
+          </Button>
         }
       />
-      <div className="mb-4">
-        <SearchInput
-          value={search}
-          onChange={setSearch}
-          placeholder="Search parents..."
-        />
-      </div>
-      {filtered.length === 0 ? (
-        <EmptyState
-          title="No parents found"
-          description="Get started by adding a new parent."
-          actionLabel="Add Parent"
-          onAction={() => {
-            setSelected(null);
-            setForm({ name: "", email: "", phone: "", children: "", status: "active" });
-            setFormOpen(true);
-          }}
-        />
-      ) : (
-        <DataTable columns={columns} data={filtered} />
-      )}
+
       <FormModal
         isOpen={formOpen}
-        onClose={() => {
-          setFormOpen(false);
-          setSelected(null);
-        }}
-        title={selected ? "Edit Parent" : "Add Parent"}
-        onSubmit={handleSave}
+        onClose={() => setFormOpen(false)}
+        title="Add Parent"
+        onSubmit={submit}
+        loading={saving}
       >
-        <Input
-          label="Parent Name"
-          name="name"
-          value={form.name}
-          onChange={(e) => setForm({ ...form, name: e.target.value })}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <Input label="First Name" name="firstName" value={form.firstName} onChange={set("firstName")} required />
+          <Input label="Last Name" name="lastName" value={form.lastName} onChange={set("lastName")} required />
+        </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <Input label="Username" name="username" value={form.username} onChange={set("username")} required />
+          <Input label="Email" name="email" type="email" value={form.email} onChange={set("email")} required />
+        </div>
+        <Input label="Password" name="password" type="password" value={form.password} onChange={set("password")} required />
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <Input label="Parent ID" name="parentId" value={form.parentId} onChange={set("parentId")} placeholder="Auto-suggested; edit to match your numbering" />
+          <Select
+            label="Gender"
+            name="gender"
+            value={form.gender}
+            onChange={set("gender")}
+            options={[
+              { value: "Male", label: "Male" },
+              { value: "Female", label: "Female" },
+            ]}
+            placeholder="Select gender"
+          />
+        </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <Input label="Occupation" name="occupation" value={form.occupation} onChange={set("occupation")} />
+          <Input label="Workplace" name="workplace" value={form.workplace} onChange={set("workplace")} />
+        </div>
+        <Textarea label="Address" name="address" value={form.address} onChange={set("address")} rows={2} />
+      </FormModal>
+
+      <FormModal
+        isOpen={linkOpen}
+        onClose={() => setLinkOpen(false)}
+        title="Link Parent to Student"
+        onSubmit={submitLink}
+        loading={saving}
+      >
+        <Select
+          label="Parent"
+          name="parent"
+          value={linkForm.parent}
+          onChange={setLink("parent")}
+          options={parentOptions}
+          placeholder="Select parent"
+          required
+        />
+        <Select
+          label="Student"
+          name="student"
+          value={linkForm.student}
+          onChange={setLink("student")}
+          options={studentOptions}
+          placeholder="Select student"
           required
         />
         <Input
-          label="Email"
-          name="email"
-          type="email"
-          value={form.email}
-          onChange={(e) => setForm({ ...form, email: e.target.value })}
-          required
-        />
-        <Input
-          label="Phone"
-          name="phone"
-          value={form.phone}
-          onChange={(e) => setForm({ ...form, phone: e.target.value })}
-          required
-        />
-        <Input
-          label="Number of Children"
-          name="children"
-          type="number"
-          value={form.children}
-          onChange={(e) => setForm({ ...form, children: e.target.value })}
-          required
+          label="Relationship"
+          name="relationship"
+          value={linkForm.relationship}
+          onChange={setLink("relationship")}
+          placeholder="e.g. Father, Mother, Guardian"
         />
       </FormModal>
-      <ConfirmDeleteModal
-        isOpen={deleteOpen}
-        onClose={() => setDeleteOpen(false)}
-        onConfirm={handleDelete}
-        title="Delete Parent"
-        message="Are you sure you want to delete this parent record?"
-      />
-    </div>
+    </>
   );
 }

@@ -1,221 +1,155 @@
 import { useState } from "react";
-import {
-  FaUsers,
-  FaPlus,
-  FaSearch,
-  FaTrashAlt,
-  FaEdit,
-  FaEye,
-} from "react-icons/fa";
-import PageHeader from "../../components/common/PageHeader";
-import DataTable from "../../components/tables/DataTable";
-import ActionButton from "../../components/buttons/ActionButton";
-import SearchInput from "../../components/common/SearchInput";
-import StatusBadge from "../../components/common/StatusBadge";
-import EmptyState from "../../components/common/EmptyState";
+import toast from "react-hot-toast";
+
+import adminService from "../../services/adminService";
+import useApi from "../../hooks/useApi";
+import { asArray, displayName } from "../../utils/apiData";
+
+import ManagePage from "../../components/ManagePage";
 import FormModal from "../../components/modals/FormModal";
-import ConfirmDeleteModal from "../../components/modals/ConfirmDeleteModal";
 import Input from "../../components/ui/Input";
 import Select from "../../components/ui/Select";
-import Button from "../../components/ui/Button";
+import StatusBadge from "../../components/common/StatusBadge";
 
-const initialUsers = [
-  {
-    id: 1,
-    name: "Admin User",
-    email: "admin@school.com",
-    role: "Admin",
-    status: "active",
-  },
-  {
-    id: 2,
-    name: "John Teacher",
-    email: "john@school.com",
-    role: "Teacher",
-    status: "active",
-  },
-  {
-    id: 3,
-    name: "Jane Student",
-    email: "jane@school.com",
-    role: "Student",
-    status: "inactive",
-  },
+const emptyForm = {
+  firstName: "",
+  lastName: "",
+  username: "",
+  email: "",
+  password: "",
+  role: "",
+  phoneNumber: "",
+};
+
+const roleOptions = [
+  { value: "admin", label: "Admin" },
+  { value: "teacher", label: "Teacher" },
+  { value: "student", label: "Student" },
+  { value: "parent", label: "Parent" },
 ];
 
 export default function UserManagementPage() {
-  const [users, setUsers] = useState(initialUsers);
+  const { data, loading, error, refetch } = useApi(adminService.getUsers);
   const [search, setSearch] = useState("");
+  const [roleFilter, setRoleFilter] = useState("");
   const [formOpen, setFormOpen] = useState(false);
-  const [deleteOpen, setDeleteOpen] = useState(false);
-  const [selected, setSelected] = useState(null);
-  const [form, setForm] = useState({
-    name: "",
-    email: "",
-    role: "Student",
-    status: "active",
+  const [form, setForm] = useState(emptyForm);
+  const [saving, setSaving] = useState(false);
+
+  const rows = asArray(data).map((user) => {
+    const name = displayName(user);
+    return {
+      _id: user._id,
+      name,
+      username: user.username || "—",
+      email: user.email || "—",
+      phoneNumber: user.phoneNumber || "—",
+      role: user.role || "—",
+      status: user.isActive === false ? "inactive" : "active",
+      __search: `${name} ${user.username} ${user.email} ${user.role}`.toLowerCase(),
+    };
   });
 
-  const filtered = users.filter((u) =>
-    u.name.toLowerCase().includes(search.toLowerCase()),
+  const filtered = rows.filter(
+    (row) =>
+      row.__search.includes(search.toLowerCase()) &&
+      (!roleFilter || row.role === roleFilter),
   );
 
   const columns = [
     { header: "Name", accessor: "name" },
+    { header: "Username", accessor: "username" },
     { header: "Email", accessor: "email" },
-    { header: "Role", accessor: "role" },
+    { header: "Phone", accessor: "phoneNumber" },
+    {
+      header: "Role",
+      accessor: "role",
+      render: (row) => <span className="capitalize">{row.role}</span>,
+    },
     {
       header: "Status",
       accessor: "status",
       render: (row) => <StatusBadge status={row.status} />,
     },
-    {
-      header: "Actions",
-      render: (row) => (
-        <div className="flex items-center gap-1">
-          <Button variant="ghost" size="sm" icon={FaEye} onClick={() => {}} />
-          <Button
-            variant="ghost"
-            size="sm"
-            icon={FaEdit}
-            onClick={() => {
-              setSelected(row);
-              setForm({
-                name: row.name || "",
-                email: row.email || "",
-                role: row.role || "Student",
-                status: row.status || "active",
-              });
-              setFormOpen(true);
-            }}
-          />
-          <Button
-            variant="ghost"
-            size="sm"
-            icon={FaTrashAlt}
-            onClick={() => {
-              setSelected(row);
-              setDeleteOpen(true);
-            }}
-          />
-        </div>
-      ),
-    },
   ];
 
-  const handleSave = () => {
-    if (selected) {
-      setUsers(
-        users.map((u) => (u.id === selected.id ? { ...u, ...form } : u)),
-      );
-    } else {
-      setUsers([...users, { id: Date.now(), ...form }]);
-    }
-    setFormOpen(false);
-    setSelected(null);
-    setForm({ name: "", email: "", role: "Student", status: "active" });
-  };
+  const set = (field) => (e) =>
+    setForm((prev) => ({ ...prev, [field]: e.target.value }));
 
-  const handleDelete = () => {
-    setUsers(users.filter((u) => u.id !== selected.id));
-    setDeleteOpen(false);
-    setSelected(null);
+  const handleSubmit = async () => {
+    setSaving(true);
+    try {
+      const payload = { ...form };
+      if (!payload.phoneNumber) delete payload.phoneNumber;
+      await adminService.createUser(payload);
+      toast.success("User created successfully");
+      setFormOpen(false);
+      setForm(emptyForm);
+      refetch();
+    } catch {
+      // handled by the axios interceptor toast
+    } finally {
+      setSaving(false);
+    }
   };
 
   return (
-    <div>
-      <PageHeader
+    <>
+      <ManagePage
         title="User Management"
-        subtitle="Manage system users and roles"
-        actions={
-          <ActionButton
-            label="Add User"
-            icon={FaPlus}
-            onClick={() => {
-              setSelected(null);
-              setForm({ name: "", email: "", role: "Student", status: "active" });
-              setFormOpen(true);
-            }}
-          />
+        subtitle="All system accounts across roles"
+        actionLabel="Create User"
+        onAdd={() => setFormOpen(true)}
+        searchValue={search}
+        onSearchChange={setSearch}
+        searchPlaceholder="Search users..."
+        columns={columns}
+        rows={filtered}
+        loading={loading}
+        error={error}
+        onRetry={refetch}
+        emptyTitle="No users found"
+        emptyDescription="Create the first user account."
+        toolbar={
+          <div className="w-full sm:w-48">
+            <Select
+              name="roleFilter"
+              value={roleFilter}
+              onChange={(e) => setRoleFilter(e.target.value)}
+              options={roleOptions}
+              placeholder="All roles"
+            />
+          </div>
         }
       />
-      <div className="mb-4">
-        <SearchInput
-          value={search}
-          onChange={setSearch}
-          placeholder="Search users..."
-        />
-      </div>
-      {filtered.length === 0 ? (
-        <EmptyState
-          title="No users found"
-          description="Get started by adding a new user."
-          actionLabel="Add User"
-          onAction={() => {
-            setSelected(null);
-            setForm({ name: "", email: "", role: "Student", status: "active" });
-            setFormOpen(true);
-          }}
-        />
-      ) : (
-        <DataTable columns={columns} data={filtered} />
-      )}
+
       <FormModal
         isOpen={formOpen}
-        onClose={() => {
-          setFormOpen(false);
-          setSelected(null);
-        }}
-        title={selected ? "Edit User" : "Add User"}
-        onSubmit={handleSave}
+        onClose={() => setFormOpen(false)}
+        title="Create User"
+        onSubmit={handleSubmit}
+        loading={saving}
       >
-        <Input
-          label="Full Name"
-          name="name"
-          value={form.name}
-          onChange={(e) => setForm({ ...form, name: e.target.value })}
-          required
-        />
-        <Input
-          label="Email"
-          name="email"
-          type="email"
-          value={form.email}
-          onChange={(e) => setForm({ ...form, email: e.target.value })}
-          required
-        />
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <Input label="First Name" name="firstName" value={form.firstName} onChange={set("firstName")} required />
+          <Input label="Last Name" name="lastName" value={form.lastName} onChange={set("lastName")} required />
+        </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <Input label="Username" name="username" value={form.username} onChange={set("username")} required />
+          <Input label="Email" name="email" type="email" value={form.email} onChange={set("email")} required />
+        </div>
+        <Input label="Password" name="password" type="password" value={form.password} onChange={set("password")} required />
         <Select
           label="Role"
           name="role"
           value={form.role}
-          onChange={(e) => setForm({ ...form, role: e.target.value })}
-          options={[
-            { value: "Admin", label: "Admin" },
-            { value: "Teacher", label: "Teacher" },
-            { value: "Student", label: "Student" },
-            { value: "Parent", label: "Parent" },
-          ]}
+          onChange={set("role")}
+          options={roleOptions}
+          placeholder="Select role"
           required
         />
-        <Select
-          label="Status"
-          name="status"
-          value={form.status}
-          onChange={(e) => setForm({ ...form, status: e.target.value })}
-          options={[
-            { value: "active", label: "Active" },
-            { value: "inactive", label: "Inactive" },
-          ]}
-          required
-        />
+        <Input label="Phone Number" name="phoneNumber" value={form.phoneNumber} onChange={set("phoneNumber")} />
       </FormModal>
-      <ConfirmDeleteModal
-        isOpen={deleteOpen}
-        onClose={() => setDeleteOpen(false)}
-        onConfirm={handleDelete}
-        title="Delete User"
-        message="Are you sure you want to delete this user?"
-      />
-    </div>
+    </>
   );
 }

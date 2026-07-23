@@ -1,216 +1,138 @@
 import { useState } from "react";
-import {
-  FaUserCheck,
-  FaPlus,
-  FaSearch,
-  FaTrashAlt,
-  FaEdit,
-  FaEye,
-} from "react-icons/fa";
-import PageHeader from "../../components/common/PageHeader";
-import DataTable from "../../components/tables/DataTable";
-import ActionButton from "../../components/buttons/ActionButton";
-import SearchInput from "../../components/common/SearchInput";
-import StatusBadge from "../../components/common/StatusBadge";
-import EmptyState from "../../components/common/EmptyState";
-import FormModal from "../../components/modals/FormModal";
-import ConfirmDeleteModal from "../../components/modals/ConfirmDeleteModal";
-import Input from "../../components/ui/Input";
-import Select from "../../components/ui/Select";
-import Button from "../../components/ui/Button";
+import toast from "react-hot-toast";
 
-const initialEnrollments = [
-  {
-    id: 1,
-    student: "John Doe",
-    class: "JSS 1",
-    date: "2026-01-10",
-    status: "active",
-  },
-  {
-    id: 2,
-    student: "Jane Smith",
-    class: "JSS 2",
-    date: "2026-01-12",
-    status: "active",
-  },
-  {
-    id: 3,
-    student: "Bob Johnson",
-    class: "SSS 1",
-    date: "2026-01-15",
-    status: "pending",
-  },
-];
+import enrollmentService from "../../services/enrollmentService";
+import studentService from "../../services/studentService";
+import classService from "../../services/classService";
+import useApi from "../../hooks/useApi";
+import { asArray, classLabel, displayName } from "../../utils/apiData";
+
+import ManagePage from "../../components/ManagePage";
+import FormModal from "../../components/modals/FormModal";
+import Select from "../../components/ui/Select";
+import StatusBadge from "../../components/common/StatusBadge";
+
+const emptyForm = { student: "", schoolClass: "" };
 
 export default function EnrollmentPage() {
-  const [enrollments, setEnrollments] = useState(initialEnrollments);
+  const { data, loading, error, refetch } = useApi(enrollmentService.list);
+  const studentsApi = useApi(studentService.list);
+  const classesApi = useApi(classService.list);
+
   const [search, setSearch] = useState("");
   const [formOpen, setFormOpen] = useState(false);
-  const [deleteOpen, setDeleteOpen] = useState(false);
-  const [selected, setSelected] = useState(null);
-  const [form, setForm] = useState({
-    student: "",
-    class: "",
-    date: "",
-    status: "active",
+  const [form, setForm] = useState(emptyForm);
+  const [saving, setSaving] = useState(false);
+
+  const rows = asArray(data).map((enrollment) => {
+    const student = enrollment.student;
+    const name = displayName(student?.user || student) || "—";
+    const cls = classLabel(enrollment.schoolClass);
+    const sessionName = enrollment.session?.name || "—";
+    const termName = enrollment.term?.name || "—";
+    return {
+      _id: enrollment._id,
+      student: name,
+      admissionNumber: student?.admissionNumber || "—",
+      class: cls,
+      session: sessionName,
+      term: termName,
+      status: String(enrollment.status || "active").toLowerCase(),
+      __search: `${name} ${student?.admissionNumber} ${cls} ${sessionName} ${termName}`.toLowerCase(),
+    };
   });
 
-  const filtered = enrollments.filter((e) =>
-    e.student.toLowerCase().includes(search.toLowerCase()),
-  );
+  const filtered = rows.filter((row) => row.__search.includes(search.toLowerCase()));
+
+  const studentOptions = asArray(studentsApi.data).map((student) => ({
+    value: student._id,
+    label: displayName(student.user || student),
+  }));
+  const classOptions = asArray(classesApi.data).map((schoolClass) => ({
+    value: schoolClass._id,
+    label: classLabel(schoolClass),
+  }));
 
   const columns = [
     { header: "Student", accessor: "student" },
+    { header: "Admission No.", accessor: "admissionNumber" },
     { header: "Class", accessor: "class" },
-    { header: "Enrollment Date", accessor: "date" },
+    { header: "Session", accessor: "session" },
+    { header: "Term", accessor: "term" },
     {
       header: "Status",
       accessor: "status",
       render: (row) => <StatusBadge status={row.status} />,
     },
-    {
-      header: "Actions",
-      render: (row) => (
-        <div className="flex items-center gap-1">
-          <Button variant="ghost" size="sm" icon={FaEye} onClick={() => {}} />
-          <Button
-            variant="ghost"
-            size="sm"
-            icon={FaEdit}
-            onClick={() => {
-              setSelected(row);
-              setForm({
-                student: row.student || "",
-                class: row.class || "",
-                date: row.date || "",
-                status: row.status || "active",
-              });
-              setFormOpen(true);
-            }}
-          />
-          <Button
-            variant="ghost"
-            size="sm"
-            icon={FaTrashAlt}
-            onClick={() => {
-              setSelected(row);
-              setDeleteOpen(true);
-            }}
-          />
-        </div>
-      ),
-    },
   ];
 
-  const handleSave = () => {
-    if (selected) {
-      setEnrollments(
-        enrollments.map((e) => (e.id === selected.id ? { ...e, ...form } : e)),
-      );
-    } else {
-      setEnrollments([...enrollments, { id: Date.now(), ...form }]);
-    }
-    setFormOpen(false);
-    setSelected(null);
-    setForm({ student: "", class: "", date: "", status: "active" });
-  };
+  const set = (field) => (e) =>
+    setForm((prev) => ({ ...prev, [field]: e.target.value }));
 
-  const handleDelete = () => {
-    setEnrollments(enrollments.filter((e) => e.id !== selected.id));
-    setDeleteOpen(false);
-    setSelected(null);
+  const handleSubmit = async () => {
+    setSaving(true);
+    try {
+      await enrollmentService.create(form);
+      toast.success("Student enrolled successfully");
+      setFormOpen(false);
+      setForm(emptyForm);
+      refetch();
+    } catch {
+      // handled by the axios interceptor toast
+    } finally {
+      setSaving(false);
+    }
   };
 
   return (
-    <div>
-      <PageHeader
-        title="Enrollment"
-        subtitle="Manage student enrollments"
-        actions={
-          <ActionButton
-            label="New Enrollment"
-            icon={FaPlus}
-            onClick={() => {
-              setSelected(null);
-              setForm({ student: "", class: "", date: "", status: "active" });
-              setFormOpen(true);
-            }}
-          />
-        }
+    <>
+      <ManagePage
+        title="Enrollments"
+        subtitle="Enroll students into classes for the current session and term"
+        actionLabel="Enroll Student"
+        onAdd={() => setFormOpen(true)}
+        searchValue={search}
+        onSearchChange={setSearch}
+        searchPlaceholder="Search enrollments..."
+        columns={columns}
+        rows={filtered}
+        loading={loading}
+        error={error}
+        onRetry={refetch}
+        emptyTitle="No enrollments found"
+        emptyDescription="Enroll a student into a class to get started."
       />
-      <div className="mb-4">
-        <SearchInput
-          value={search}
-          onChange={setSearch}
-          placeholder="Search enrollments..."
-        />
-      </div>
-      {filtered.length === 0 ? (
-        <EmptyState
-          title="No enrollments"
-          description="Start enrolling students into classes."
-          actionLabel="New Enrollment"
-          onAction={() => {
-            setSelected(null);
-            setForm({ student: "", class: "", date: "", status: "active" });
-            setFormOpen(true);
-          }}
-        />
-      ) : (
-        <DataTable columns={columns} data={filtered} />
-      )}
+
       <FormModal
         isOpen={formOpen}
-        onClose={() => {
-          setFormOpen(false);
-          setSelected(null);
-        }}
-        title={selected ? "Edit Enrollment" : "New Enrollment"}
-        onSubmit={handleSave}
+        onClose={() => setFormOpen(false)}
+        title="Enroll Student"
+        onSubmit={handleSubmit}
+        loading={saving}
       >
-        <Input
-          label="Student Name"
+        <Select
+          label="Student"
           name="student"
           value={form.student}
-          onChange={(e) => setForm({ ...form, student: e.target.value })}
-          required
-        />
-        <Input
-          label="Class"
-          name="class"
-          value={form.class}
-          onChange={(e) => setForm({ ...form, class: e.target.value })}
-          required
-        />
-        <Input
-          label="Enrollment Date"
-          name="date"
-          type="date"
-          value={form.date}
-          onChange={(e) => setForm({ ...form, date: e.target.value })}
+          onChange={set("student")}
+          options={studentOptions}
+          placeholder="Select student"
           required
         />
         <Select
-          label="Status"
-          name="status"
-          value={form.status}
-          onChange={(e) => setForm({ ...form, status: e.target.value })}
-          options={[
-            { value: "active", label: "Active" },
-            { value: "pending", label: "Pending" },
-            { value: "completed", label: "Completed" },
-          ]}
+          label="Class"
+          name="schoolClass"
+          value={form.schoolClass}
+          onChange={set("schoolClass")}
+          options={classOptions}
+          placeholder="Select class"
           required
         />
+        <p className="text-xs text-slate-gray">
+          The student is enrolled into the current academic session and term
+          resolved by the server.
+        </p>
       </FormModal>
-      <ConfirmDeleteModal
-        isOpen={deleteOpen}
-        onClose={() => setDeleteOpen(false)}
-        onConfirm={handleDelete}
-        title="Delete Enrollment"
-        message="Are you sure you want to delete this enrollment?"
-      />
-    </div>
+    </>
   );
 }

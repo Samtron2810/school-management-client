@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
-import { Link, useNavigate, useLocation } from "react-router-dom";
-import { FaEnvelope, FaLock, FaEye, FaEyeSlash } from "react-icons/fa";
+import { useNavigate, useLocation } from "react-router-dom";
+import { FaEnvelope, FaLock } from "react-icons/fa";
 import Input from "../../components/ui/Input";
 import SubmitButton from "../../components/buttons/SubmitButton";
 import logo from "../../assets/logos/Tronschool-logo.png";
@@ -8,7 +8,6 @@ import useAuth from "../../hooks/useAuth";
 
 export default function LoginPage() {
   const [form, setForm] = useState({ email: "", password: "" });
-  const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
@@ -74,59 +73,32 @@ export default function LoginPage() {
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <Input
-            label="Email"
+            label="Email or Username"
             name="email"
-            type="email"
+            type="text"
             value={form.email}
             onChange={handleChange}
-            placeholder="Enter your email"
+            placeholder="Enter your email or username"
             icon={FaEnvelope}
             required
           />
-          <div className="relative">
-            <Input
-              label="Password"
-              name="password"
-              type={showPassword ? "text" : "password"}
-              value={form.password}
-              onChange={handleChange}
-              placeholder="Enter your password"
-              icon={FaLock}
-              required
-            />
-            <button
-              type="button"
-              onClick={() => setShowPassword(!showPassword)}
-              className="absolute right-3 top-9 text-slate-gray hover:text-primary transition-colors"
-            >
-              {showPassword ? <FaEyeSlash /> : <FaEye />}
-            </button>
-          </div>
-
-          <div className="flex items-center justify-between">
-            <label className="flex items-center gap-2 cursor-pointer">
-              <input
-                type="checkbox"
-                className="w-4 h-4 rounded border-gray-300 text-royal-blue focus:ring-royal-blue/20"
-              />
-              <span className="text-sm text-slate-gray">Remember me</span>
-            </label>
-            <Link
-              to="/forgot-password"
-              className="text-sm text-royal-blue hover:underline"
-            >
-              Forgot Password?
-            </Link>
-          </div>
+          <Input
+            label="Password"
+            name="password"
+            type="password"
+            value={form.password}
+            onChange={handleChange}
+            placeholder="Enter your password"
+            icon={FaLock}
+            required
+          />
 
           <SubmitButton label="Sign In" loading={loading} />
         </form>
 
-        <p className="text-center text-sm text-slate-gray mt-6">
-          Don't have an account?{" "}
-          <Link to="/register" className="text-royal-blue hover:underline">
-            Register
-          </Link>
+        <p className="text-center text-xs text-slate-gray mt-6">
+          Accounts are created by the school administrator. Contact your school
+          if you can't sign in.
         </p>
       </div>
     </div>

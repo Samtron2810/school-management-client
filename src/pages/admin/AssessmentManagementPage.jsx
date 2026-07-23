@@ -1,74 +1,83 @@
 import { useState } from "react";
-import {
-  FaClipboardList,
-  FaPlus,
-  FaSearch,
-  FaTrashAlt,
-  FaEdit,
-  FaEye,
-} from "react-icons/fa";
-import PageHeader from "../../components/common/PageHeader";
-import DataTable from "../../components/tables/DataTable";
-import ActionButton from "../../components/buttons/ActionButton";
-import SearchInput from "../../components/common/SearchInput";
-import StatusBadge from "../../components/common/StatusBadge";
-import EmptyState from "../../components/common/EmptyState";
-import FormModal from "../../components/modals/FormModal";
-import ConfirmDeleteModal from "../../components/modals/ConfirmDeleteModal";
-import Input from "../../components/ui/Input";
-import Select from "../../components/ui/Select";
-import Button from "../../components/ui/Button";
+import toast from "react-hot-toast";
+import { FaBan, FaCheckCircle, FaEye, FaTrashAlt } from "react-icons/fa";
 
-const initialAssessments = [
-  {
-    id: 1,
-    title: "Mid-term Exam",
-    subject: "Mathematics",
-    class: "JSS 1",
-    date: "2026-07-20",
-    status: "upcoming",
-  },
-  {
-    id: 2,
-    title: "Quiz 1",
-    subject: "English",
-    class: "JSS 2",
-    date: "2026-07-15",
-    status: "completed",
-  },
-  {
-    id: 3,
-    title: "Assignment",
-    subject: "Physics",
-    class: "SSS 1",
-    date: "2026-07-18",
-    status: "pending",
-  },
-];
+import assessmentService from "../../services/assessmentService";
+import useApi from "../../hooks/useApi";
+import { asArray, classLabel, displayName } from "../../utils/apiData";
+import formatDate from "../../utils/formatDate";
+
+import ManagePage from "../../components/ManagePage";
+import Modal from "../../components/ui/Modal";
+import ConfirmDeleteModal from "../../components/modals/ConfirmDeleteModal";
+import Button from "../../components/ui/Button";
+import Badge from "../../components/ui/Badge";
+import StatusBadge from "../../components/common/StatusBadge";
 
 export default function AssessmentManagementPage() {
-  const [assessments, setAssessments] = useState(initialAssessments);
+  const { data, loading, error, refetch } = useApi(assessmentService.list);
   const [search, setSearch] = useState("");
-  const [formOpen, setFormOpen] = useState(false);
+  const [viewOpen, setViewOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [selected, setSelected] = useState(null);
-  const [form, setForm] = useState({
-    title: "",
-    subject: "",
-    class: "",
-    date: "",
-    status: "upcoming",
+  const [busyId, setBusyId] = useState(null);
+
+  const rows = asArray(data).map((assessment) => {
+    const classSubject = assessment.classSubject || {};
+    const teacherName = displayName(assessment.teacher?.user || assessment.teacher);
+    return {
+      _id: assessment._id,
+      title: assessment.title || "—",
+      type: assessment.type || "—",
+      class: classLabel(classSubject.schoolClass),
+      subject: classSubject.subject?.name || "—",
+      teacher: teacherName || "—",
+      window: `${formatDate(assessment.availableFrom)} → ${formatDate(assessment.availableTo)}`,
+      status: assessment.isPublished ? "published" : "draft",
+      __doc: assessment,
+      __search: `${assessment.title} ${assessment.type} ${classSubject.subject?.name} ${teacherName}`.toLowerCase(),
+    };
   });
 
-  const filtered = assessments.filter((a) =>
-    a.title.toLowerCase().includes(search.toLowerCase()),
-  );
+  const filtered = rows.filter((row) => row.__search.includes(search.toLowerCase()));
+
+  const togglePublish = async (row) => {
+    setBusyId(row._id);
+    try {
+      if (row.status === "published") {
+        await assessmentService.unpublish(row._id);
+        toast.success("Assessment unpublished");
+      } else {
+        await assessmentService.publish(row._id);
+        toast.success("Assessment published");
+      }
+      refetch();
+    } catch {
+      // handled by the axios interceptor toast
+    } finally {
+      setBusyId(null);
+    }
+  };
+
+  const handleDelete = async () => {
+    try {
+      await assessmentService.remove(selected._id);
+      toast.success("Assessment deleted");
+      setDeleteOpen(false);
+      setSelected(null);
+      refetch();
+    } catch {
+      // handled by the axios interceptor toast
+    }
+  };
 
   const columns = [
     { header: "Title", accessor: "title" },
-    { header: "Subject", accessor: "subject" },
+    { header: "Type", accessor: "type" },
     { header: "Class", accessor: "class" },
-    { header: "Date", accessor: "date" },
+    { header: "Subject", accessor: "subject" },
+    { header: "Teacher", accessor: "teacher" },
+    { header: "Availability", accessor: "window" },
     {
       header: "Status",
       accessor: "status",
@@ -78,29 +87,28 @@ export default function AssessmentManagementPage() {
       header: "Actions",
       render: (row) => (
         <div className="flex items-center gap-1">
-          <Button variant="ghost" size="sm" icon={FaEye} onClick={() => {}} />
           <Button
             variant="ghost"
             size="sm"
-            icon={FaEdit}
+            icon={FaEye}
             onClick={() => {
-              setSelected(row);
-              setForm({
-                title: row.title || "",
-                subject: row.subject || "",
-                class: row.class || "",
-                date: row.date || "",
-                status: row.status || "upcoming",
-              });
-              setFormOpen(true);
+              setSelected(row.__doc);
+              setViewOpen(true);
             }}
+          />
+          <Button
+            variant="ghost"
+            size="sm"
+            icon={row.status === "published" ? FaBan : FaCheckCircle}
+            loading={busyId === row._id}
+            onClick={() => togglePublish(row)}
           />
           <Button
             variant="ghost"
             size="sm"
             icon={FaTrashAlt}
             onClick={() => {
-              setSelected(row);
+              setSelected(row.__doc);
               setDeleteOpen(true);
             }}
           />
@@ -109,139 +117,52 @@ export default function AssessmentManagementPage() {
     },
   ];
 
-  const handleSave = () => {
-    if (selected) {
-      setAssessments(
-        assessments.map((a) => (a.id === selected.id ? { ...a, ...form } : a)),
-      );
-    } else {
-      setAssessments([...assessments, { id: Date.now(), ...form }]);
-    }
-    setFormOpen(false);
-    setSelected(null);
-    setForm({
-      title: "",
-      subject: "",
-      class: "",
-      date: "",
-      status: "upcoming",
-    });
-  };
-
-  const handleDelete = () => {
-    setAssessments(assessments.filter((a) => a.id !== selected.id));
-    setDeleteOpen(false);
-    setSelected(null);
-  };
-
   return (
-    <div>
-      <PageHeader
+    <>
+      <ManagePage
         title="Assessment Management"
-        subtitle="Manage exams, quizzes and assignments"
-        actions={
-          <ActionButton
-            label="Add Assessment"
-            icon={FaPlus}
-            onClick={() => {
-              setSelected(null);
-              setForm({
-                title: "",
-                subject: "",
-                class: "",
-                date: "",
-                status: "upcoming",
-              });
-              setFormOpen(true);
-            }}
-          />
-        }
+        subtitle="Review, publish, or remove assessments created by teachers"
+        searchValue={search}
+        onSearchChange={setSearch}
+        searchPlaceholder="Search assessments..."
+        columns={columns}
+        rows={filtered}
+        loading={loading}
+        error={error}
+        onRetry={refetch}
+        emptyTitle="No assessments found"
+        emptyDescription="Assessments created by teachers will appear here."
       />
-      <div className="mb-4">
-        <SearchInput
-          value={search}
-          onChange={setSearch}
-          placeholder="Search assessments..."
-        />
-      </div>
-      {filtered.length === 0 ? (
-        <EmptyState
-          title="No assessments found"
-          description="Get started by adding a new assessment."
-          actionLabel="Add Assessment"
-          onAction={() => {
-            setSelected(null);
-            setForm({
-              title: "",
-              subject: "",
-              class: "",
-              date: "",
-              status: "upcoming",
-            });
-            setFormOpen(true);
-          }}
-        />
-      ) : (
-        <DataTable columns={columns} data={filtered} />
-      )}
-      <FormModal
-        isOpen={formOpen}
-        onClose={() => {
-          setFormOpen(false);
-          setSelected(null);
-        }}
-        title={selected ? "Edit Assessment" : "Add Assessment"}
-        onSubmit={handleSave}
-      >
-        <Input
-          label="Title"
-          name="title"
-          value={form.title}
-          onChange={(e) => setForm({ ...form, title: e.target.value })}
-          required
-        />
-        <Input
-          label="Subject"
-          name="subject"
-          value={form.subject}
-          onChange={(e) => setForm({ ...form, subject: e.target.value })}
-          required
-        />
-        <Input
-          label="Class"
-          name="class"
-          value={form.class}
-          onChange={(e) => setForm({ ...form, class: e.target.value })}
-          required
-        />
-        <Input
-          label="Date"
-          name="date"
-          type="date"
-          value={form.date}
-          onChange={(e) => setForm({ ...form, date: e.target.value })}
-          required
-        />
-        <Select
-          label="Status"
-          name="status"
-          value={form.status}
-          onChange={(e) => setForm({ ...form, status: e.target.value })}
-          options={[
-            { value: "upcoming", label: "Upcoming" },
-            { value: "completed", label: "Completed" },
-            { value: "pending", label: "Pending" },
-          ]}
-          required
-        />
-      </FormModal>
+
+      <Modal isOpen={viewOpen} onClose={() => setViewOpen(false)} title={selected?.title || "Assessment"} maxWidth="xl">
+        {selected && (
+          <div className="space-y-3 text-sm">
+            <div className="flex gap-2">
+              <Badge variant="info">{selected.type}</Badge>
+              <StatusBadge status={selected.isPublished ? "published" : "draft"} />
+            </div>
+            <p className="text-slate-gray">{selected.instructions || "No instructions provided."}</p>
+            <dl className="grid grid-cols-2 gap-x-4 gap-y-2">
+              <div><dt className="text-xs text-slate-gray">Class</dt><dd className="font-medium text-primary">{classLabel(selected.classSubject?.schoolClass)}</dd></div>
+              <div><dt className="text-xs text-slate-gray">Subject</dt><dd className="font-medium text-primary">{selected.classSubject?.subject?.name || "—"}</dd></div>
+              <div><dt className="text-xs text-slate-gray">Duration</dt><dd className="font-medium text-primary">{selected.duration || "—"} mins</dd></div>
+              <div><dt className="text-xs text-slate-gray">Max Attempts</dt><dd className="font-medium text-primary">{selected.maxAttempts || "—"}</dd></div>
+              <div><dt className="text-xs text-slate-gray">Opens</dt><dd className="font-medium text-primary">{formatDate(selected.availableFrom)}</dd></div>
+              <div><dt className="text-xs text-slate-gray">Closes</dt><dd className="font-medium text-primary">{formatDate(selected.availableTo)}</dd></div>
+              <div><dt className="text-xs text-slate-gray">Session</dt><dd className="font-medium text-primary">{selected.session?.name || "—"}</dd></div>
+              <div><dt className="text-xs text-slate-gray">Term</dt><dd className="font-medium text-primary">{selected.term?.name || "—"}</dd></div>
+            </dl>
+          </div>
+        )}
+      </Modal>
+
       <ConfirmDeleteModal
         isOpen={deleteOpen}
         onClose={() => setDeleteOpen(false)}
         onConfirm={handleDelete}
         title="Delete Assessment"
-        message="Are you sure you want to delete this assessment?"
+        message={`Delete "${selected?.title}"? Students will no longer see it.`}
       />
-    </div>
+    </>
   );
 }

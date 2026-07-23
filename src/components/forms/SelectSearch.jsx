@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from "react";
-import { FaChevronDown, FaTimes } from "react-icons/fa";
+import { FaChevronDown } from "react-icons/fa";
 
 export default function SelectSearch({
   label,

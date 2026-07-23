@@ -1,248 +1,101 @@
 import { useState } from "react";
-import {
-  FaCalendarAlt,
-  FaPlus,
-  FaSearch,
-  FaTrashAlt,
-  FaEdit,
-  FaEye,
-} from "react-icons/fa";
-import PageHeader from "../../components/common/PageHeader";
-import DataTable from "../../components/tables/DataTable";
-import ActionButton from "../../components/buttons/ActionButton";
-import SearchInput from "../../components/common/SearchInput";
-import StatusBadge from "../../components/common/StatusBadge";
-import EmptyState from "../../components/common/EmptyState";
-import FormModal from "../../components/modals/FormModal";
-import ConfirmDeleteModal from "../../components/modals/ConfirmDeleteModal";
-import Input from "../../components/ui/Input";
-import Select from "../../components/ui/Select";
-import Button from "../../components/ui/Button";
+import toast from "react-hot-toast";
 
-const initialTerms = [
-  {
-    id: 1,
-    name: "First Term",
-    session: "2025/2026",
-    startDate: "2026-01-10",
-    endDate: "2026-04-10",
-    status: "active",
-  },
-  {
-    id: 2,
-    name: "Second Term",
-    session: "2025/2026",
-    startDate: "2026-05-01",
-    endDate: "2026-08-01",
-    status: "upcoming",
-  },
-  {
-    id: 3,
-    name: "Third Term",
-    session: "2024/2025",
-    startDate: "2025-09-01",
-    endDate: "2025-12-20",
-    status: "archived",
-  },
-];
+import termService from "../../services/termService";
+import useApi from "../../hooks/useApi";
+import { asArray } from "../../utils/apiData";
+import formatDate from "../../utils/formatDate";
+
+import ManagePage from "../../components/ManagePage";
+import FormModal from "../../components/modals/FormModal";
+import Input from "../../components/ui/Input";
+import StatusBadge from "../../components/common/StatusBadge";
+
+const emptyForm = { name: "", startDate: "", endDate: "" };
 
 export default function TermManagementPage() {
-  const [terms, setTerms] = useState(initialTerms);
+  const { data, loading, error, refetch } = useApi(termService.list);
   const [search, setSearch] = useState("");
   const [formOpen, setFormOpen] = useState(false);
-  const [deleteOpen, setDeleteOpen] = useState(false);
-  const [selected, setSelected] = useState(null);
-  const [form, setForm] = useState({
-    name: "",
-    session: "",
-    startDate: "",
-    endDate: "",
-    status: "upcoming",
+  const [form, setForm] = useState(emptyForm);
+  const [saving, setSaving] = useState(false);
+
+  const now = new Date();
+  const rows = asArray(data).map((term) => {
+    const active =
+      term.isCurrent ||
+      (term.startDate && term.endDate && new Date(term.startDate) <= now && now <= new Date(term.endDate));
+    return {
+      _id: term._id,
+      name: term.name || "—",
+      startDate: formatDate(term.startDate) || "—",
+      endDate: formatDate(term.endDate) || "—",
+      status: active ? "active" : "inactive",
+      __search: `${term.name}`.toLowerCase(),
+    };
   });
 
-  const filtered = terms.filter((t) =>
-    t.name.toLowerCase().includes(search.toLowerCase()),
-  );
+  const filtered = rows.filter((row) => row.__search.includes(search.toLowerCase()));
 
   const columns = [
-    { header: "Term Name", accessor: "name" },
-    { header: "Session", accessor: "session" },
-    { header: "Start Date", accessor: "startDate" },
-    { header: "End Date", accessor: "endDate" },
+    { header: "Term", accessor: "name" },
+    { header: "Starts", accessor: "startDate" },
+    { header: "Ends", accessor: "endDate" },
     {
       header: "Status",
       accessor: "status",
       render: (row) => <StatusBadge status={row.status} />,
     },
-    {
-      header: "Actions",
-      render: (row) => (
-        <div className="flex items-center gap-1">
-          <Button variant="ghost" size="sm" icon={FaEye} onClick={() => {}} />
-          <Button
-            variant="ghost"
-            size="sm"
-            icon={FaEdit}
-            onClick={() => {
-              setSelected(row);
-              setForm({
-                name: row.name || "",
-                session: row.session || "",
-                startDate: row.startDate || "",
-                endDate: row.endDate || "",
-                status: row.status || "upcoming",
-              });
-              setFormOpen(true);
-            }}
-          />
-          <Button
-            variant="ghost"
-            size="sm"
-            icon={FaTrashAlt}
-            onClick={() => {
-              setSelected(row);
-              setDeleteOpen(true);
-            }}
-          />
-        </div>
-      ),
-    },
   ];
 
-  const handleSave = () => {
-    if (selected) {
-      setTerms(
-        terms.map((t) => (t.id === selected.id ? { ...t, ...form } : t)),
-      );
-    } else {
-      setTerms([...terms, { id: Date.now(), ...form }]);
-    }
-    setFormOpen(false);
-    setSelected(null);
-    setForm({
-      name: "",
-      session: "",
-      startDate: "",
-      endDate: "",
-      status: "upcoming",
-    });
-  };
+  const set = (field) => (e) =>
+    setForm((prev) => ({ ...prev, [field]: e.target.value }));
 
-  const handleDelete = () => {
-    setTerms(terms.filter((t) => t.id !== selected.id));
-    setDeleteOpen(false);
-    setSelected(null);
+  const handleSubmit = async () => {
+    setSaving(true);
+    try {
+      await termService.create(form);
+      toast.success("Term created successfully");
+      setFormOpen(false);
+      setForm(emptyForm);
+      refetch();
+    } catch {
+      // handled by the axios interceptor toast
+    } finally {
+      setSaving(false);
+    }
   };
 
   return (
-    <div>
-      <PageHeader
+    <>
+      <ManagePage
         title="Term Management"
-        subtitle="Manage academic terms"
-        actions={
-          <ActionButton
-            label="Add Term"
-            icon={FaPlus}
-            onClick={() => {
-              setSelected(null);
-              setForm({
-                name: "",
-                session: "",
-                startDate: "",
-                endDate: "",
-                status: "upcoming",
-              });
-              setFormOpen(true);
-            }}
-          />
-        }
+        subtitle="Academic terms within sessions"
+        actionLabel="Add Term"
+        onAdd={() => setFormOpen(true)}
+        searchValue={search}
+        onSearchChange={setSearch}
+        searchPlaceholder="Search terms..."
+        columns={columns}
+        rows={filtered}
+        loading={loading}
+        error={error}
+        onRetry={refetch}
+        emptyTitle="No terms found"
+        emptyDescription="Create the first academic term (e.g. First Term)."
       />
-      <div className="mb-4">
-        <SearchInput
-          value={search}
-          onChange={setSearch}
-          placeholder="Search terms..."
-        />
-      </div>
-      {filtered.length === 0 ? (
-        <EmptyState
-          title="No terms found"
-          description="Get started by adding a new term."
-          actionLabel="Add Term"
-          onAction={() => {
-            setSelected(null);
-            setForm({
-              name: "",
-              session: "",
-              startDate: "",
-              endDate: "",
-              status: "upcoming",
-            });
-            setFormOpen(true);
-          }}
-        />
-      ) : (
-        <DataTable columns={columns} data={filtered} />
-      )}
+
       <FormModal
         isOpen={formOpen}
-        onClose={() => {
-          setFormOpen(false);
-          setSelected(null);
-        }}
-        title={selected ? "Edit Term" : "Add Term"}
-        onSubmit={handleSave}
+        onClose={() => setFormOpen(false)}
+        title="Add Term"
+        onSubmit={handleSubmit}
+        loading={saving}
       >
-        <Input
-          label="Term Name"
-          name="name"
-          value={form.name}
-          onChange={(e) => setForm({ ...form, name: e.target.value })}
-          required
-        />
-        <Input
-          label="Session"
-          name="session"
-          value={form.session}
-          onChange={(e) => setForm({ ...form, session: e.target.value })}
-          required
-        />
-        <Input
-          label="Start Date"
-          name="startDate"
-          type="date"
-          value={form.startDate}
-          onChange={(e) => setForm({ ...form, startDate: e.target.value })}
-          required
-        />
-        <Input
-          label="End Date"
-          name="endDate"
-          type="date"
-          value={form.endDate}
-          onChange={(e) => setForm({ ...form, endDate: e.target.value })}
-          required
-        />
-        <Select
-          label="Status"
-          name="status"
-          value={form.status}
-          onChange={(e) => setForm({ ...form, status: e.target.value })}
-          options={[
-            { value: "active", label: "Active" },
-            { value: "upcoming", label: "Upcoming" },
-            { value: "archived", label: "Archived" },
-          ]}
-          required
-        />
+        <Input label="Term Name" name="name" value={form.name} onChange={set("name")} placeholder="e.g. First Term" required />
+        <Input label="Start Date" name="startDate" type="date" value={form.startDate} onChange={set("startDate")} required />
+        <Input label="End Date" name="endDate" type="date" value={form.endDate} onChange={set("endDate")} required />
       </FormModal>
-      <ConfirmDeleteModal
-        isOpen={deleteOpen}
-        onClose={() => setDeleteOpen(false)}
-        onConfirm={handleDelete}
-        title="Delete Term"
-        message="Are you sure you want to delete this term?"
-      />
-    </div>
+    </>
   );
 }

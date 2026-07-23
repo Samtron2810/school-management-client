@@ -1,217 +1,101 @@
 import { useState } from "react";
-import {
-  FaCalendarAlt,
-  FaPlus,
-  FaSearch,
-  FaTrashAlt,
-  FaEdit,
-  FaEye,
-} from "react-icons/fa";
-import PageHeader from "../../components/common/PageHeader";
-import DataTable from "../../components/tables/DataTable";
-import ActionButton from "../../components/buttons/ActionButton";
-import SearchInput from "../../components/common/SearchInput";
-import StatusBadge from "../../components/common/StatusBadge";
-import EmptyState from "../../components/common/EmptyState";
-import FormModal from "../../components/modals/FormModal";
-import ConfirmDeleteModal from "../../components/modals/ConfirmDeleteModal";
-import Input from "../../components/ui/Input";
-import Select from "../../components/ui/Select";
-import Button from "../../components/ui/Button";
+import toast from "react-hot-toast";
 
-const initialSessions = [
-  {
-    id: 1,
-    name: "2025/2026 First Term",
-    startDate: "2026-01-10",
-    endDate: "2026-04-10",
-    status: "active",
-  },
-  {
-    id: 2,
-    name: "2025/2026 Second Term",
-    startDate: "2026-05-01",
-    endDate: "2026-08-01",
-    status: "upcoming",
-  },
-  {
-    id: 3,
-    name: "2024/2025 Third Term",
-    startDate: "2025-09-01",
-    endDate: "2025-12-20",
-    status: "archived",
-  },
-];
+import sessionService from "../../services/sessionService";
+import useApi from "../../hooks/useApi";
+import { asArray } from "../../utils/apiData";
+import formatDate from "../../utils/formatDate";
+
+import ManagePage from "../../components/ManagePage";
+import FormModal from "../../components/modals/FormModal";
+import Input from "../../components/ui/Input";
+import StatusBadge from "../../components/common/StatusBadge";
+
+const emptyForm = { name: "", startDate: "", endDate: "" };
 
 export default function SessionManagementPage() {
-  const [sessions, setSessions] = useState(initialSessions);
+  const { data, loading, error, refetch } = useApi(sessionService.list);
   const [search, setSearch] = useState("");
   const [formOpen, setFormOpen] = useState(false);
-  const [deleteOpen, setDeleteOpen] = useState(false);
-  const [selected, setSelected] = useState(null);
-  const [form, setForm] = useState({
-    name: "",
-    startDate: "",
-    endDate: "",
-    status: "upcoming",
+  const [form, setForm] = useState(emptyForm);
+  const [saving, setSaving] = useState(false);
+
+  const now = new Date();
+  const rows = asArray(data).map((session) => {
+    const active =
+      session.isCurrent ||
+      (session.startDate && session.endDate && new Date(session.startDate) <= now && now <= new Date(session.endDate));
+    return {
+      _id: session._id,
+      name: session.name || "—",
+      startDate: formatDate(session.startDate) || "—",
+      endDate: formatDate(session.endDate) || "—",
+      status: active ? "active" : "inactive",
+      __search: `${session.name}`.toLowerCase(),
+    };
   });
 
-  const filtered = sessions.filter((s) =>
-    s.name.toLowerCase().includes(search.toLowerCase()),
-  );
+  const filtered = rows.filter((row) => row.__search.includes(search.toLowerCase()));
 
   const columns = [
-    { header: "Session Name", accessor: "name" },
-    { header: "Start Date", accessor: "startDate" },
-    { header: "End Date", accessor: "endDate" },
+    { header: "Session", accessor: "name" },
+    { header: "Starts", accessor: "startDate" },
+    { header: "Ends", accessor: "endDate" },
     {
       header: "Status",
       accessor: "status",
       render: (row) => <StatusBadge status={row.status} />,
     },
-    {
-      header: "Actions",
-      render: (row) => (
-        <div className="flex items-center gap-1">
-          <Button variant="ghost" size="sm" icon={FaEye} onClick={() => {}} />
-          <Button
-            variant="ghost"
-            size="sm"
-            icon={FaEdit}
-            onClick={() => {
-              setSelected(row);
-              setForm({
-                name: row.name || "",
-                startDate: row.startDate || "",
-                endDate: row.endDate || "",
-                status: row.status || "upcoming",
-              });
-              setFormOpen(true);
-            }}
-          />
-          <Button
-            variant="ghost"
-            size="sm"
-            icon={FaTrashAlt}
-            onClick={() => {
-              setSelected(row);
-              setDeleteOpen(true);
-            }}
-          />
-        </div>
-      ),
-    },
   ];
 
-  const handleSave = () => {
-    if (selected) {
-      setSessions(
-        sessions.map((s) => (s.id === selected.id ? { ...s, ...form } : s)),
-      );
-    } else {
-      setSessions([...sessions, { id: Date.now(), ...form }]);
-    }
-    setFormOpen(false);
-    setSelected(null);
-    setForm({ name: "", startDate: "", endDate: "", status: "upcoming" });
-  };
+  const set = (field) => (e) =>
+    setForm((prev) => ({ ...prev, [field]: e.target.value }));
 
-  const handleDelete = () => {
-    setSessions(sessions.filter((s) => s.id !== selected.id));
-    setDeleteOpen(false);
-    setSelected(null);
+  const handleSubmit = async () => {
+    setSaving(true);
+    try {
+      await sessionService.create(form);
+      toast.success("Session created successfully");
+      setFormOpen(false);
+      setForm(emptyForm);
+      refetch();
+    } catch {
+      // handled by the axios interceptor toast
+    } finally {
+      setSaving(false);
+    }
   };
 
   return (
-    <div>
-      <PageHeader
+    <>
+      <ManagePage
         title="Session Management"
-        subtitle="Manage academic sessions and terms"
-        actions={
-          <ActionButton
-            label="Add Session"
-            icon={FaPlus}
-            onClick={() => {
-              setSelected(null);
-              setForm({ name: "", startDate: "", endDate: "", status: "upcoming" });
-              setFormOpen(true);
-            }}
-          />
-        }
+        subtitle="Academic sessions (e.g. 2025/2026)"
+        actionLabel="Add Session"
+        onAdd={() => setFormOpen(true)}
+        searchValue={search}
+        onSearchChange={setSearch}
+        searchPlaceholder="Search sessions..."
+        columns={columns}
+        rows={filtered}
+        loading={loading}
+        error={error}
+        onRetry={refetch}
+        emptyTitle="No sessions found"
+        emptyDescription="Create the first academic session."
       />
-      <div className="mb-4">
-        <SearchInput
-          value={search}
-          onChange={setSearch}
-          placeholder="Search sessions..."
-        />
-      </div>
-      {filtered.length === 0 ? (
-        <EmptyState
-          title="No sessions found"
-          description="Get started by adding a new session."
-          actionLabel="Add Session"
-          onAction={() => {
-            setSelected(null);
-            setForm({ name: "", startDate: "", endDate: "", status: "upcoming" });
-            setFormOpen(true);
-          }}
-        />
-      ) : (
-        <DataTable columns={columns} data={filtered} />
-      )}
+
       <FormModal
         isOpen={formOpen}
-        onClose={() => {
-          setFormOpen(false);
-          setSelected(null);
-        }}
-        title={selected ? "Edit Session" : "Add Session"}
-        onSubmit={handleSave}
+        onClose={() => setFormOpen(false)}
+        title="Add Session"
+        onSubmit={handleSubmit}
+        loading={saving}
       >
-        <Input
-          label="Session Name"
-          name="name"
-          value={form.name}
-          onChange={(e) => setForm({ ...form, name: e.target.value })}
-          required
-        />
-        <Input
-          label="Start Date"
-          name="startDate"
-          type="date"
-          value={form.startDate}
-          onChange={(e) => setForm({ ...form, startDate: e.target.value })}
-          required
-        />
-        <Input
-          label="End Date"
-          name="endDate"
-          type="date"
-          value={form.endDate}
-          onChange={(e) => setForm({ ...form, endDate: e.target.value })}
-          required
-        />
-        <Select
-          label="Status"
-          name="status"
-          value={form.status}
-          onChange={(e) => setForm({ ...form, status: e.target.value })}
-          options={[
-            { value: "active", label: "Active" },
-            { value: "upcoming", label: "Upcoming" },
-            { value: "archived", label: "Archived" },
-          ]}
-          required
-        />
+        <Input label="Session Name" name="name" value={form.name} onChange={set("name")} placeholder="e.g. 2025/2026" required />
+        <Input label="Start Date" name="startDate" type="date" value={form.startDate} onChange={set("startDate")} required />
+        <Input label="End Date" name="endDate" type="date" value={form.endDate} onChange={set("endDate")} required />
       </FormModal>
-      <ConfirmDeleteModal
-        isOpen={deleteOpen}
-        onClose={() => setDeleteOpen(false)}
-        onConfirm={handleDelete}
-        title="Delete Session"
-        message="Are you sure you want to delete this session?"
-      />
-    </div>
+    </>
   );
 }
