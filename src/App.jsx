@@ -1,3 +1,4 @@
+import { Suspense, lazy } from "react";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { Toaster } from "react-hot-toast";
 import AdminLayout from "./layouts/AdminLayout";
@@ -6,62 +7,65 @@ import StudentLayout from "./layouts/StudentLayout";
 import ParentLayout from "./layouts/ParentLayout";
 import AuthLayout from "./layouts/AuthLayout";
 import ErrorBoundary from "./components/common/ErrorBoundary";
+import Loader from "./components/common/Loader";
 import { AuthProvider } from "./context/AuthContext";
 
-// Admin Pages
-import DashboardPage from "./pages/admin/DashboardPage";
-import StudentManagementPage from "./pages/admin/StudentManagementPage";
-import TeacherManagementPage from "./pages/admin/TeacherManagementPage";
-import ClassManagementPage from "./pages/admin/ClassManagementPage";
-import SubjectManagementPage from "./pages/admin/SubjectManagementPage";
-import AttendanceOverviewPage from "./pages/admin/AttendanceOverviewPage";
-import AssessmentManagementPage from "./pages/admin/AssessmentManagementPage";
-import AnnouncementManagementPage from "./pages/admin/AnnouncementManagementPage";
-import SessionManagementPage from "./pages/admin/SessionManagementPage";
-import ReportCardPage from "./pages/admin/ReportCardPage";
-import EnrollmentPage from "./pages/admin/EnrollmentPage";
-import ParentManagementPage from "./pages/admin/ParentManagementPage";
-import UserManagementPage from "./pages/admin/UserManagementPage";
-import ClassSubjectPage from "./pages/admin/ClassSubjectPage";
-import PromotionPage from "./pages/admin/PromotionPage";
-import TeacherAssignmentPage from "./pages/admin/TeacherAssignmentPage";
-import TermManagementPage from "./pages/admin/TermManagementPage";
+// Admin Pages — lazy-loaded so the admin bundle only downloads for admins,
+// not for every role. Same pattern for teacher/student/parent below.
+const DashboardPage = lazy(() => import("./pages/admin/DashboardPage"));
+const StudentManagementPage = lazy(() => import("./pages/admin/StudentManagementPage"));
+const TeacherManagementPage = lazy(() => import("./pages/admin/TeacherManagementPage"));
+const ClassManagementPage = lazy(() => import("./pages/admin/ClassManagementPage"));
+const SubjectManagementPage = lazy(() => import("./pages/admin/SubjectManagementPage"));
+const AttendanceOverviewPage = lazy(() => import("./pages/admin/AttendanceOverviewPage"));
+const AssessmentManagementPage = lazy(() => import("./pages/admin/AssessmentManagementPage"));
+const AnnouncementManagementPage = lazy(() => import("./pages/admin/AnnouncementManagementPage"));
+const SessionManagementPage = lazy(() => import("./pages/admin/SessionManagementPage"));
+const ReportCardPage = lazy(() => import("./pages/admin/ReportCardPage"));
+const EnrollmentPage = lazy(() => import("./pages/admin/EnrollmentPage"));
+const ParentManagementPage = lazy(() => import("./pages/admin/ParentManagementPage"));
+const UserManagementPage = lazy(() => import("./pages/admin/UserManagementPage"));
+const ClassSubjectPage = lazy(() => import("./pages/admin/ClassSubjectPage"));
+const PromotionPage = lazy(() => import("./pages/admin/PromotionPage"));
+const TeacherAssignmentPage = lazy(() => import("./pages/admin/TeacherAssignmentPage"));
+const TermManagementPage = lazy(() => import("./pages/admin/TermManagementPage"));
 
 // Teacher Pages
-import TeacherDashboardPage from "./pages/teacher/DashboardPage";
-import TeacherMyClassesPage from "./pages/teacher/MyClassesPage";
-import TeacherMySubjectsPage from "./pages/teacher/MySubjectsPage";
-import TeacherAssessmentPage from "./pages/teacher/AssessmentPage";
-import TeacherAttendancePage from "./pages/teacher/AttendancePage";
-import TeacherLessonPlanPage from "./pages/teacher/LessonPlanPage";
-import TeacherQuestionBankPage from "./pages/teacher/QuestionBankPage";
-import TeacherReportCardPage from "./pages/teacher/ReportCardPage";
-import TeacherStudentListPage from "./pages/teacher/StudentListPage";
-import TeacherViewResultsPage from "./pages/teacher/ViewResultsPage";
+const TeacherDashboardPage = lazy(() => import("./pages/teacher/DashboardPage"));
+const TeacherMyClassesPage = lazy(() => import("./pages/teacher/MyClassesPage"));
+const TeacherMySubjectsPage = lazy(() => import("./pages/teacher/MySubjectsPage"));
+const TeacherAssessmentPage = lazy(() => import("./pages/teacher/AssessmentPage"));
+const TeacherAttendancePage = lazy(() => import("./pages/teacher/AttendancePage"));
+const TeacherLessonPlanPage = lazy(() => import("./pages/teacher/LessonPlanPage"));
+const TeacherQuestionBankPage = lazy(() => import("./pages/teacher/QuestionBankPage"));
+const TeacherReportCardPage = lazy(() => import("./pages/teacher/ReportCardPage"));
+const TeacherStudentListPage = lazy(() => import("./pages/teacher/StudentListPage"));
+const TeacherViewResultsPage = lazy(() => import("./pages/teacher/ViewResultsPage"));
 
 // Student Pages
-import StudentDashboardPage from "./pages/student/DashboardPage";
-import StudentMyClassesPage from "./pages/student/MyClassesPage";
-import StudentMySubjectsPage from "./pages/student/MySubjectsPage";
-import StudentMyAssessmentsPage from "./pages/student/MyAssessmentsPage";
-import StudentMyLessonsPage from "./pages/student/MyLessonsPage";
-import StudentMyResultsPage from "./pages/student/MyResultsPage";
-import StudentAttendancePage from "./pages/student/AttendancePage";
-import StudentReportCardPage from "./pages/student/ReportCardPage";
-import StudentTakeAssessmentPage from "./pages/student/TakeAssessmentPage";
+const StudentDashboardPage = lazy(() => import("./pages/student/DashboardPage"));
+const StudentMyClassesPage = lazy(() => import("./pages/student/MyClassesPage"));
+const StudentMySubjectsPage = lazy(() => import("./pages/student/MySubjectsPage"));
+const StudentMyAssessmentsPage = lazy(() => import("./pages/student/MyAssessmentsPage"));
+const StudentMyLessonsPage = lazy(() => import("./pages/student/MyLessonsPage"));
+const StudentMyResultsPage = lazy(() => import("./pages/student/MyResultsPage"));
+const StudentAttendancePage = lazy(() => import("./pages/student/AttendancePage"));
+const StudentReportCardPage = lazy(() => import("./pages/student/ReportCardPage"));
+const StudentTakeAssessmentPage = lazy(() => import("./pages/student/TakeAssessmentPage"));
 
 // Parent Pages
-import ParentDashboardPage from "./pages/parent/DashboardPage";
-import ParentChildrenPage from "./pages/parent/ChildrenPage";
-import ParentChildAssessmentsPage from "./pages/parent/ChildAssessmentsPage";
-import ParentChildAttendancePage from "./pages/parent/ChildAttendancePage";
-import ParentChildReportCardPage from "./pages/parent/ChildReportCardPage";
-import ParentChildResultsPage from "./pages/parent/ChildResultsPage";
+const ParentDashboardPage = lazy(() => import("./pages/parent/DashboardPage"));
+const ParentChildrenPage = lazy(() => import("./pages/parent/ChildrenPage"));
+const ParentChildAssessmentsPage = lazy(() => import("./pages/parent/ChildAssessmentsPage"));
+const ParentChildAttendancePage = lazy(() => import("./pages/parent/ChildAttendancePage"));
+const ParentChildReportCardPage = lazy(() => import("./pages/parent/ChildReportCardPage"));
+const ParentChildResultsPage = lazy(() => import("./pages/parent/ChildResultsPage"));
 
 // Auth Pages (the backend only supports login — accounts are created by admins)
 import LoginPage from "./pages/auth/LoginPage";
 
-// Error Pages
+// Error Pages — kept eager: small, shared across every role, and may need
+// to render even if a lazy chunk itself fails to load.
 import NotFoundPage from "./pages/errors/NotFoundPage";
 import ForbiddenPage from "./pages/errors/ForbiddenPage";
 import ServerErrorPage from "./pages/errors/ServerErrorPage";
@@ -77,167 +81,169 @@ function App() {
     <AuthProvider>
       <BrowserRouter>
         <ErrorBoundary>
-          <Routes>
-            {/* Public Routes */}
-            <Route path="/" element={<Navigate to="/login" replace />} />
-            <Route element={<AuthLayout />}>
-              <Route path="/login" element={<LoginPage />} />
-            </Route>
+          <Suspense fallback={<Loader text="Loading..." />}>
+            <Routes>
+              {/* Public Routes */}
+              <Route path="/" element={<Navigate to="/login" replace />} />
+              <Route element={<AuthLayout />}>
+                <Route path="/login" element={<LoginPage />} />
+              </Route>
 
-            {/* Error Routes */}
-            <Route path="/404" element={<NotFoundPage />} />
-            <Route path="/403" element={<ForbiddenPage />} />
-            <Route path="/500" element={<ServerErrorPage />} />
+              {/* Error Routes */}
+              <Route path="/404" element={<NotFoundPage />} />
+              <Route path="/403" element={<ForbiddenPage />} />
+              <Route path="/500" element={<ServerErrorPage />} />
 
-            {/* Protected Routes */}
-            <Route element={<ProtectedRoute />}>
-              {/* Admin Routes */}
-              <Route element={<RoleRoute allowedRoles={["admin"]} />}>
-                <Route path="/admin" element={<AdminLayout />}>
-                  <Route index element={<Navigate to="dashboard" replace />} />
-                  <Route path="dashboard" element={<DashboardPage />} />
-                  <Route path="students" element={<StudentManagementPage />} />
-                  <Route path="teachers" element={<TeacherManagementPage />} />
-                  <Route path="classes" element={<ClassManagementPage />} />
-                  <Route path="subjects" element={<SubjectManagementPage />} />
-                  <Route
-                    path="attendance"
-                    element={<AttendanceOverviewPage />}
-                  />
-                  <Route
-                    path="assessments"
-                    element={<AssessmentManagementPage />}
-                  />
-                  <Route
-                    path="announcements"
-                    element={<AnnouncementManagementPage />}
-                  />
-                  <Route path="sessions" element={<SessionManagementPage />} />
-                  <Route path="reports" element={<ReportCardPage />} />
-                  <Route path="enrollments" element={<EnrollmentPage />} />
-                  <Route path="parents" element={<ParentManagementPage />} />
-                  <Route path="users" element={<UserManagementPage />} />
-                  <Route path="class-subjects" element={<ClassSubjectPage />} />
-                  <Route path="promotions" element={<PromotionPage />} />
-                  <Route
-                    path="teacher-assignments"
-                    element={<TeacherAssignmentPage />}
-                  />
-                  <Route path="terms" element={<TermManagementPage />} />
-                  <Route path="profile" element={<ProfilePage />} />
+              {/* Protected Routes */}
+              <Route element={<ProtectedRoute />}>
+                {/* Admin Routes */}
+                <Route element={<RoleRoute allowedRoles={["admin"]} />}>
+                  <Route path="/admin" element={<AdminLayout />}>
+                    <Route index element={<Navigate to="dashboard" replace />} />
+                    <Route path="dashboard" element={<DashboardPage />} />
+                    <Route path="students" element={<StudentManagementPage />} />
+                    <Route path="teachers" element={<TeacherManagementPage />} />
+                    <Route path="classes" element={<ClassManagementPage />} />
+                    <Route path="subjects" element={<SubjectManagementPage />} />
+                    <Route
+                      path="attendance"
+                      element={<AttendanceOverviewPage />}
+                    />
+                    <Route
+                      path="assessments"
+                      element={<AssessmentManagementPage />}
+                    />
+                    <Route
+                      path="announcements"
+                      element={<AnnouncementManagementPage />}
+                    />
+                    <Route path="sessions" element={<SessionManagementPage />} />
+                    <Route path="reports" element={<ReportCardPage />} />
+                    <Route path="enrollments" element={<EnrollmentPage />} />
+                    <Route path="parents" element={<ParentManagementPage />} />
+                    <Route path="users" element={<UserManagementPage />} />
+                    <Route path="class-subjects" element={<ClassSubjectPage />} />
+                    <Route path="promotions" element={<PromotionPage />} />
+                    <Route
+                      path="teacher-assignments"
+                      element={<TeacherAssignmentPage />}
+                    />
+                    <Route path="terms" element={<TermManagementPage />} />
+                    <Route path="profile" element={<ProfilePage />} />
+                  </Route>
+                </Route>
+
+                {/* Teacher Routes */}
+                <Route element={<RoleRoute allowedRoles={["teacher"]} />}>
+                  <Route path="/teacher" element={<TeacherLayout />}>
+                    <Route index element={<Navigate to="dashboard" replace />} />
+                    <Route path="dashboard" element={<TeacherDashboardPage />} />
+                    <Route path="my-classes" element={<TeacherMyClassesPage />} />
+                    <Route
+                      path="my-subjects"
+                      element={<TeacherMySubjectsPage />}
+                    />
+                    <Route
+                      path="assessments"
+                      element={<TeacherAssessmentPage />}
+                    />
+                    <Route
+                      path="attendance"
+                      element={<TeacherAttendancePage />}
+                    />
+                    <Route
+                      path="lesson-plans"
+                      element={<TeacherLessonPlanPage />}
+                    />
+                    <Route
+                      path="question-bank"
+                      element={<TeacherQuestionBankPage />}
+                    />
+                    <Route
+                      path="report-cards"
+                      element={<TeacherReportCardPage />}
+                    />
+                    <Route path="students" element={<TeacherStudentListPage />} />
+                    <Route path="results" element={<TeacherViewResultsPage />} />
+                    <Route
+                      path="announcements"
+                      element={<AnnouncementsPage />}
+                    />
+                    <Route path="profile" element={<ProfilePage />} />
+                  </Route>
+                </Route>
+
+                {/* Student Routes */}
+                <Route element={<RoleRoute allowedRoles={["student"]} />}>
+                  <Route path="/student" element={<StudentLayout />}>
+                    <Route index element={<Navigate to="dashboard" replace />} />
+                    <Route path="dashboard" element={<StudentDashboardPage />} />
+                    <Route path="my-classes" element={<StudentMyClassesPage />} />
+                    <Route
+                      path="my-subjects"
+                      element={<StudentMySubjectsPage />}
+                    />
+                    <Route
+                      path="my-assessments"
+                      element={<StudentMyAssessmentsPage />}
+                    />
+                    <Route path="my-lessons" element={<StudentMyLessonsPage />} />
+                    <Route path="my-results" element={<StudentMyResultsPage />} />
+                    <Route
+                      path="attendance"
+                      element={<StudentAttendancePage />}
+                    />
+                    <Route
+                      path="report-cards"
+                      element={<StudentReportCardPage />}
+                    />
+                    <Route
+                      path="take-assessment"
+                      element={<StudentTakeAssessmentPage />}
+                    />
+                    <Route
+                      path="announcements"
+                      element={<AnnouncementsPage />}
+                    />
+                    <Route path="profile" element={<ProfilePage />} />
+                  </Route>
+                </Route>
+
+                {/* Parent Routes */}
+                <Route element={<RoleRoute allowedRoles={["parent"]} />}>
+                  <Route path="/parent" element={<ParentLayout />}>
+                    <Route index element={<Navigate to="dashboard" replace />} />
+                    <Route path="dashboard" element={<ParentDashboardPage />} />
+                    <Route path="children" element={<ParentChildrenPage />} />
+                    <Route
+                      path="child-assessments"
+                      element={<ParentChildAssessmentsPage />}
+                    />
+                    <Route
+                      path="child-attendance"
+                      element={<ParentChildAttendancePage />}
+                    />
+                    <Route
+                      path="child-report-cards"
+                      element={<ParentChildReportCardPage />}
+                    />
+                    <Route
+                      path="child-results"
+                      element={<ParentChildResultsPage />}
+                    />
+                    <Route
+                      path="announcements"
+                      element={<AnnouncementsPage />}
+                    />
+                    <Route path="profile" element={<ProfilePage />} />
+                  </Route>
                 </Route>
               </Route>
 
-              {/* Teacher Routes */}
-              <Route element={<RoleRoute allowedRoles={["teacher"]} />}>
-                <Route path="/teacher" element={<TeacherLayout />}>
-                  <Route index element={<Navigate to="dashboard" replace />} />
-                  <Route path="dashboard" element={<TeacherDashboardPage />} />
-                  <Route path="my-classes" element={<TeacherMyClassesPage />} />
-                  <Route
-                    path="my-subjects"
-                    element={<TeacherMySubjectsPage />}
-                  />
-                  <Route
-                    path="assessments"
-                    element={<TeacherAssessmentPage />}
-                  />
-                  <Route
-                    path="attendance"
-                    element={<TeacherAttendancePage />}
-                  />
-                  <Route
-                    path="lesson-plans"
-                    element={<TeacherLessonPlanPage />}
-                  />
-                  <Route
-                    path="question-bank"
-                    element={<TeacherQuestionBankPage />}
-                  />
-                  <Route
-                    path="report-cards"
-                    element={<TeacherReportCardPage />}
-                  />
-                  <Route path="students" element={<TeacherStudentListPage />} />
-                  <Route path="results" element={<TeacherViewResultsPage />} />
-                  <Route
-                    path="announcements"
-                    element={<AnnouncementsPage />}
-                  />
-                  <Route path="profile" element={<ProfilePage />} />
-                </Route>
-              </Route>
-
-              {/* Student Routes */}
-              <Route element={<RoleRoute allowedRoles={["student"]} />}>
-                <Route path="/student" element={<StudentLayout />}>
-                  <Route index element={<Navigate to="dashboard" replace />} />
-                  <Route path="dashboard" element={<StudentDashboardPage />} />
-                  <Route path="my-classes" element={<StudentMyClassesPage />} />
-                  <Route
-                    path="my-subjects"
-                    element={<StudentMySubjectsPage />}
-                  />
-                  <Route
-                    path="my-assessments"
-                    element={<StudentMyAssessmentsPage />}
-                  />
-                  <Route path="my-lessons" element={<StudentMyLessonsPage />} />
-                  <Route path="my-results" element={<StudentMyResultsPage />} />
-                  <Route
-                    path="attendance"
-                    element={<StudentAttendancePage />}
-                  />
-                  <Route
-                    path="report-cards"
-                    element={<StudentReportCardPage />}
-                  />
-                  <Route
-                    path="take-assessment"
-                    element={<StudentTakeAssessmentPage />}
-                  />
-                  <Route
-                    path="announcements"
-                    element={<AnnouncementsPage />}
-                  />
-                  <Route path="profile" element={<ProfilePage />} />
-                </Route>
-              </Route>
-
-              {/* Parent Routes */}
-              <Route element={<RoleRoute allowedRoles={["parent"]} />}>
-                <Route path="/parent" element={<ParentLayout />}>
-                  <Route index element={<Navigate to="dashboard" replace />} />
-                  <Route path="dashboard" element={<ParentDashboardPage />} />
-                  <Route path="children" element={<ParentChildrenPage />} />
-                  <Route
-                    path="child-assessments"
-                    element={<ParentChildAssessmentsPage />}
-                  />
-                  <Route
-                    path="child-attendance"
-                    element={<ParentChildAttendancePage />}
-                  />
-                  <Route
-                    path="child-report-cards"
-                    element={<ParentChildReportCardPage />}
-                  />
-                  <Route
-                    path="child-results"
-                    element={<ParentChildResultsPage />}
-                  />
-                  <Route
-                    path="announcements"
-                    element={<AnnouncementsPage />}
-                  />
-                  <Route path="profile" element={<ProfilePage />} />
-                </Route>
-              </Route>
-            </Route>
-
-            {/* Catch-all route for 404 */}
-            <Route path="*" element={<Navigate to="/404" replace />} />
-          </Routes>
+              {/* Catch-all route for 404 */}
+              <Route path="*" element={<Navigate to="/404" replace />} />
+            </Routes>
+          </Suspense>
         </ErrorBoundary>
         <Toaster position="top-right" />
       </BrowserRouter>
