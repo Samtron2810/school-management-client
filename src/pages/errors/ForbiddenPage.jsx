@@ -14,7 +14,7 @@ export default function ForbiddenPage() {
         <p className="text-sm text-slate-gray mb-6">
           You do not have permission to access this page.
         </p>
-        <Link to="/admin/dashboard">
+        <Link to="/">
           <Button>Go to Dashboard</Button>
         </Link>
       </div>

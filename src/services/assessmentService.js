@@ -18,7 +18,8 @@ export const assessmentService = {
   publish: (id) => unwrap(api.patch(`/assessments/${id}/publish`)),
   unpublish: (id) => unwrap(api.patch(`/assessments/${id}/unpublish`)),
 
-  // payload: { questionIds: [] } or { questions: [{ question, marks, order }] }
+  // payload: { questions: [{ question, order, marks?, isBonus?, isRequired? }] }
+  // NOTE: unlike removeQuestions, this endpoint does NOT accept { questionIds }.
   addQuestions: (id, payload) =>
     unwrap(api.post(`/assessments/${id}/questions`, payload)),
   // payload: { questionIds: [] } — axios needs `data` for DELETE bodies

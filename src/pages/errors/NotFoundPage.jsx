@@ -14,7 +14,7 @@ export default function NotFoundPage() {
         <p className="text-sm text-slate-gray mb-6">
           The page you are looking for does not exist or has been moved.
         </p>
-        <Link to="/admin/dashboard">
+        <Link to="/">
           <Button>Go to Dashboard</Button>
         </Link>
       </div>

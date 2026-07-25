@@ -131,7 +131,19 @@ export default function AssessmentPage() {
     }
     setSaving(true);
     try {
-      await assessmentService.addQuestions(selected._id, { questionIds });
+      // Backend expects { questions: [{ question, order, marks, isRequired?, isBonus? }] },
+      // not a bare array of ids — build that shape from the selected bank questions.
+      const questions = questionIds.map((id, index) => {
+        const bankQuestion = bank.find((question) => question._id === id);
+        return {
+          question: id,
+          order: index + 1,
+          marks: bankQuestion?.marks || 1,
+          isRequired: true,
+          isBonus: false,
+        };
+      });
+      await assessmentService.addQuestions(selected._id, { questions });
       toast.success("Questions added to assessment");
       setQuestionsOpen(false);
       refetch();
