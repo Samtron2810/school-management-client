@@ -13,54 +13,124 @@ import { AuthProvider } from "./context/AuthContext";
 // Admin Pages — lazy-loaded so the admin bundle only downloads for admins,
 // not for every role. Same pattern for teacher/student/parent below.
 const DashboardPage = lazy(() => import("./pages/admin/DashboardPage"));
-const StudentManagementPage = lazy(() => import("./pages/admin/StudentManagementPage"));
-const TeacherManagementPage = lazy(() => import("./pages/admin/TeacherManagementPage"));
-const ClassManagementPage = lazy(() => import("./pages/admin/ClassManagementPage"));
-const SubjectManagementPage = lazy(() => import("./pages/admin/SubjectManagementPage"));
-const AttendanceOverviewPage = lazy(() => import("./pages/admin/AttendanceOverviewPage"));
-const AssessmentManagementPage = lazy(() => import("./pages/admin/AssessmentManagementPage"));
-const AnnouncementManagementPage = lazy(() => import("./pages/admin/AnnouncementManagementPage"));
-const SessionManagementPage = lazy(() => import("./pages/admin/SessionManagementPage"));
+const StudentManagementPage = lazy(
+  () => import("./pages/admin/StudentManagementPage"),
+);
+const TeacherManagementPage = lazy(
+  () => import("./pages/admin/TeacherManagementPage"),
+);
+const ClassManagementPage = lazy(
+  () => import("./pages/admin/ClassManagementPage"),
+);
+const SubjectManagementPage = lazy(
+  () => import("./pages/admin/SubjectManagementPage"),
+);
+const AttendanceOverviewPage = lazy(
+  () => import("./pages/admin/AttendanceOverviewPage"),
+);
+const AssessmentManagementPage = lazy(
+  () => import("./pages/admin/AssessmentManagementPage"),
+);
+const AnnouncementManagementPage = lazy(
+  () => import("./pages/admin/AnnouncementManagementPage"),
+);
+const SessionManagementPage = lazy(
+  () => import("./pages/admin/SessionManagementPage"),
+);
 const ReportCardPage = lazy(() => import("./pages/admin/ReportCardPage"));
 const EnrollmentPage = lazy(() => import("./pages/admin/EnrollmentPage"));
-const ParentManagementPage = lazy(() => import("./pages/admin/ParentManagementPage"));
-const UserManagementPage = lazy(() => import("./pages/admin/UserManagementPage"));
+const ParentManagementPage = lazy(
+  () => import("./pages/admin/ParentManagementPage"),
+);
+const UserManagementPage = lazy(
+  () => import("./pages/admin/UserManagementPage"),
+);
 const ClassSubjectPage = lazy(() => import("./pages/admin/ClassSubjectPage"));
 const PromotionPage = lazy(() => import("./pages/admin/PromotionPage"));
-const TeacherAssignmentPage = lazy(() => import("./pages/admin/TeacherAssignmentPage"));
-const TermManagementPage = lazy(() => import("./pages/admin/TermManagementPage"));
+const TeacherAssignmentPage = lazy(
+  () => import("./pages/admin/TeacherAssignmentPage"),
+);
+const TermManagementPage = lazy(
+  () => import("./pages/admin/TermManagementPage"),
+);
 
 // Teacher Pages
-const TeacherDashboardPage = lazy(() => import("./pages/teacher/DashboardPage"));
-const TeacherMyClassesPage = lazy(() => import("./pages/teacher/MyClassesPage"));
-const TeacherMySubjectsPage = lazy(() => import("./pages/teacher/MySubjectsPage"));
-const TeacherAssessmentPage = lazy(() => import("./pages/teacher/AssessmentPage"));
+const TeacherDashboardPage = lazy(
+  () => import("./pages/teacher/DashboardPage"),
+);
+const TeacherMyClassesPage = lazy(
+  () => import("./pages/teacher/MyClassesPage"),
+);
+const TeacherMySubjectsPage = lazy(
+  () => import("./pages/teacher/MySubjectsPage"),
+);
+const TeacherAssessmentPage = lazy(
+  () => import("./pages/teacher/AssessmentPage"),
+);
 const TeacherAttemptsPage = lazy(() => import("./pages/teacher/AttemptsPage"));
-const TeacherAttendancePage = lazy(() => import("./pages/teacher/AttendancePage"));
-const TeacherLessonPlanPage = lazy(() => import("./pages/teacher/LessonPlanPage"));
-const TeacherQuestionBankPage = lazy(() => import("./pages/teacher/QuestionBankPage"));
-const TeacherReportCardPage = lazy(() => import("./pages/teacher/ReportCardPage"));
-const TeacherStudentListPage = lazy(() => import("./pages/teacher/StudentListPage"));
-const TeacherViewResultsPage = lazy(() => import("./pages/teacher/ViewResultsPage"));
+const TeacherAttendancePage = lazy(
+  () => import("./pages/teacher/AttendancePage"),
+);
+const TeacherLessonPlanPage = lazy(
+  () => import("./pages/teacher/LessonPlanPage"),
+);
+const TeacherQuestionBankPage = lazy(
+  () => import("./pages/teacher/QuestionBankPage"),
+);
+const TeacherReportCardPage = lazy(
+  () => import("./pages/teacher/ReportCardPage"),
+);
+const TeacherStudentListPage = lazy(
+  () => import("./pages/teacher/StudentListPage"),
+);
+const TeacherViewResultsPage = lazy(
+  () => import("./pages/teacher/ViewResultsPage"),
+);
 
 // Student Pages
-const StudentDashboardPage = lazy(() => import("./pages/student/DashboardPage"));
-const StudentMyClassesPage = lazy(() => import("./pages/student/MyClassesPage"));
-const StudentMySubjectsPage = lazy(() => import("./pages/student/MySubjectsPage"));
-const StudentMyAssessmentsPage = lazy(() => import("./pages/student/MyAssessmentsPage"));
-const StudentMyLessonsPage = lazy(() => import("./pages/student/MyLessonsPage"));
-const StudentMyResultsPage = lazy(() => import("./pages/student/MyResultsPage"));
-const StudentAttendancePage = lazy(() => import("./pages/student/AttendancePage"));
-const StudentReportCardPage = lazy(() => import("./pages/student/ReportCardPage"));
-const StudentTakeAssessmentPage = lazy(() => import("./pages/student/TakeAssessmentPage"));
+const StudentDashboardPage = lazy(
+  () => import("./pages/student/DashboardPage"),
+);
+const StudentMyClassesPage = lazy(
+  () => import("./pages/student/MyClassesPage"),
+);
+const StudentMySubjectsPage = lazy(
+  () => import("./pages/student/MySubjectsPage"),
+);
+const StudentMyAssessmentsPage = lazy(
+  () => import("./pages/student/MyAssessmentsPage"),
+);
+const StudentMyLessonsPage = lazy(
+  () => import("./pages/student/MyLessonsPage"),
+);
+const StudentMyResultsPage = lazy(
+  () => import("./pages/student/MyResultsPage"),
+);
+const StudentAttendancePage = lazy(
+  () => import("./pages/student/AttendancePage"),
+);
+const StudentReportCardPage = lazy(
+  () => import("./pages/student/ReportCardPage"),
+);
+const StudentTakeAssessmentPage = lazy(
+  () => import("./pages/student/TakeAssessmentPage"),
+);
 
 // Parent Pages
 const ParentDashboardPage = lazy(() => import("./pages/parent/DashboardPage"));
 const ParentChildrenPage = lazy(() => import("./pages/parent/ChildrenPage"));
-const ParentChildAssessmentsPage = lazy(() => import("./pages/parent/ChildAssessmentsPage"));
-const ParentChildAttendancePage = lazy(() => import("./pages/parent/ChildAttendancePage"));
-const ParentChildReportCardPage = lazy(() => import("./pages/parent/ChildReportCardPage"));
-const ParentChildResultsPage = lazy(() => import("./pages/parent/ChildResultsPage"));
+const ParentChildAssessmentsPage = lazy(
+  () => import("./pages/parent/ChildAssessmentsPage"),
+);
+const ParentChildAttendancePage = lazy(
+  () => import("./pages/parent/ChildAttendancePage"),
+);
+const ParentChildReportCardPage = lazy(
+  () => import("./pages/parent/ChildReportCardPage"),
+);
+const ParentChildResultsPage = lazy(
+  () => import("./pages/parent/ChildResultsPage"),
+);
 
 // Auth Pages (the backend only supports login — accounts are created by admins)
 import LoginPage from "./pages/auth/LoginPage";
@@ -100,12 +170,24 @@ function App() {
                 {/* Admin Routes */}
                 <Route element={<RoleRoute allowedRoles={["admin"]} />}>
                   <Route path="/admin" element={<AdminLayout />}>
-                    <Route index element={<Navigate to="dashboard" replace />} />
+                    <Route
+                      index
+                      element={<Navigate to="dashboard" replace />}
+                    />
                     <Route path="dashboard" element={<DashboardPage />} />
-                    <Route path="students" element={<StudentManagementPage />} />
-                    <Route path="teachers" element={<TeacherManagementPage />} />
+                    <Route
+                      path="students"
+                      element={<StudentManagementPage />}
+                    />
+                    <Route
+                      path="teachers"
+                      element={<TeacherManagementPage />}
+                    />
                     <Route path="classes" element={<ClassManagementPage />} />
-                    <Route path="subjects" element={<SubjectManagementPage />} />
+                    <Route
+                      path="subjects"
+                      element={<SubjectManagementPage />}
+                    />
                     <Route
                       path="attendance"
                       element={<AttendanceOverviewPage />}
@@ -118,12 +200,18 @@ function App() {
                       path="announcements"
                       element={<AnnouncementManagementPage />}
                     />
-                    <Route path="sessions" element={<SessionManagementPage />} />
+                    <Route
+                      path="sessions"
+                      element={<SessionManagementPage />}
+                    />
                     <Route path="reports" element={<ReportCardPage />} />
                     <Route path="enrollments" element={<EnrollmentPage />} />
                     <Route path="parents" element={<ParentManagementPage />} />
                     <Route path="users" element={<UserManagementPage />} />
-                    <Route path="class-subjects" element={<ClassSubjectPage />} />
+                    <Route
+                      path="class-subjects"
+                      element={<ClassSubjectPage />}
+                    />
                     <Route path="promotions" element={<PromotionPage />} />
                     <Route
                       path="teacher-assignments"
@@ -137,9 +225,18 @@ function App() {
                 {/* Teacher Routes */}
                 <Route element={<RoleRoute allowedRoles={["teacher"]} />}>
                   <Route path="/teacher" element={<TeacherLayout />}>
-                    <Route index element={<Navigate to="dashboard" replace />} />
-                    <Route path="dashboard" element={<TeacherDashboardPage />} />
-                    <Route path="my-classes" element={<TeacherMyClassesPage />} />
+                    <Route
+                      index
+                      element={<Navigate to="dashboard" replace />}
+                    />
+                    <Route
+                      path="dashboard"
+                      element={<TeacherDashboardPage />}
+                    />
+                    <Route
+                      path="my-classes"
+                      element={<TeacherMyClassesPage />}
+                    />
                     <Route
                       path="my-subjects"
                       element={<TeacherMySubjectsPage />}
@@ -148,10 +245,7 @@ function App() {
                       path="assessments"
                       element={<TeacherAssessmentPage />}
                     />
-                    <Route
-                      path="attempts"
-                      element={<TeacherAttemptsPage />}
-                    />
+                    <Route path="attempts" element={<TeacherAttemptsPage />} />
                     <Route
                       path="attendance"
                       element={<TeacherAttendancePage />}
@@ -168,8 +262,14 @@ function App() {
                       path="report-cards"
                       element={<TeacherReportCardPage />}
                     />
-                    <Route path="students" element={<TeacherStudentListPage />} />
-                    <Route path="results" element={<TeacherViewResultsPage />} />
+                    <Route
+                      path="students"
+                      element={<TeacherStudentListPage />}
+                    />
+                    <Route
+                      path="results"
+                      element={<TeacherViewResultsPage />}
+                    />
                     <Route
                       path="announcements"
                       element={<AnnouncementsPage />}
@@ -181,9 +281,18 @@ function App() {
                 {/* Student Routes */}
                 <Route element={<RoleRoute allowedRoles={["student"]} />}>
                   <Route path="/student" element={<StudentLayout />}>
-                    <Route index element={<Navigate to="dashboard" replace />} />
-                    <Route path="dashboard" element={<StudentDashboardPage />} />
-                    <Route path="my-classes" element={<StudentMyClassesPage />} />
+                    <Route
+                      index
+                      element={<Navigate to="dashboard" replace />}
+                    />
+                    <Route
+                      path="dashboard"
+                      element={<StudentDashboardPage />}
+                    />
+                    <Route
+                      path="my-classes"
+                      element={<StudentMyClassesPage />}
+                    />
                     <Route
                       path="my-subjects"
                       element={<StudentMySubjectsPage />}
@@ -192,8 +301,14 @@ function App() {
                       path="my-assessments"
                       element={<StudentMyAssessmentsPage />}
                     />
-                    <Route path="my-lessons" element={<StudentMyLessonsPage />} />
-                    <Route path="my-results" element={<StudentMyResultsPage />} />
+                    <Route
+                      path="my-lessons"
+                      element={<StudentMyLessonsPage />}
+                    />
+                    <Route
+                      path="my-results"
+                      element={<StudentMyResultsPage />}
+                    />
                     <Route
                       path="attendance"
                       element={<StudentAttendancePage />}
@@ -217,7 +332,10 @@ function App() {
                 {/* Parent Routes */}
                 <Route element={<RoleRoute allowedRoles={["parent"]} />}>
                   <Route path="/parent" element={<ParentLayout />}>
-                    <Route index element={<Navigate to="dashboard" replace />} />
+                    <Route
+                      index
+                      element={<Navigate to="dashboard" replace />}
+                    />
                     <Route path="dashboard" element={<ParentDashboardPage />} />
                     <Route path="children" element={<ParentChildrenPage />} />
                     <Route

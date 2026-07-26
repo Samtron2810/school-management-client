@@ -5,6 +5,8 @@ import api, { unwrap } from "./api";
 export const classSubjectService = {
   // payload: { schoolClass, subject, isCompulsory? } (admin)
   create: (payload) => unwrap(api.post("/class-subjects", payload)),
+  // payload: { subjects: [id, ...], schoolClass, isCompulsory? } — all-or-nothing
+  bulkCreate: (payload) => unwrap(api.post("/class-subjects/bulk", payload)),
   list: (params) => unwrap(api.get("/class-subjects", { params })), // admin
   get: (id) => unwrap(api.get(`/class-subjects/${id}`)), // admin
   // payload: { schoolClass?, subject?, isCompulsory?, isActive? } (admin)

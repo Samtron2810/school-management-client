@@ -31,6 +31,8 @@ const emptyForm = {
   rollNumber: "",
 };
 
+const emptyBulkForm = { students: [], schoolClass: "" };
+
 export default function EnrollmentPage() {
   const { data, loading, error, refetch } = useApi(enrollmentService.list);
   const studentsApi = useApi(studentService.list);
@@ -42,6 +44,10 @@ export default function EnrollmentPage() {
   const [selected, setSelected] = useState(null);
   const [form, setForm] = useState(emptyForm);
   const [saving, setSaving] = useState(false);
+
+  const [bulkOpen, setBulkOpen] = useState(false);
+  const [bulkForm, setBulkForm] = useState(emptyBulkForm);
+  const [bulkSaving, setBulkSaving] = useState(false);
 
   const rows = asArray(data).map((enrollment) => {
     const student = enrollment.student;
@@ -159,6 +165,45 @@ export default function EnrollmentPage() {
     }
   };
 
+  const toggleBulkStudent = (studentId) => {
+    setBulkForm((prev) => {
+      const exists = prev.students.includes(studentId);
+      return {
+        ...prev,
+        students: exists
+          ? prev.students.filter((id) => id !== studentId)
+          : [...prev.students, studentId],
+      };
+    });
+  };
+
+  const openBulk = () => {
+    setBulkForm(emptyBulkForm);
+    setBulkOpen(true);
+  };
+
+  const handleBulkSubmit = async () => {
+    if (!bulkForm.schoolClass || bulkForm.students.length === 0) {
+      toast.error("Select a class and at least one student.");
+      return;
+    }
+    setBulkSaving(true);
+    try {
+      const result = await enrollmentService.bulkCreate({
+        students: bulkForm.students,
+        schoolClass: bulkForm.schoolClass,
+      });
+      toast.success(`${result?.length ?? bulkForm.students.length} student(s) enrolled`);
+      setBulkOpen(false);
+      setBulkForm(emptyBulkForm);
+      refetch();
+    } catch {
+      // handled by the axios interceptor toast; batch fully rolled back on any failure
+    } finally {
+      setBulkSaving(false);
+    }
+  };
+
   const handleDelete = async () => {
     setSaving(true);
     try {
@@ -184,6 +229,11 @@ export default function EnrollmentPage() {
         searchValue={search}
         onSearchChange={setSearch}
         searchPlaceholder="Search enrollments..."
+        toolbar={
+          <Button variant="secondary" onClick={openBulk}>
+            Bulk Enroll
+          </Button>
+        }
         columns={columns}
         rows={filtered}
         loading={loading}
@@ -268,6 +318,57 @@ export default function EnrollmentPage() {
         title="Delete Enrollment"
         message={`Delete ${displayName(selected?.student?.user) || "this student"}'s enrollment in ${classLabel(selected?.schoolClass)} (${selected?.session?.name || "session"})? This cannot be undone.`}
       />
+
+      <FormModal
+        isOpen={bulkOpen}
+        onClose={() => setBulkOpen(false)}
+        title="Bulk Enroll Students"
+        onSubmit={handleBulkSubmit}
+        loading={bulkSaving}
+        submitLabel={`Enroll ${bulkForm.students.length || ""} Student${bulkForm.students.length === 1 ? "" : "s"}`}
+      >
+        <Select
+          label="Class"
+          name="bulkSchoolClass"
+          value={bulkForm.schoolClass}
+          onChange={(e) =>
+            setBulkForm((prev) => ({ ...prev, schoolClass: e.target.value }))
+          }
+          options={classOptions}
+          placeholder="Select class"
+          required
+        />
+        <div className="space-y-1">
+          <label className="block text-sm font-medium text-primary">
+            Students <span className="text-crimson">*</span>
+          </label>
+          <div className="max-h-64 overflow-y-auto border border-gray-200 rounded-lg divide-y divide-gray-100">
+            {studentOptions.length === 0 ? (
+              <p className="p-3 text-sm text-slate-gray">No students found.</p>
+            ) : (
+              studentOptions.map((option) => (
+                <label
+                  key={option.value}
+                  className="flex items-center gap-3 px-3 py-2 text-sm text-primary hover:bg-gray-50 cursor-pointer"
+                >
+                  <input
+                    type="checkbox"
+                    checked={bulkForm.students.includes(option.value)}
+                    onChange={() => toggleBulkStudent(option.value)}
+                    className="w-4 h-4 accent-royal-blue"
+                  />
+                  {option.label}
+                </label>
+              ))
+            )}
+          </div>
+        </div>
+        <p className="text-xs text-slate-gray">
+          Enrolls into the current session and term. If any selected student
+          can't be enrolled (already enrolled, etc.), the whole batch is
+          rolled back and nothing is saved.
+        </p>
+      </FormModal>
     </>
   );
 }

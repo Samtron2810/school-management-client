@@ -26,7 +26,10 @@ const emptyForm = { name: "First Term", startDate: "", endDate: "", isCurrent: f
 const toDateInput = (value) => (value ? String(value).slice(0, 10) : "");
 
 export default function TermManagementPage() {
-  const { data, loading, error, refetch } = useApi(termService.list);
+  // Only terms under the active session are shown here by default.
+  const { data, loading, error, refetch } = useApi(() =>
+    termService.list({ activeOnly: true }),
+  );
   const [search, setSearch] = useState("");
   const [formOpen, setFormOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);

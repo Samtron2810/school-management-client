@@ -4,6 +4,8 @@ import api, { unwrap } from "./api";
 export const enrollmentService = {
   // payload: { student, schoolClass }
   create: (payload) => unwrap(api.post("/enrollments", payload)),
+  // payload: { students: [id, ...], schoolClass } — all-or-nothing
+  bulkCreate: (payload) => unwrap(api.post("/enrollments/bulk", payload)),
   list: (params) => unwrap(api.get("/enrollments", { params })),
   get: (id) => unwrap(api.get(`/enrollments/${id}`)),
   // payload: { schoolClass?, status?: "Active"|"Transferred"|"Graduated"|
