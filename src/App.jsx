@@ -35,6 +35,7 @@ const TeacherDashboardPage = lazy(() => import("./pages/teacher/DashboardPage"))
 const TeacherMyClassesPage = lazy(() => import("./pages/teacher/MyClassesPage"));
 const TeacherMySubjectsPage = lazy(() => import("./pages/teacher/MySubjectsPage"));
 const TeacherAssessmentPage = lazy(() => import("./pages/teacher/AssessmentPage"));
+const TeacherAttemptsPage = lazy(() => import("./pages/teacher/AttemptsPage"));
 const TeacherAttendancePage = lazy(() => import("./pages/teacher/AttendancePage"));
 const TeacherLessonPlanPage = lazy(() => import("./pages/teacher/LessonPlanPage"));
 const TeacherQuestionBankPage = lazy(() => import("./pages/teacher/QuestionBankPage"));
@@ -146,6 +147,10 @@ function App() {
                     <Route
                       path="assessments"
                       element={<TeacherAssessmentPage />}
+                    />
+                    <Route
+                      path="attempts"
+                      element={<TeacherAttemptsPage />}
                     />
                     <Route
                       path="attendance"

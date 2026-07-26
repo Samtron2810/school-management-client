@@ -1,10 +1,12 @@
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import toast from "react-hot-toast";
 import { FaEdit, FaTrashAlt } from "react-icons/fa";
 
 import resultService from "../../services/resultService";
 import dashboardService from "../../services/dashboardService";
+import teacherAssignmentService from "../../services/teacherAssignmentService";
 import useApi from "../../hooks/useApi";
+import useMyTeaching from "../../hooks/useMyTeaching";
 import { asArray, displayName } from "../../utils/apiData";
 
 import ManagePage from "../../components/ManagePage";
@@ -36,6 +38,7 @@ const emptyForm = {
 export default function ViewResultsPage() {
   const { data, loading, error, refetch } = useApi(resultService.list);
   const dashboardApi = useApi(dashboardService.getDashboard);
+  const { assignments } = useMyTeaching();
 
   const [search, setSearch] = useState("");
   const [formOpen, setFormOpen] = useState(false);
@@ -43,21 +46,58 @@ export default function ViewResultsPage() {
   const [selected, setSelected] = useState(null);
   const [form, setForm] = useState(emptyForm);
   const [saving, setSaving] = useState(false);
+  const [roster, setRoster] = useState([]);
+  const [rosterLoading, setRosterLoading] = useState(false);
 
   const results = asArray(data);
   const context = dashboardApi.data?.context || null;
 
-  // Students we can record manual results for = students already in my scope
-  const studentOptions = (() => {
-    const map = new Map();
-    results.forEach((result) => {
-      const id = result.student?._id || result.student;
-      if (id && !map.has(id)) {
-        map.set(id, { value: id, label: displayName(result.student?.user) || "Student" });
-      }
-    });
-    return Array.from(map.values());
-  })();
+  // Students eligible for a manually-recorded result = the teacher's actual
+  // class roster (every student across every one of the teacher's
+  // assignments), not students who already happen to have a result — that
+  // would make it impossible to ever record a student's *first* result.
+  useEffect(() => {
+    if (assignments.length === 0) {
+      setRoster([]);
+      return undefined;
+    }
+
+    let cancelled = false;
+    setRosterLoading(true);
+
+    Promise.all(
+      assignments.map((assignment) =>
+        teacherAssignmentService
+          .students(assignment.id)
+          .then((payload) => asArray(payload))
+          .catch(() => []),
+      ),
+    )
+      .then((rosters) => {
+        if (cancelled) return;
+        const map = new Map();
+        rosters.flat().forEach((entry) => {
+          const student = entry.student || {};
+          const id = student._id || entry.student;
+          if (id && !map.has(id)) {
+            map.set(id, {
+              value: id,
+              label: displayName(student.user) || student.admissionNumber || "Student",
+            });
+          }
+        });
+        setRoster(Array.from(map.values()));
+      })
+      .finally(() => {
+        if (!cancelled) setRosterLoading(false);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [assignments]);
+
+  const studentOptions = roster;
 
   const rows = results.map((result) => ({
     _id: result._id,
@@ -219,7 +259,7 @@ export default function ViewResultsPage() {
           value={form.student}
           onChange={set("student")}
           options={studentOptions}
-          placeholder="Select student"
+          placeholder={rosterLoading ? "Loading students..." : "Select student"}
           required
         />
         <div className="grid grid-cols-2 gap-4">
