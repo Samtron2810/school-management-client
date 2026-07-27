@@ -22,12 +22,12 @@ const navItems = [
     icon: FaChalkboardTeacher,
   },
   { label: "My Subjects", path: "/student/my-subjects", icon: FaBook },
+  { label: "My Lessons", path: "/student/my-lessons", icon: FaBook },
   {
     label: "My Assessments",
     path: "/student/my-assessments",
     icon: FaClipboardCheck,
   },
-  { label: "My Lessons", path: "/student/my-lessons", icon: FaBook },
   { label: "My Results", path: "/student/my-results", icon: FaClipboardCheck },
   { label: "Attendance", path: "/student/attendance", icon: FaCalendarCheck },
   {

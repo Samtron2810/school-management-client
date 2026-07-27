@@ -14,6 +14,12 @@ export const classSubjectService = {
   // Blocked server-side while lessons/assessments reference the link.
   remove: (id) => unwrap(api.delete(`/class-subjects/${id}`)),
 
+  // payload: { scoreComponents: [{ key, label, maxMarks, isActive }] }
+  // Configures the mark-entry columns (quiz/assignment/test/exam/...) for
+  // this class+subject.
+  updateScoreComponents: (id, payload) =>
+    unwrap(api.patch(`/class-subjects/${id}/score-components`, payload)),
+
   // Signed-in student → the class-subjects for their current class.
   my: () => unwrap(api.get("/class-subjects/my")),
 };

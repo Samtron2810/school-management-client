@@ -1,34 +1,33 @@
 import { useState } from "react";
 import toast from "react-hot-toast";
+import { FaDownload } from "react-icons/fa";
 
-import resultService from "../../services/resultService";
+import reportCardService from "../../services/reportCardService";
 import studentService from "../../services/studentService";
 import classService from "../../services/classService";
 import useApi from "../../hooks/useApi";
 import { asArray, classLabel, displayName } from "../../utils/apiData";
+import downloadBlobResponse from "../../utils/downloadBlob";
 
 import PageHeader from "../../components/common/PageHeader";
 import Loader from "../../components/common/Loader";
 import ErrorState from "../../components/common/ErrorState";
 import EmptyState from "../../components/common/EmptyState";
-import DataTable from "../../components/tables/DataTable";
 import Card from "../../components/ui/Card";
 import Select from "../../components/ui/Select";
 import Button from "../../components/ui/Button";
-import GradeBadge from "../../components/GradeBadge";
 import ReportCardView from "../../components/ReportCardView";
 import ClassReportCards from "../../components/ClassReportCards";
 
 export default function ReportCardPage() {
-  const resultsApi = useApi(resultService.list);
   const studentsApi = useApi(studentService.list);
   const classesApi = useApi(classService.list);
 
   const [studentId, setStudentId] = useState("");
   const [card, setCard] = useState(null);
   const [cardLoading, setCardLoading] = useState(false);
+  const [downloading, setDownloading] = useState(false);
 
-  const results = asArray(resultsApi.data);
   const studentOptions = asArray(studentsApi.data).map((student) => ({
     value: student._id,
     label: `${displayName(student.user || student)}${student.admissionNumber ? ` (${student.admissionNumber})` : ""}`,
@@ -42,50 +41,42 @@ export default function ReportCardPage() {
     if (!targetId) return;
     setCardLoading(true);
     try {
-      const payload = await resultService.reportCard(targetId);
+      const payload = await reportCardService.get(targetId);
       setCard(payload);
     } catch {
       setCard(null);
-      toast.error("Could not generate the report card");
+      toast.error("Could not load the report card");
     } finally {
       setCardLoading(false);
     }
   };
 
-  const resultColumns = [
-    {
-      header: "Student",
-      accessor: "student",
-      render: (row) => row.__name,
-    },
-    { header: "Subject", accessor: "subject" },
-    { header: "Score", accessor: "score" },
-    {
-      header: "Grade",
-      accessor: "grade",
-      render: (row) => <GradeBadge grade={row.grade} />,
-    },
-    { header: "Term", accessor: "term" },
-  ];
+  const downloadCard = async () => {
+    if (!studentId) return;
+    setDownloading(true);
+    try {
+      const response = await reportCardService.download(studentId);
+      downloadBlobResponse(
+        response,
+        `${displayName(card?.student?.user) || "report-card"}.pdf`,
+      );
+    } catch {
+      toast.error("Download failed");
+    } finally {
+      setDownloading(false);
+    }
+  };
 
-  const resultRows = results.map((result) => ({
-    ...result,
-    __name: displayName(result.student?.user) || "—",
-    subject: result.classSubject?.subject?.name || result.title || "—",
-    score: `${result.score ?? 0}/${result.totalMarks ?? 0} (${result.percentage ?? 0}%)`,
-    term: result.term?.name || "—",
-  }));
-
-  if (resultsApi.loading || studentsApi.loading || classesApi.loading) {
-    return <Loader text="Loading results..." />;
+  if (studentsApi.loading || classesApi.loading) {
+    return <Loader text="Loading..." />;
   }
-  if (resultsApi.error) return <ErrorState onRetry={resultsApi.refetch} />;
+  if (studentsApi.error) return <ErrorState onRetry={studentsApi.refetch} />;
 
   return (
     <div>
       <PageHeader
         title="Report Cards"
-        subtitle="Generate term report cards and review all recorded results"
+        subtitle="Review, publish, and download student report cards"
       />
 
       <Card className="mb-6">
@@ -104,13 +95,18 @@ export default function ReportCardPage() {
             />
           </div>
           <Button onClick={() => loadCard(studentId)} disabled={!studentId} loading={cardLoading}>
-            Generate Report Card
+            View Report Card
           </Button>
+          {card && (
+            <Button variant="outline" icon={FaDownload} onClick={downloadCard} loading={downloading}>
+              Download
+            </Button>
+          )}
         </div>
       </Card>
 
       {cardLoading ? (
-        <Loader text="Building report card..." />
+        <Loader text="Loading report card..." />
       ) : card ? (
         <Card className="mb-6">
           <ReportCardView card={card} />
@@ -118,18 +114,11 @@ export default function ReportCardPage() {
       ) : (
         <EmptyState
           title="No report card selected"
-          description="Pick a student above to generate their report card."
+          description="Pick a student above to view their report card."
         />
       )}
 
       <ClassReportCards classOptions={classOptions} />
-
-      <h2 className="text-lg font-semibold text-primary mt-8 mb-4">All Results</h2>
-      {resultRows.length === 0 ? (
-        <EmptyState title="No results recorded" description="Results recorded by teachers will appear here." />
-      ) : (
-        <DataTable columns={resultColumns} data={resultRows} pageSize={15} />
-      )}
     </div>
   );
 }

@@ -17,23 +17,23 @@ const navItems = [
   { label: "Dashboard", path: "/parent/dashboard", icon: FaTachometerAlt },
   { label: "My Children", path: "/parent/children", icon: FaUserGraduate },
   {
-    label: "Child's Assessments",
-    path: "/parent/child-assessments",
-    icon: FaClipboardCheck,
-  },
-  {
     label: "Child's Attendance",
     path: "/parent/child-attendance",
     icon: FaCalendarCheck,
   },
   {
-    label: "Child's Report Cards",
-    path: "/parent/child-report-cards",
+    label: "Child's Assessments",
+    path: "/parent/child-assessments",
     icon: FaClipboardCheck,
   },
   {
     label: "Child's Results",
     path: "/parent/child-results",
+    icon: FaClipboardCheck,
+  },
+  {
+    label: "Child's Report Cards",
+    path: "/parent/child-report-cards",
     icon: FaClipboardCheck,
   },
   { label: "Announcements", path: "/parent/announcements", icon: FaBullhorn },

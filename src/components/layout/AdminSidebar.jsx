@@ -17,6 +17,7 @@ import {
   FaLink,
   FaUserTie,
   FaLevelUpAlt,
+  FaEdit,
   FaSignOutAlt,
   FaTimes,
   FaChevronLeft,
@@ -44,8 +45,9 @@ const navItems = [
   { label: "Terms", path: "/admin/terms", icon: FaCalendarAlt },
   { label: "Attendance", path: "/admin/attendance", icon: FaCalendarCheck },
   { label: "Assessments", path: "/admin/assessments", icon: FaClipboardList },
-  { label: "Announcements", path: "/admin/announcements", icon: FaBullhorn },
+  { label: "Mark Entries", path: "/admin/mark-entries", icon: FaEdit },
   { label: "Reports", path: "/admin/reports", icon: FaFileAlt },
+  { label: "Announcements", path: "/admin/announcements", icon: FaBullhorn },
 ];
 
 export default function Sidebar({ mobileOpen, onToggleMobile }) {

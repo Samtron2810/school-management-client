@@ -9,6 +9,7 @@ import {
   FaCalendarCheck,
   FaUserGraduate,
   FaBullhorn,
+  FaEdit,
   FaSignOutAlt,
   FaTimes,
   FaChevronLeft,
@@ -24,6 +25,9 @@ const navItems = [
     icon: FaChalkboardTeacher,
   },
   { label: "My Subjects", path: "/teacher/my-subjects", icon: FaBook },
+  { label: "Students", path: "/teacher/students", icon: FaUserGraduate },
+  { label: "Lesson Plans", path: "/teacher/lesson-plans", icon: FaBook },
+  { label: "Question Bank", path: "/teacher/question-bank", icon: FaBook },
   {
     label: "Assessments",
     path: "/teacher/assessments",
@@ -34,16 +38,18 @@ const navItems = [
     path: "/teacher/attempts",
     icon: FaFileSignature,
   },
+  {
+    label: "Mark Entries",
+    path: "/teacher/mark-entries",
+    icon: FaEdit,
+  },
   { label: "Attendance", path: "/teacher/attendance", icon: FaCalendarCheck },
-  { label: "Lesson Plans", path: "/teacher/lesson-plans", icon: FaBook },
-  { label: "Question Bank", path: "/teacher/question-bank", icon: FaBook },
   {
     label: "Report Cards",
     path: "/teacher/report-cards",
     icon: FaClipboardCheck,
   },
-  { label: "Students", path: "/teacher/students", icon: FaUserGraduate },
-  { label: "Results", path: "/teacher/results", icon: FaClipboardCheck },
+  // { label: "Results", path: "/teacher/results", icon: FaClipboardCheck },
   { label: "Announcements", path: "/teacher/announcements", icon: FaBullhorn },
 ];
 

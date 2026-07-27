@@ -38,6 +38,9 @@ const SessionManagementPage = lazy(
   () => import("./pages/admin/SessionManagementPage"),
 );
 const ReportCardPage = lazy(() => import("./pages/admin/ReportCardPage"));
+const AdminMarkEntriesPage = lazy(
+  () => import("./pages/admin/MarkEntriesPage"),
+);
 const EnrollmentPage = lazy(() => import("./pages/admin/EnrollmentPage"));
 const ParentManagementPage = lazy(
   () => import("./pages/admin/ParentManagementPage"),
@@ -80,12 +83,13 @@ const TeacherQuestionBankPage = lazy(
 const TeacherReportCardPage = lazy(
   () => import("./pages/teacher/ReportCardPage"),
 );
+const TeacherMarkEntriesPage = lazy(
+  () => import("./pages/teacher/MarkEntriesPage"),
+);
 const TeacherStudentListPage = lazy(
   () => import("./pages/teacher/StudentListPage"),
 );
-const TeacherViewResultsPage = lazy(
-  () => import("./pages/teacher/ViewResultsPage"),
-);
+// const TeacherViewResultsPage = lazy(() => import("./pages/teacher/ViewResultsPage"));
 
 // Student Pages
 const StudentDashboardPage = lazy(
@@ -205,6 +209,10 @@ function App() {
                       element={<SessionManagementPage />}
                     />
                     <Route path="reports" element={<ReportCardPage />} />
+                    <Route
+                      path="mark-entries"
+                      element={<AdminMarkEntriesPage />}
+                    />
                     <Route path="enrollments" element={<EnrollmentPage />} />
                     <Route path="parents" element={<ParentManagementPage />} />
                     <Route path="users" element={<UserManagementPage />} />
@@ -263,13 +271,14 @@ function App() {
                       element={<TeacherReportCardPage />}
                     />
                     <Route
+                      path="mark-entries"
+                      element={<TeacherMarkEntriesPage />}
+                    />
+                    <Route
                       path="students"
                       element={<TeacherStudentListPage />}
                     />
-                    <Route
-                      path="results"
-                      element={<TeacherViewResultsPage />}
-                    />
+                    {/* <Route path="results" element={<TeacherViewResultsPage />} /> */}
                     <Route
                       path="announcements"
                       element={<AnnouncementsPage />}
