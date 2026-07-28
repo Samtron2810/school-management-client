@@ -1,9 +1,8 @@
 import { useEffect, useMemo, useState } from "react";
 import toast from "react-hot-toast";
-import { FaCog, FaSave } from "react-icons/fa";
+import { FaSave } from "react-icons/fa";
 
 import subjectScoreService from "../services/subjectScoreService";
-import classSubjectService from "../services/classSubjectService";
 import { displayName } from "../utils/apiData";
 
 import PageHeader from "./common/PageHeader";
@@ -13,8 +12,6 @@ import EmptyState from "./common/EmptyState";
 import Card from "./ui/Card";
 import Select from "./ui/Select";
 import Button from "./ui/Button";
-import Toggle from "./ui/Toggle";
-import Modal from "./ui/Modal";
 import GradeBadge from "./GradeBadge";
 
 // Shared Mark Entries grid for admin and teacher.
@@ -22,6 +19,12 @@ import GradeBadge from "./GradeBadge";
 // classOptions / subjectOptionsFor are supplied by the wrapping page so the
 // two roles can scope them differently (admin: every class / every subject
 // linked to it; teacher: only classes+subjects they're assigned to).
+//
+// Score-entry columns (CA 1, CA 2, Test, Exam, etc) are global and
+// admin-managed (School Settings > Mark Entry Columns) — no one can
+// configure them from this page. Inactive columns still show here
+// (read-only) so past scores stay visible, they just don't count toward
+// the total.
 export default function MarkEntries({
   classOptions,
   subjectOptionsFor, // (schoolClassId) => [{ value, label }]
@@ -36,10 +39,6 @@ export default function MarkEntries({
   // Local edit buffer: { [studentId]: { [componentKey]: "8" } }
   const [edits, setEdits] = useState({});
   const [saving, setSaving] = useState(false);
-
-  const [configOpen, setConfigOpen] = useState(false);
-  const [configDraft, setConfigDraft] = useState([]);
-  const [configSaving, setConfigSaving] = useState(false);
 
   const subjectOptions = useMemo(
     () => (schoolClass ? subjectOptionsFor(schoolClass) : []),
@@ -124,68 +123,6 @@ export default function MarkEntries({
     }
   };
 
-  const openConfig = () => {
-    setConfigDraft(
-      allComponents.length > 0
-        ? allComponents.map((c) => ({ ...c }))
-        : [
-            { key: "quiz", label: "Quiz", maxMarks: 10, isActive: true },
-            { key: "assignment", label: "Assignment", maxMarks: 10, isActive: true },
-            { key: "test", label: "Test", maxMarks: 20, isActive: true },
-            { key: "exam", label: "Examination", maxMarks: 60, isActive: true },
-          ],
-    );
-    setConfigOpen(true);
-  };
-
-  const updateConfigField = (index, field, value) => {
-    setConfigDraft((prev) =>
-      prev.map((c, i) => (i === index ? { ...c, [field]: value } : c)),
-    );
-  };
-
-  const addConfigColumn = () => {
-    setConfigDraft((prev) => [
-      ...prev,
-      { key: "", label: "", maxMarks: 10, isActive: true },
-    ]);
-  };
-
-  const removeConfigColumn = (index) => {
-    setConfigDraft((prev) => prev.filter((_, i) => i !== index));
-  };
-
-  const saveConfig = async () => {
-    if (!grid) return;
-    const cleaned = configDraft
-      .map((c) => ({
-        key: (c.key || c.label || "").trim().toLowerCase().replace(/\s+/g, "-"),
-        label: (c.label || "").trim(),
-        maxMarks: Number(c.maxMarks) || 0,
-        isActive: c.isActive !== false,
-      }))
-      .filter((c) => c.key && c.label);
-
-    if (cleaned.length === 0) {
-      toast.error("Add at least one score column.");
-      return;
-    }
-
-    setConfigSaving(true);
-    try {
-      await classSubjectService.updateScoreComponents(grid.classSubject._id, {
-        scoreComponents: cleaned,
-      });
-      toast.success("Score columns updated");
-      setConfigOpen(false);
-      await loadGrid();
-    } catch {
-      // handled by the axios interceptor toast
-    } finally {
-      setConfigSaving(false);
-    }
-  };
-
   return (
     <div>
       <PageHeader
@@ -251,27 +188,22 @@ export default function MarkEntries({
                 {grid.students.length === 1 ? "" : "s"}
               </p>
             </div>
-            <div className="flex items-center gap-2">
-              <Button variant="outline" size="sm" icon={FaCog} onClick={openConfig}>
-                Manage Columns
-              </Button>
-              <Button
-                size="sm"
-                icon={FaSave}
-                onClick={handleSaveAll}
-                loading={saving}
-                disabled={!hasUnsavedEdits}
-              >
-                Save All
-              </Button>
-            </div>
+            <Button
+              size="sm"
+              icon={FaSave}
+              onClick={handleSaveAll}
+              loading={saving}
+              disabled={!hasUnsavedEdits}
+            >
+              Save All
+            </Button>
           </div>
 
           {allComponents.length === 0 ? (
             <div className="p-6">
               <EmptyState
                 title="No score columns configured"
-                description='Click "Manage Columns" to set up quiz, assignment, test, exam, etc. for this subject.'
+                description="Ask an admin to set up mark-entry columns under School Settings."
               />
             </div>
           ) : grid.students.length === 0 ? (
@@ -294,6 +226,11 @@ export default function MarkEntries({
                         className={`px-4 py-3 font-medium whitespace-nowrap ${
                           !component.isActive ? "opacity-40" : ""
                         }`}
+                        title={
+                          component.isActive
+                            ? undefined
+                            : "Inactive — set by admin, read-only, excluded from the total"
+                        }
                       >
                         {component.label}
                         <span className="text-xs text-slate-gray ml-1">
@@ -333,6 +270,11 @@ export default function MarkEntries({
                               setValue(row.student._id, component.key, e.target.value)
                             }
                             disabled={!component.isActive}
+                            title={
+                              component.isActive
+                                ? undefined
+                                : "This column is inactive — set by admin"
+                            }
                             className={`w-20 px-2 py-1.5 rounded-lg border text-sm text-primary focus:outline-none focus:ring-2 focus:ring-royal-blue/20 focus:border-royal-blue transition-colors ${
                               !component.isActive
                                 ? "bg-gray-50 border-gray-100 cursor-not-allowed text-slate-gray"
@@ -357,67 +299,14 @@ export default function MarkEntries({
 
           <p className="text-xs text-slate-gray p-4 border-t border-gray-100">
             Fill in any fields you have — you don't need to complete every column
-            before saving. Scores from a published assessment (matching the
-            column's type) prefill automatically; the latest attempt always
-            overwrites the column.
+            before saving. Scores from a published assessment (Quiz → CA 1,
+            Assignment → CA 2, Test → Test, Examination → Exam) prefill
+            automatically; the latest attempt always overwrites the column.
+            Columns are set by your school admin and apply to every class and
+            subject.
           </p>
         </Card>
       )}
-
-      <Modal
-        isOpen={configOpen}
-        onClose={() => setConfigOpen(false)}
-        title="Manage Score Columns"
-        maxWidth="lg"
-      >
-        <div className="space-y-3">
-          {configDraft.map((component, index) => (
-            <div key={index} className="flex items-center gap-2">
-              <input
-                type="text"
-                value={component.label}
-                onChange={(e) => updateConfigField(index, "label", e.target.value)}
-                placeholder="Column label (e.g. Quiz)"
-                className="flex-1 px-3 py-2 rounded-lg border border-gray-200 text-sm text-primary focus:outline-none focus:ring-2 focus:ring-royal-blue/20 focus:border-royal-blue"
-              />
-              <input
-                type="number"
-                min={0}
-                value={component.maxMarks}
-                onChange={(e) => updateConfigField(index, "maxMarks", e.target.value)}
-                placeholder="Max"
-                className="w-20 px-3 py-2 rounded-lg border border-gray-200 text-sm text-primary focus:outline-none focus:ring-2 focus:ring-royal-blue/20 focus:border-royal-blue"
-              />
-              <Toggle
-                enabled={component.isActive}
-                onChange={(value) => updateConfigField(index, "isActive", value)}
-              />
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => removeConfigColumn(index)}
-              >
-                Remove
-              </Button>
-            </div>
-          ))}
-          <Button variant="outline" size="sm" onClick={addConfigColumn}>
-            Add Column
-          </Button>
-          <p className="text-xs text-slate-gray">
-            Turning a column off excludes it from the total but keeps any scores
-            already entered — turn it back on any time without losing data.
-          </p>
-          <div className="flex justify-end gap-2 pt-2">
-            <Button variant="secondary" onClick={() => setConfigOpen(false)}>
-              Cancel
-            </Button>
-            <Button onClick={saveConfig} loading={configSaving}>
-              Save Columns
-            </Button>
-          </div>
-        </div>
-      </Modal>
     </div>
   );
 }

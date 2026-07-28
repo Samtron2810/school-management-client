@@ -11,6 +11,7 @@ import ErrorState from "../../components/common/ErrorState";
 import Card from "../../components/ui/Card";
 import Button from "../../components/ui/Button";
 import Input from "../../components/ui/Input";
+import Toggle from "../../components/ui/Toggle";
 
 const idFormatKinds = [
   { key: "teacher", label: "Teachers" },
@@ -39,6 +40,9 @@ export default function SettingsPage() {
       logoUrl: data.logo?.url || "",
       passingScore: data.passingScore ?? 40,
       gradeBands: (data.gradeBands || []).map((band) => ({ ...band })),
+      scoreComponents: (data.scoreComponents || []).map((component) => ({
+        ...component,
+      })),
       idFormats: {
         teacher: {
           prefix: data.idFormats?.teacher?.prefix ?? "TCH-",
@@ -85,6 +89,24 @@ export default function SettingsPage() {
   const removeBand = (index) =>
     update({ gradeBands: form.gradeBands.filter((_, i) => i !== index) });
 
+  const setComponent = (index, field, value) =>
+    update({
+      scoreComponents: form.scoreComponents.map((component, i) =>
+        i === index ? { ...component, [field]: value } : component,
+      ),
+    });
+
+  const addComponent = () =>
+    update({
+      scoreComponents: [
+        ...form.scoreComponents,
+        { key: "", label: "", maxMarks: 10, isActive: true },
+      ],
+    });
+
+  const removeComponent = (index) =>
+    update({ scoreComponents: form.scoreComponents.filter((_, i) => i !== index) });
+
   const setIdFormat = (kind, field, value) =>
     update({
       idFormats: {
@@ -115,6 +137,17 @@ export default function SettingsPage() {
             minScore: Number(band.minScore) || 0,
             gradePoint: Number(band.gradePoint) || 0,
             remark: band.remark || "",
+          })),
+        scoreComponents: form.scoreComponents
+          .filter((component) => component.label)
+          .map((component) => ({
+            key: (component.key || component.label)
+              .trim()
+              .toLowerCase()
+              .replace(/\s+/g, ""),
+            label: component.label.trim(),
+            maxMarks: Number(component.maxMarks) || 0,
+            isActive: component.isActive !== false,
           })),
         idFormats: Object.fromEntries(
           idFormatKinds.map(({ key }) => [
@@ -316,6 +349,68 @@ export default function SettingsPage() {
                   onClick={() => removeBand(index)}
                   className="justify-self-end text-crimson hover:bg-red-50 p-2 rounded-lg transition-colors"
                   aria-label="Remove band"
+                >
+                  <FaTrashAlt />
+                </button>
+              </div>
+            ))}
+          </div>
+        </Card>
+
+        {/* Mark-entry score components (global, shared by every class/subject) */}
+        <Card className="lg:col-span-2">
+          <div className="flex items-center justify-between mb-1">
+            <h2 className="text-base font-semibold text-primary">
+              Mark Entry Columns
+            </h2>
+            <Button variant="outline" size="sm" icon={FaPlus} onClick={addComponent}>
+              Add Column
+            </Button>
+          </div>
+          <p className="text-xs text-slate-gray mb-4">
+            These columns apply to every class and subject school-wide, so
+            report cards stay consistent no matter who enters the scores.
+            Turning a column off excludes it from the total but keeps any
+            scores already entered — teachers still see it, but can no
+            longer edit it.
+          </p>
+
+          <div className="space-y-2">
+            <div className="hidden sm:grid grid-cols-[1fr_8rem_6rem_2.5rem] gap-3 px-1 text-xs font-semibold text-slate-gray uppercase tracking-wide">
+              <span>Label</span>
+              <span>Max Marks</span>
+              <span>Active</span>
+              <span />
+            </div>
+            {form.scoreComponents.map((component, index) => (
+              <div
+                key={index}
+                className="grid grid-cols-2 sm:grid-cols-[1fr_8rem_6rem_2.5rem] gap-3 items-center bg-gray-50 rounded-lg p-3"
+              >
+                <Input
+                  aria-label="Column label"
+                  name={`component-${index}-label`}
+                  value={component.label}
+                  onChange={(e) => setComponent(index, "label", e.target.value)}
+                  placeholder="CA 1"
+                />
+                <Input
+                  aria-label="Max marks"
+                  name={`component-${index}-maxMarks`}
+                  type="number"
+                  min="0"
+                  value={component.maxMarks}
+                  onChange={(e) => setComponent(index, "maxMarks", e.target.value)}
+                />
+                <Toggle
+                  enabled={component.isActive !== false}
+                  onChange={(value) => setComponent(index, "isActive", value)}
+                />
+                <button
+                  type="button"
+                  onClick={() => removeComponent(index)}
+                  className="justify-self-end text-crimson hover:bg-red-50 p-2 rounded-lg transition-colors"
+                  aria-label="Remove column"
                 >
                   <FaTrashAlt />
                 </button>

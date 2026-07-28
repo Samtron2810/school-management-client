@@ -22,6 +22,7 @@ import {
   FaTimes,
   FaChevronLeft,
   FaChevronRight,
+  FaCog,
 } from "react-icons/fa";
 import useAuth from "../../hooks/useAuth";
 
@@ -47,6 +48,7 @@ const navItems = [
   { label: "Assessments", path: "/admin/assessments", icon: FaClipboardList },
   { label: "Mark Entries", path: "/admin/mark-entries", icon: FaEdit },
   { label: "Reports", path: "/admin/reports", icon: FaFileAlt },
+  { label: "Settings", path: "/admin/settings", icon: FaCog },
   { label: "Announcements", path: "/admin/announcements", icon: FaBullhorn },
 ];
 

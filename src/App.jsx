@@ -53,6 +53,7 @@ const PromotionPage = lazy(() => import("./pages/admin/PromotionPage"));
 const TeacherAssignmentPage = lazy(
   () => import("./pages/admin/TeacherAssignmentPage"),
 );
+const SettingsPage = lazy(() => import("./pages/admin/SettingsPage"));
 const TermManagementPage = lazy(
   () => import("./pages/admin/TermManagementPage"),
 );
@@ -226,6 +227,7 @@ function App() {
                       element={<TeacherAssignmentPage />}
                     />
                     <Route path="terms" element={<TermManagementPage />} />
+                    <Route path="settings" element={<SettingsPage />} />
                     <Route path="profile" element={<ProfilePage />} />
                   </Route>
                 </Route>
