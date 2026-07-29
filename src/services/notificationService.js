@@ -7,6 +7,7 @@ export const notificationService = {
   my: (params) => unwrap(api.get("/notifications/my", { params })),
   markRead: (id) => unwrap(api.patch(`/notifications/${id}/read`)),
   markAllRead: () => unwrap(api.patch("/notifications/read-all")),
+  remove: (id) => unwrap(api.delete(`/notifications/${id}`)),
 };
 
 export default notificationService;

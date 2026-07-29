@@ -151,6 +151,7 @@ import ProtectedRoute from "./routes/ProtectedRoute";
 import RoleRoute from "./routes/RoleRoute";
 import ProfilePage from "./pages/shared/ProfilePage";
 import AnnouncementsPage from "./pages/shared/AnnouncementsPage";
+import NotificationsPage from "./pages/shared/NotificationsPage";
 
 function App() {
   return (
@@ -228,6 +229,10 @@ function App() {
                     />
                     <Route path="terms" element={<TermManagementPage />} />
                     <Route path="settings" element={<SettingsPage />} />
+                    <Route
+                      path="notifications"
+                      element={<NotificationsPage />}
+                    />
                     <Route path="profile" element={<ProfilePage />} />
                   </Route>
                 </Route>
@@ -285,6 +290,10 @@ function App() {
                       path="announcements"
                       element={<AnnouncementsPage />}
                     />
+                    <Route
+                      path="notifications"
+                      element={<NotificationsPage />}
+                    />
                     <Route path="profile" element={<ProfilePage />} />
                   </Route>
                 </Route>
@@ -336,6 +345,10 @@ function App() {
                       path="announcements"
                       element={<AnnouncementsPage />}
                     />
+                    <Route
+                      path="notifications"
+                      element={<NotificationsPage />}
+                    />
                     <Route path="profile" element={<ProfilePage />} />
                   </Route>
                 </Route>
@@ -368,6 +381,10 @@ function App() {
                     <Route
                       path="announcements"
                       element={<AnnouncementsPage />}
+                    />
+                    <Route
+                      path="notifications"
+                      element={<NotificationsPage />}
                     />
                     <Route path="profile" element={<ProfilePage />} />
                   </Route>

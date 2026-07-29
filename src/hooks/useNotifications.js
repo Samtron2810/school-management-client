@@ -9,7 +9,11 @@ export default function useNotifications({
   unread = false,
   pollInterval = 60000,
 } = {}) {
-  const [data, setData] = useState({ items: [], unreadCount: 0, pagination: null });
+  const [data, setData] = useState({
+    items: [],
+    unreadCount: 0,
+    pagination: null,
+  });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const mounted = useRef(true);
@@ -54,19 +58,16 @@ export default function useNotifications({
     };
   }, [fetchNow, pollInterval]);
 
-  const markRead = useCallback(
-    async (id) => {
-      await notificationService.markRead(id);
-      setData((prev) => ({
-        ...prev,
-        items: prev.items.map((item) =>
-          item._id === id ? { ...item, isRead: true } : item,
-        ),
-        unreadCount: Math.max(0, prev.unreadCount - 1),
-      }));
-    },
-    [],
-  );
+  const markRead = useCallback(async (id) => {
+    await notificationService.markRead(id);
+    setData((prev) => ({
+      ...prev,
+      items: prev.items.map((item) =>
+        item._id === id ? { ...item, isRead: true } : item,
+      ),
+      unreadCount: Math.max(0, prev.unreadCount - 1),
+    }));
+  }, []);
 
   const markAllRead = useCallback(async () => {
     await notificationService.markAllRead();
@@ -75,6 +76,19 @@ export default function useNotifications({
       items: prev.items.map((item) => ({ ...item, isRead: true })),
       unreadCount: 0,
     }));
+  }, []);
+
+  const remove = useCallback(async (id) => {
+    await notificationService.remove(id);
+    setData((prev) => {
+      const item = prev.items.find((i) => i._id === id);
+      return {
+        ...prev,
+        items: prev.items.filter((i) => i._id !== id),
+        unreadCount:
+          item && !item.isRead ? prev.unreadCount - 1 : prev.unreadCount,
+      };
+    });
   }, []);
 
   return {
@@ -86,5 +100,6 @@ export default function useNotifications({
     refetch: () => fetchNow(true),
     markRead,
     markAllRead,
+    remove,
   };
 }
