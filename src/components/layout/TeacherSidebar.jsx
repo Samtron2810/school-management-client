@@ -5,7 +5,6 @@ import {
   FaBook,
   FaChalkboardTeacher,
   FaClipboardCheck,
-  FaFileSignature,
   FaCalendarCheck,
   FaUserGraduate,
   FaBullhorn,
@@ -14,6 +13,7 @@ import {
   FaTimes,
   FaChevronLeft,
   FaChevronRight,
+  FaCalendarAlt,
 } from "react-icons/fa";
 import useAuth from "../../hooks/useAuth";
 
@@ -39,6 +39,7 @@ const navItems = [
     icon: FaEdit,
   },
   { label: "Attendance", path: "/teacher/attendance", icon: FaCalendarCheck },
+  { label: "My Timetable", path: "/teacher/timetable", icon: FaCalendarAlt },
   {
     label: "Report Cards",
     path: "/teacher/report-cards",

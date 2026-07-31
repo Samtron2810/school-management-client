@@ -11,6 +11,7 @@ import {
   FaTimes,
   FaChevronLeft,
   FaChevronRight,
+  FaCalendarAlt,
 } from "react-icons/fa";
 import useAuth from "../../hooks/useAuth";
 
@@ -30,6 +31,7 @@ const navItems = [
   },
   { label: "My Results", path: "/student/my-results", icon: FaClipboardCheck },
   { label: "Attendance", path: "/student/attendance", icon: FaCalendarCheck },
+  { label: "My Timetable", path: "/student/timetable", icon: FaCalendarAlt },
   {
     label: "Report Cards",
     path: "/student/report-cards",

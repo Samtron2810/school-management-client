@@ -10,6 +10,7 @@ import {
   FaTimes,
   FaChevronLeft,
   FaChevronRight,
+  FaCalendarAlt,
 } from "react-icons/fa";
 import useAuth from "../../hooks/useAuth";
 
@@ -20,6 +21,11 @@ const navItems = [
     label: "Child's Attendance",
     path: "/parent/child-attendance",
     icon: FaCalendarCheck,
+  },
+  {
+    label: "Child's Timetable",
+    path: "/parent/timetable",
+    icon: FaCalendarAlt,
   },
   {
     label: "Child's Assessments",

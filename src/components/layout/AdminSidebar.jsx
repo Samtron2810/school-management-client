@@ -45,6 +45,7 @@ const navItems = [
   { label: "Sessions", path: "/admin/sessions", icon: FaCalendarAlt },
   { label: "Terms", path: "/admin/terms", icon: FaCalendarAlt },
   { label: "Attendance", path: "/admin/attendance", icon: FaCalendarCheck },
+  { label: "Timetable", path: "/admin/timetable", icon: FaCalendarAlt },
   { label: "Assessments", path: "/admin/assessments", icon: FaClipboardList },
   { label: "Mark Entries", path: "/admin/mark-entries", icon: FaEdit },
   { label: "Reports", path: "/admin/reports", icon: FaFileAlt },

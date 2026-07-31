@@ -37,6 +37,9 @@ const AnnouncementManagementPage = lazy(
 const SessionManagementPage = lazy(
   () => import("./pages/admin/SessionManagementPage"),
 );
+const TimetableManagementPage = lazy(
+  () => import("./pages/admin/TimetableManagementPage"),
+);
 const ReportCardPage = lazy(() => import("./pages/admin/ReportCardPage"));
 const AdminMarkEntriesPage = lazy(
   () => import("./pages/admin/MarkEntriesPage"),
@@ -90,9 +93,7 @@ const TeacherMarkEntriesPage = lazy(
 const TeacherStudentListPage = lazy(
   () => import("./pages/teacher/StudentListPage"),
 );
-// const TeacherViewResultsPage = lazy(
-//   () => import("./pages/teacher/ViewResultsPage"),
-// );
+// const TeacherViewResultsPage = lazy(() => import("./pages/teacher/ViewResultsPage"));
 
 // Student Pages
 const StudentDashboardPage = lazy(
@@ -122,6 +123,7 @@ const StudentReportCardPage = lazy(
 const StudentTakeAssessmentPage = lazy(
   () => import("./pages/student/TakeAssessmentPage"),
 );
+const MyTimetablePage = lazy(() => import("./pages/shared/MyTimetablePage"));
 
 // Parent Pages
 const ParentDashboardPage = lazy(() => import("./pages/parent/DashboardPage"));
@@ -232,6 +234,10 @@ function App() {
                     <Route path="terms" element={<TermManagementPage />} />
                     <Route path="settings" element={<SettingsPage />} />
                     <Route
+                      path="timetable"
+                      element={<TimetableManagementPage />}
+                    />
+                    <Route
                       path="notifications"
                       element={<NotificationsPage />}
                     />
@@ -287,10 +293,8 @@ function App() {
                       path="students"
                       element={<TeacherStudentListPage />}
                     />
-                    {/* <Route
-                      path="results"
-                      element={<TeacherViewResultsPage />}
-                    /> */}
+                    {/* <Route path="results" element={<TeacherViewResultsPage />} /> */}
+                    <Route path="timetable" element={<MyTimetablePage />} />
                     <Route
                       path="announcements"
                       element={<AnnouncementsPage />}
@@ -346,6 +350,7 @@ function App() {
                       path="take-assessment"
                       element={<StudentTakeAssessmentPage />}
                     />
+                    <Route path="timetable" element={<MyTimetablePage />} />
                     <Route
                       path="announcements"
                       element={<AnnouncementsPage />}
@@ -383,6 +388,7 @@ function App() {
                       path="child-results"
                       element={<ParentChildResultsPage />}
                     />
+                    <Route path="timetable" element={<MyTimetablePage />} />
                     <Route
                       path="announcements"
                       element={<AnnouncementsPage />}
