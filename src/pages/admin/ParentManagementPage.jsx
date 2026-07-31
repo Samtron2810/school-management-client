@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import toast from "react-hot-toast";
 import { FaEdit, FaLink } from "react-icons/fa";
 
@@ -44,6 +44,20 @@ export default function ParentManagementPage() {
   const [form, setForm] = useState(emptyForm);
   const [linkForm, setLinkForm] = useState(emptyLinkForm);
   const [saving, setSaving] = useState(false);
+  const [linkedStudents, setLinkedStudents] = useState([]);
+  const [loadingLinks, setLoadingLinks] = useState(false);
+
+  useEffect(() => {
+    if (selected) {
+      setLoadingLinks(true);
+      parentService.getChildren(selected._id)
+        .then(data => setLinkedStudents(asArray(data)))
+        .catch(() => setLinkedStudents([]))
+        .finally(() => setLoadingLinks(false));
+    } else {
+      setLinkedStudents([]);
+    }
+  }, [selected]);
 
   // The server auto-generates parent IDs from School Settings when the
   // field is left blank — pre-fill the next sequential ID as a hint.
@@ -250,6 +264,49 @@ export default function ParentManagementPage() {
             <label htmlFor="parent-active" className="text-sm text-primary">
               Parent is active
             </label>
+          </div>
+        )}
+        {selected && (
+          <div className="border-t border-gray-100 pt-4 mt-4">
+            <h4 className="text-sm font-semibold text-primary mb-2">Linked Students</h4>
+            {loadingLinks ? (
+              <p className="text-xs text-slate-gray">Loading links...</p>
+            ) : linkedStudents.length === 0 ? (
+              <p className="text-xs text-slate-gray">No linked students found.</p>
+            ) : (
+              <ul className="space-y-2">
+                {linkedStudents.map((item) => (
+                  <li key={item._id} className="flex items-center justify-between p-2 rounded-lg bg-gray-50 text-xs">
+                    <div>
+                      <span className="font-semibold text-primary">
+                        {displayName(item.student?.user || item.student)}
+                      </span>{" "}
+                      ({item.relationship || "Child"})
+                    </div>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      className="text-crimson border-crimson hover:bg-crimson/5 py-1 px-2 text-[10px]"
+                      onClick={async () => {
+                        if (window.confirm("Are you sure you want to unlink this student?")) {
+                          try {
+                            await parentService.unlinkStudent(item._id);
+                            toast.success("Student unlinked successfully");
+                            const updated = await parentService.getChildren(selected._id);
+                            setLinkedStudents(asArray(updated));
+                          } catch {
+                            toast.error("Failed to unlink student");
+                          }
+                        }
+                      }}
+                    >
+                      Unlink
+                    </Button>
+                  </li>
+                ))}
+              </ul>
+            )}
           </div>
         )}
       </FormModal>

@@ -1,6 +1,7 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
-import { FaBan, FaCheckCircle, FaEye, FaPlus } from "react-icons/fa";
+import { FaBan, FaCheckCircle, FaEye, FaPlus, FaFileSignature } from "react-icons/fa";
 
 import assessmentService from "../../services/assessmentService";
 import questionService from "../../services/questionService";
@@ -46,6 +47,7 @@ const emptyForm = {
 
 export default function AssessmentPage() {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const { data, loading, error, refetch } = useApi(assessmentService.list);
   const { assignments } = useMyTeaching();
 
@@ -200,13 +202,21 @@ export default function AssessmentPage() {
       header: "Actions",
       render: (row) => (
         <div className="flex items-center gap-1">
-          <Button variant="ghost" size="sm" icon={FaEye} onClick={() => openQuestions(row)} />
+          <Button variant="ghost" size="sm" icon={FaEye} title="Questions" onClick={() => openQuestions(row)} />
           <Button
             variant="ghost"
             size="sm"
             icon={row.status === "published" ? FaBan : FaCheckCircle}
+            title={row.status === "published" ? "Unpublish" : "Publish"}
             loading={busyId === row._id}
             onClick={() => togglePublish(row)}
+          />
+          <Button
+            variant="ghost"
+            size="sm"
+            icon={FaFileSignature}
+            title="Attempts"
+            onClick={() => navigate(`/teacher/attempts?assessment=${row._id}`)}
           />
         </div>
       ),
@@ -238,6 +248,11 @@ export default function AssessmentPage() {
         onRetry={refetch}
         emptyTitle="No assessments yet"
         emptyDescription="Create an assessment for one of your assigned class subjects."
+        toolbar={
+          <Button variant="outline" icon={FaFileSignature} onClick={() => navigate("/teacher/attempts")}>
+            View All Attempts
+          </Button>
+        }
       />
 
       <FormModal

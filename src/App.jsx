@@ -90,7 +90,9 @@ const TeacherMarkEntriesPage = lazy(
 const TeacherStudentListPage = lazy(
   () => import("./pages/teacher/StudentListPage"),
 );
-// const TeacherViewResultsPage = lazy(() => import("./pages/teacher/ViewResultsPage"));
+// const TeacherViewResultsPage = lazy(
+//   () => import("./pages/teacher/ViewResultsPage"),
+// );
 
 // Student Pages
 const StudentDashboardPage = lazy(
@@ -285,7 +287,10 @@ function App() {
                       path="students"
                       element={<TeacherStudentListPage />}
                     />
-                    {/* <Route path="results" element={<TeacherViewResultsPage />} /> */}
+                    {/* <Route
+                      path="results"
+                      element={<TeacherViewResultsPage />}
+                    /> */}
                     <Route
                       path="announcements"
                       element={<AnnouncementsPage />}

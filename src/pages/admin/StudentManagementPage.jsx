@@ -1,9 +1,10 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import toast from "react-hot-toast";
 import { FaEdit } from "react-icons/fa";
 
 import studentService from "../../services/studentService";
 import enrollmentService from "../../services/enrollmentService";
+import parentService from "../../services/parentService";
 import useApi from "../../hooks/useApi";
 import { asArray, displayName, classLabel, idOf } from "../../utils/apiData";
 import suggestId from "../../utils/idSuggestion";
@@ -45,6 +46,20 @@ export default function StudentManagementPage() {
   const [selected, setSelected] = useState(null);
   const [form, setForm] = useState(emptyForm);
   const [saving, setSaving] = useState(false);
+  const [linkedParents, setLinkedParents] = useState([]);
+  const [loadingLinks, setLoadingLinks] = useState(false);
+
+  useEffect(() => {
+    if (selected) {
+      setLoadingLinks(true);
+      parentService.getParents(selected._id)
+        .then(data => setLinkedParents(asArray(data)))
+        .catch(() => setLinkedParents([]))
+        .finally(() => setLoadingLinks(false));
+    } else {
+      setLinkedParents([]);
+    }
+  }, [selected]);
 
   // The server auto-generates admission numbers from School Settings when
   // the field is left blank — pre-fill the next sequential ID as a hint.
@@ -289,6 +304,49 @@ export default function StudentManagementPage() {
             Passwords are reset from the Users page; inactive students can't
             sign in.
           </p>
+        )}
+        {selected && (
+          <div className="border-t border-gray-100 pt-4 mt-4">
+            <h4 className="text-sm font-semibold text-primary mb-2">Linked Parents</h4>
+            {loadingLinks ? (
+              <p className="text-xs text-slate-gray">Loading links...</p>
+            ) : linkedParents.length === 0 ? (
+              <p className="text-xs text-slate-gray">No linked parents found.</p>
+            ) : (
+              <ul className="space-y-2">
+                {linkedParents.map((item) => (
+                  <li key={item._id} className="flex items-center justify-between p-2 rounded-lg bg-gray-50 text-xs">
+                    <div>
+                      <span className="font-semibold text-primary">
+                        {displayName(item.parent?.user || item.parent)}
+                      </span>{" "}
+                      ({item.relationship || "Guardian"})
+                    </div>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      className="text-crimson border-crimson hover:bg-crimson/5 py-1 px-2 text-[10px]"
+                      onClick={async () => {
+                        if (window.confirm("Are you sure you want to unlink this parent?")) {
+                          try {
+                            await parentService.unlinkStudent(item._id);
+                            toast.success("Parent unlinked successfully");
+                            const updated = await parentService.getParents(selected._id);
+                            setLinkedParents(asArray(updated));
+                          } catch {
+                            toast.error("Failed to unlink parent");
+                          }
+                        }
+                      }}
+                    >
+                      Unlink
+                    </Button>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
         )}
       </FormModal>
     </>

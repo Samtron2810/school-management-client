@@ -34,11 +34,6 @@ const navItems = [
     icon: FaClipboardCheck,
   },
   {
-    label: "Attempts",
-    path: "/teacher/attempts",
-    icon: FaFileSignature,
-  },
-  {
     label: "Mark Entries",
     path: "/teacher/mark-entries",
     icon: FaEdit,
