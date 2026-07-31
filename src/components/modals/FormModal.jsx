@@ -7,6 +7,7 @@ export default function FormModal({
   title,
   children,
   onSubmit,
+  onSaveAndAddAnother,
   submitLabel = "Save",
   loading = false,
   maxWidth = "2xl", // forms use 2-column grids, so give them room on desktop
@@ -28,6 +29,11 @@ export default function FormModal({
           <Button type="button" variant="secondary" onClick={onClose}>
             Cancel
           </Button>
+          {onSaveAndAddAnother && (
+            <Button type="button" variant="outline" loading={loading} onClick={onSaveAndAddAnother}>
+              Save & Add Another
+            </Button>
+          )}
           <Button type="submit" loading={loading}>
             {submitLabel}
           </Button>

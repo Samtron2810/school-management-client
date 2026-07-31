@@ -52,9 +52,10 @@ function toForm(doc) {
 }
 
 export default function QuestionBankPage() {
-  const { assignments, error: assignmentsError, refetch: refetchAssignments } = useMyTeaching();
+  const { assignments, classes, error: assignmentsError, refetch: refetchAssignments } = useMyTeaching();
 
   const [search, setSearch] = useState("");
+  const [classFilter, setClassFilter] = useState("");
   const [page, setPage] = useState(1);
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -66,6 +67,9 @@ export default function QuestionBankPage() {
   const [selectedIds, setSelectedIds] = useState([]);
   const [form, setForm] = useState(emptyForm);
   const [saving, setSaving] = useState(false);
+  const [bulkOpen, setBulkOpen] = useState(false);
+  const [bulkText, setBulkText] = useState("");
+  const [bulkForm, setBulkForm] = useState({ teacherAssignment: "", marks: 1, difficulty: "Medium" });
 
   const load = async (targetPage = page, targetSearch = search) => {
     setLoading(true);
@@ -114,6 +118,10 @@ export default function QuestionBankPage() {
     __doc: question,
   }));
 
+  const filtered = rows.filter((row) => {
+    return !classFilter || row.class === classFilter;
+  });
+
   const assignmentOptions = assignments.map((assignment) => ({
     value: assignment.id,
     label: assignment.label,
@@ -127,8 +135,8 @@ export default function QuestionBankPage() {
       header: (
         <input
           type="checkbox"
-          checked={selectedIds.length === rows.length && rows.length > 0}
-          onChange={(e) => setSelectedIds(e.target.checked ? rows.map((row) => row._id) : [])}
+          checked={selectedIds.length === filtered.length && filtered.length > 0}
+          onChange={(e) => setSelectedIds(e.target.checked ? filtered.map((row) => row._id) : [])}
           className="w-4 h-4"
         />
       ),
@@ -212,7 +220,7 @@ export default function QuestionBankPage() {
     isPublished: true,
   });
 
-  const handleSubmit = async () => {
+  const handleSubmit = async (andAddAnother = false) => {
     setSaving(true);
     try {
       const payload = buildPayload();
@@ -221,13 +229,26 @@ export default function QuestionBankPage() {
         delete updatePayload.teacherAssignment;
         await questionService.update(selected._id, updatePayload);
         toast.success("Question updated");
+        setFormOpen(false);
+        setSelected(null);
+        setForm(emptyForm);
       } else {
         await questionService.create(payload);
-        toast.success("Question created");
+        toast.success("Question created successfully");
+        if (andAddAnother) {
+          setForm((prev) => ({
+            ...prev,
+            question: "",
+            options: { A: "", B: "", C: "", D: "" },
+            correctAnswer: "A",
+            explanation: "",
+          }));
+        } else {
+          setFormOpen(false);
+          setSelected(null);
+          setForm(emptyForm);
+        }
       }
-      setFormOpen(false);
-      setSelected(null);
-      setForm(emptyForm);
       load();
     } catch {
       // handled by the axios interceptor toast
@@ -256,6 +277,99 @@ export default function QuestionBankPage() {
     }
   };
 
+  const parseAiken = (text) => {
+    const lines = text.split("\n").map(l => l.trim()).filter(Boolean);
+    const questionsList = [];
+    let currentQuestion = null;
+    
+    for (let i = 0; i < lines.length; i++) {
+      const line = lines[i];
+      
+      const optionMatch = line.match(/^([A-D])[\.\)]\s+(.+)$/i);
+      const answerMatch = line.match(/^ANSWER:\s*([A-D])$/i);
+      
+      if (optionMatch) {
+        if (currentQuestion) {
+          const key = optionMatch[1].toUpperCase();
+          currentQuestion.options[key] = optionMatch[2];
+        }
+      } else if (answerMatch) {
+        if (currentQuestion) {
+          currentQuestion.correctAnswer = answerMatch[1].toUpperCase();
+          const keys = Object.keys(currentQuestion.options);
+          if (keys.length === 4 && currentQuestion.correctAnswer) {
+            questionsList.push(currentQuestion);
+          }
+          currentQuestion = null;
+        }
+      } else {
+        if (currentQuestion) {
+          const keys = Object.keys(currentQuestion.options);
+          if (keys.length === 4 && currentQuestion.correctAnswer) {
+            questionsList.push(currentQuestion);
+          }
+        }
+        currentQuestion = {
+          question: line,
+          options: {},
+          correctAnswer: "",
+        };
+      }
+    }
+    
+    if (currentQuestion) {
+      const keys = Object.keys(currentQuestion.options);
+      if (keys.length === 4 && currentQuestion.correctAnswer) {
+        questionsList.push(currentQuestion);
+      }
+    }
+    
+    return questionsList;
+  };
+
+  const handleBulkSubmit = async () => {
+    if (!bulkForm.teacherAssignment) {
+      toast.error("Please select a Class Subject");
+      return;
+    }
+    if (!bulkText.trim()) {
+      toast.error("Please paste your Aiken-formatted questions");
+      return;
+    }
+    setSaving(true);
+    try {
+      const parsed = parseAiken(bulkText);
+      if (parsed.length === 0) {
+        toast.error("No valid questions parsed. Make sure they strictly follow the Aiken format.");
+        setSaving(false);
+        return;
+      }
+
+      await Promise.all(
+        parsed.map((q) =>
+          questionService.create({
+            teacherAssignment: bulkForm.teacherAssignment,
+            question: q.question,
+            options: Object.keys(q.options).map((key) => ({ key, text: q.options[key] })),
+            correctAnswer: q.correctAnswer,
+            marks: Number(bulkForm.marks) || 1,
+            difficulty: bulkForm.difficulty,
+            isPublished: true,
+          })
+        )
+      );
+
+      toast.success(`Successfully imported ${parsed.length} questions!`);
+      setBulkOpen(false);
+      setBulkText("");
+      load(1);
+    } catch {
+      toast.error("Failed to import some questions. Please check format.");
+    } finally {
+      setSaving(false);
+    }
+  };
+
   return (
     <>
       <ManagePage
@@ -271,7 +385,7 @@ export default function QuestionBankPage() {
         onSearchChange={handleSearch}
         searchPlaceholder="Search questions..."
         columns={columns}
-        rows={rows}
+        rows={filtered}
         loading={loading}
         error={error || assignmentsError}
         onRetry={() => {
@@ -281,11 +395,32 @@ export default function QuestionBankPage() {
         emptyTitle="No questions yet"
         emptyDescription="Create multiple-choice questions for your class subjects."
         toolbar={
-          selectedIds.length > 0 ? (
-            <Button variant="danger" icon={FaTrashAlt} onClick={() => { setSelected(null); setDeleteOpen(true); }}>
-              Delete ({selectedIds.length})
+          <div className="flex flex-col sm:flex-row items-center gap-3 w-full sm:w-auto">
+            <div className="w-44">
+              <Select
+                name="class-filter"
+                value={classFilter}
+                onChange={(e) => setClassFilter(e.target.value)}
+                options={[
+                  { value: "", label: "All Classes" },
+                  ...classes.map((c) => ({ value: c, label: c })),
+                ]}
+                placeholder="Filter by Class"
+              />
+            </div>
+            <Button variant="outline" onClick={() => {
+              setBulkText("");
+              setBulkForm({ teacherAssignment: assignmentOptions[0]?.value || "", marks: 1, difficulty: "Medium" });
+              setBulkOpen(true);
+            }}>
+              Bulk Import (Aiken)
             </Button>
-          ) : null
+            {selectedIds.length > 0 && (
+              <Button variant="danger" icon={FaTrashAlt} onClick={() => { setSelected(null); setDeleteOpen(true); }}>
+                Delete ({selectedIds.length})
+              </Button>
+            )}
+          </div>
         }
       />
 
@@ -300,7 +435,8 @@ export default function QuestionBankPage() {
           setSelected(null);
         }}
         title={selected ? "Edit Question" : "New Question"}
-        onSubmit={handleSubmit}
+        onSubmit={() => handleSubmit(false)}
+        onSaveAndAddAnother={selected ? null : () => handleSubmit(true)}
         loading={saving}
       >
         <Select
@@ -362,6 +498,52 @@ export default function QuestionBankPage() {
           onChange={(e) => setForm({ ...form, explanation: e.target.value })}
           rows={2}
         />
+      </FormModal>
+
+      <FormModal
+        isOpen={bulkOpen}
+        onClose={() => setBulkOpen(false)}
+        title="Bulk Import Questions (Aiken Format)"
+        onSubmit={handleBulkSubmit}
+        loading={saving}
+      >
+        <Select
+          label="Class Subject"
+          name="bulk-teacherAssignment"
+          value={bulkForm.teacherAssignment}
+          onChange={(e) => setBulkForm({ ...bulkForm, teacherAssignment: e.target.value })}
+          options={assignmentOptions}
+          placeholder="Select class subject"
+          required
+        />
+        <div className="grid grid-cols-2 gap-4">
+          <Input
+            label="Default Marks"
+            name="bulk-marks"
+            type="number"
+            value={bulkForm.marks}
+            onChange={(e) => setBulkForm({ ...bulkForm, marks: e.target.value })}
+          />
+          <Select
+            label="Default Difficulty"
+            name="bulk-difficulty"
+            value={bulkForm.difficulty}
+            onChange={(e) => setBulkForm({ ...bulkForm, difficulty: e.target.value })}
+            options={difficultyOptions}
+          />
+        </div>
+        <Textarea
+          label="Aiken Text"
+          name="bulk-text"
+          value={bulkText}
+          onChange={(e) => setBulkText(e.target.value)}
+          placeholder={`What is the capital of France?\nA. London\nB. Paris\nC. Rome\nD. Berlin\nANSWER: B\n\nWhich planet is closest to the sun?\nA. Venus\nB. Earth\nC. Mercury\nD. Mars\nANSWER: C`}
+          rows={10}
+          required
+        />
+        <p className="text-xs text-slate-gray">
+          Aiken format rules: Every question must have exactly four options (labeled A., B., C., D. followed by a space) and a final line starting with "ANSWER: " followed by the correct choice.
+        </p>
       </FormModal>
 
       <ConfirmDeleteModal

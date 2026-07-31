@@ -4,6 +4,7 @@ import { FaEdit, FaLink } from "react-icons/fa";
 
 import parentService from "../../services/parentService";
 import studentService from "../../services/studentService";
+import ConfirmDeleteModal from "../../components/modals/ConfirmDeleteModal";
 import useApi from "../../hooks/useApi";
 import { asArray, displayName } from "../../utils/apiData";
 import suggestId from "../../utils/idSuggestion";
@@ -46,6 +47,8 @@ export default function ParentManagementPage() {
   const [saving, setSaving] = useState(false);
   const [linkedStudents, setLinkedStudents] = useState([]);
   const [loadingLinks, setLoadingLinks] = useState(false);
+  const [unlinkOpen, setUnlinkOpen] = useState(false);
+  const [linkToUnlink, setLinkToUnlink] = useState(null);
 
   useEffect(() => {
     if (selected) {
@@ -288,17 +291,9 @@ export default function ParentManagementPage() {
                       variant="outline"
                       size="sm"
                       className="text-crimson border-crimson hover:bg-crimson/5 py-1 px-2 text-[10px]"
-                      onClick={async () => {
-                        if (window.confirm("Are you sure you want to unlink this student?")) {
-                          try {
-                            await parentService.unlinkStudent(item._id);
-                            toast.success("Student unlinked successfully");
-                            const updated = await parentService.getChildren(selected._id);
-                            setLinkedStudents(asArray(updated));
-                          } catch {
-                            toast.error("Failed to unlink student");
-                          }
-                        }
+                      onClick={() => {
+                        setLinkToUnlink(item);
+                        setUnlinkOpen(true);
                       }}
                     >
                       Unlink
@@ -344,6 +339,30 @@ export default function ParentManagementPage() {
           placeholder="e.g. Father, Mother, Guardian"
         />
       </FormModal>
+
+      <ConfirmDeleteModal
+        isOpen={unlinkOpen}
+        onClose={() => {
+          setUnlinkOpen(false);
+          setLinkToUnlink(null);
+        }}
+        onConfirm={async () => {
+          if (!linkToUnlink) return;
+          try {
+            await parentService.removeLink(linkToUnlink._id);
+            toast.success("Student unlinked successfully");
+            const updated = await parentService.getChildren(selected._id);
+            setLinkedStudents(asArray(updated));
+          } catch {
+            toast.error("Failed to unlink student");
+          } finally {
+            setUnlinkOpen(false);
+            setLinkToUnlink(null);
+          }
+        }}
+        title="Unlink Student"
+        message={`Are you sure you want to unlink ${displayName(linkToUnlink?.student?.user || linkToUnlink?.student)} from this parent?`}
+      />
     </>
   );
 }

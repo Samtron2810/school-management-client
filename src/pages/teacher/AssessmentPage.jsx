@@ -49,9 +49,10 @@ export default function AssessmentPage() {
   const { user } = useAuth();
   const navigate = useNavigate();
   const { data, loading, error, refetch } = useApi(assessmentService.list);
-  const { assignments } = useMyTeaching();
+  const { assignments, classes } = useMyTeaching();
 
   const [search, setSearch] = useState("");
+  const [classFilter, setClassFilter] = useState("");
   const [formOpen, setFormOpen] = useState(false);
   const [questionsOpen, setQuestionsOpen] = useState(false);
   const [selected, setSelected] = useState(null);
@@ -83,7 +84,11 @@ export default function AssessmentPage() {
     })
     .filter((row) => row.mine);
 
-  const filtered = rows.filter((row) => row.__search.includes(search.toLowerCase()));
+  const filtered = rows.filter((row) => {
+    const matchesSearch = row.__search.includes(search.toLowerCase());
+    const matchesClass = !classFilter || row.class === classFilter;
+    return matchesSearch && matchesClass;
+  });
 
   const assignmentOptions = assignments.map((assignment) => ({
     value: assignment.id,
@@ -114,10 +119,15 @@ export default function AssessmentPage() {
     try {
       const payload = await questionService.list({ limit: 100 });
       const subjectId = row.__doc.classSubject?.subject?._id || row.__doc.classSubject?.subject;
+      const classId = row.__doc.classSubject?.schoolClass?._id || row.__doc.classSubject?.schoolClass;
       setBank(
         asArray(payload).filter((question) => {
           const questionSubject = question.classSubject?.subject?._id || question.classSubject?.subject;
-          return !subjectId || String(questionSubject) === String(subjectId);
+          const questionClass = question.classSubject?.schoolClass?._id || question.classSubject?.schoolClass;
+          
+          const matchesSubject = !subjectId || String(questionSubject) === String(subjectId);
+          const matchesClass = !classId || String(questionClass) === String(classId);
+          return matchesSubject && matchesClass;
         }),
       );
     } catch {
@@ -249,9 +259,23 @@ export default function AssessmentPage() {
         emptyTitle="No assessments yet"
         emptyDescription="Create an assessment for one of your assigned class subjects."
         toolbar={
-          <Button variant="outline" icon={FaFileSignature} onClick={() => navigate("/teacher/attempts")}>
-            View All Attempts
-          </Button>
+          <div className="flex flex-col sm:flex-row gap-3 sm:w-auto w-full">
+            <div className="sm:w-48">
+              <Select
+                name="class-filter"
+                value={classFilter}
+                onChange={(e) => setClassFilter(e.target.value)}
+                options={[
+                  { value: "", label: "All Classes" },
+                  ...classes.map((c) => ({ value: c, label: c })),
+                ]}
+                placeholder="Filter by Class"
+              />
+            </div>
+            <Button variant="outline" icon={FaFileSignature} onClick={() => navigate("/teacher/attempts")}>
+              View All Attempts
+            </Button>
+          </div>
         }
       />
 

@@ -5,6 +5,8 @@ import { FaEdit } from "react-icons/fa";
 import studentService from "../../services/studentService";
 import enrollmentService from "../../services/enrollmentService";
 import parentService from "../../services/parentService";
+import classService from "../../services/classService";
+import ConfirmDeleteModal from "../../components/modals/ConfirmDeleteModal";
 import useApi from "../../hooks/useApi";
 import { asArray, displayName, classLabel, idOf } from "../../utils/apiData";
 import suggestId from "../../utils/idSuggestion";
@@ -41,18 +43,22 @@ const emptyForm = {
 export default function StudentManagementPage() {
   const { data, loading, error, refetch } = useApi(studentService.list);
   const enrollmentsApi = useApi(enrollmentService.list);
+  const classesApi = useApi(classService.list);
   const [search, setSearch] = useState("");
+  const [classFilter, setClassFilter] = useState("");
   const [formOpen, setFormOpen] = useState(false);
   const [selected, setSelected] = useState(null);
   const [form, setForm] = useState(emptyForm);
   const [saving, setSaving] = useState(false);
   const [linkedParents, setLinkedParents] = useState([]);
   const [loadingLinks, setLoadingLinks] = useState(false);
+  const [unlinkOpen, setUnlinkOpen] = useState(false);
+  const [linkToUnlink, setLinkToUnlink] = useState(null);
 
   useEffect(() => {
     if (selected) {
       setLoadingLinks(true);
-      parentService.getParents(selected._id)
+      parentService.getParentsOfStudent(selected._id)
         .then(data => setLinkedParents(asArray(data)))
         .catch(() => setLinkedParents([]))
         .finally(() => setLoadingLinks(false));
@@ -123,7 +129,11 @@ export default function StudentManagementPage() {
     };
   });
 
-  const filtered = rows.filter((row) => row.__search.includes(search.toLowerCase()));
+  const filtered = rows.filter((row) => {
+    const matchesSearch = row.__search.includes(search.toLowerCase());
+    const matchesClass = !classFilter || row.className === classFilter;
+    return matchesSearch && matchesClass;
+  });
 
   // Group filtered rows by class, "Unassigned" last.
   const groups = new Map();
@@ -209,15 +219,28 @@ export default function StudentManagementPage() {
         actions={<ActionButton label="Add Student" icon={FaPlus} onClick={openForm} />}
       />
 
-      <div className="mb-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
         <SearchInput
           value={search}
           onChange={setSearch}
           placeholder="Search students..."
         />
+        <Select
+          name="class-filter"
+          value={classFilter}
+          onChange={(e) => setClassFilter(e.target.value)}
+          options={[
+            { value: "", label: "All Classes" },
+            ...asArray(classesApi.data).map((c) => ({
+              value: classLabel(c),
+              label: classLabel(c),
+            })),
+          ]}
+          placeholder="Filter by Class"
+        />
       </div>
 
-      {loading || enrollmentsApi.loading ? (
+      {loading || enrollmentsApi.loading || classesApi.loading ? (
         <Loader text="Loading students..." />
       ) : error ? (
         <ErrorState description={error?.message} onRetry={refetch} />
@@ -327,17 +350,9 @@ export default function StudentManagementPage() {
                       variant="outline"
                       size="sm"
                       className="text-crimson border-crimson hover:bg-crimson/5 py-1 px-2 text-[10px]"
-                      onClick={async () => {
-                        if (window.confirm("Are you sure you want to unlink this parent?")) {
-                          try {
-                            await parentService.unlinkStudent(item._id);
-                            toast.success("Parent unlinked successfully");
-                            const updated = await parentService.getParents(selected._id);
-                            setLinkedParents(asArray(updated));
-                          } catch {
-                            toast.error("Failed to unlink parent");
-                          }
-                        }
+                      onClick={() => {
+                        setLinkToUnlink(item);
+                        setUnlinkOpen(true);
                       }}
                     >
                       Unlink
@@ -349,6 +364,30 @@ export default function StudentManagementPage() {
           </div>
         )}
       </FormModal>
+
+      <ConfirmDeleteModal
+        isOpen={unlinkOpen}
+        onClose={() => {
+          setUnlinkOpen(false);
+          setLinkToUnlink(null);
+        }}
+        onConfirm={async () => {
+          if (!linkToUnlink) return;
+          try {
+            await parentService.removeLink(linkToUnlink._id);
+            toast.success("Parent unlinked successfully");
+            const updated = await parentService.getParentsOfStudent(selected._id);
+            setLinkedParents(asArray(updated));
+          } catch {
+            toast.error("Failed to unlink parent");
+          } finally {
+            setUnlinkOpen(false);
+            setLinkToUnlink(null);
+          }
+        }}
+        title="Unlink Parent"
+        message={`Are you sure you want to unlink ${displayName(linkToUnlink?.parent?.user || linkToUnlink?.parent)} from this student?`}
+      />
     </>
   );
 }

@@ -23,6 +23,7 @@ export default function ReportCardPage() {
   const studentsApi = useApi(studentService.list);
   const classesApi = useApi(classService.list);
 
+  const [activeTab, setActiveTab] = useState("class");
   const [studentId, setStudentId] = useState("");
   const [card, setCard] = useState(null);
   const [cardLoading, setCardLoading] = useState(false);
@@ -79,46 +80,83 @@ export default function ReportCardPage() {
         subtitle="Review, publish, and download student report cards"
       />
 
-      <Card className="mb-6">
-        <div className="flex flex-col sm:flex-row gap-3 sm:items-end">
-          <div className="flex-1">
-            <Select
-              label="Student"
-              name="student"
-              value={studentId}
-              onChange={(e) => {
-                setStudentId(e.target.value);
-                setCard(null);
-              }}
-              options={studentOptions}
-              placeholder="Select a student"
-            />
-          </div>
-          <Button onClick={() => loadCard(studentId)} disabled={!studentId} loading={cardLoading}>
-            View Report Card
-          </Button>
-          {card && (
-            <Button variant="outline" icon={FaDownload} onClick={downloadCard} loading={downloading}>
-              Download
-            </Button>
-          )}
-        </div>
-      </Card>
+      {/* Tab toggler buttons */}
+      <div className="flex gap-10 border-b border-gray-200 mb-6">
+        <button
+          onClick={() => setActiveTab("class")}
+          className={`pb-2.5 text-sm font-semibold transition-colors border-b-2 cursor-pointer ${
+            activeTab === "class"
+              ? "border-royal-blue text-royal-blue"
+              : "border-transparent text-slate-gray hover:text-primary"
+          }`}
+        >
+          Class Report Cards
+        </button>
+        <button
+          onClick={() => setActiveTab("student")}
+          className={`pb-2.5 text-sm font-semibold transition-colors border-b-2 cursor-pointer ${
+            activeTab === "student"
+              ? "border-royal-blue text-royal-blue"
+              : "border-transparent text-slate-gray hover:text-primary"
+          }`}
+        >
+          Single Student Report Card
+        </button>
+      </div>
 
-      {cardLoading ? (
-        <Loader text="Loading report card..." />
-      ) : card ? (
-        <Card className="mb-6">
-          <ReportCardView card={card} />
-        </Card>
+      {activeTab === "class" ? (
+        <ClassReportCards classOptions={classOptions} />
       ) : (
-        <EmptyState
-          title="No report card selected"
-          description="Pick a student above to view their report card."
-        />
-      )}
+        <>
+          <Card className="mb-6">
+            <div className="flex flex-col sm:flex-row gap-3 sm:items-end">
+              <div className="flex-1">
+                <Select
+                  label="Student"
+                  name="student"
+                  value={studentId}
+                  onChange={(e) => {
+                    setStudentId(e.target.value);
+                    setCard(null);
+                  }}
+                  options={studentOptions}
+                  placeholder="Select a student"
+                />
+              </div>
+              <Button
+                onClick={() => loadCard(studentId)}
+                disabled={!studentId}
+                loading={cardLoading}
+              >
+                View Report Card
+              </Button>
+              {card && (
+                <Button
+                  variant="outline"
+                  icon={FaDownload}
+                  onClick={downloadCard}
+                  loading={downloading}
+                >
+                  Download
+                </Button>
+              )}
+            </div>
+          </Card>
 
-      <ClassReportCards classOptions={classOptions} />
+          {cardLoading ? (
+            <Loader text="Loading report card..." />
+          ) : card ? (
+            <Card className="mb-6">
+              <ReportCardView card={card} />
+            </Card>
+          ) : (
+            <EmptyState
+              title="No report card selected"
+              description="Pick a student above to view their report card."
+            />
+          )}
+        </>
+      )}
     </div>
   );
 }

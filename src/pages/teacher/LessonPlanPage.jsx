@@ -29,6 +29,7 @@ const emptyForm = {
 export default function LessonPlanPage() {
   const { lessons, assignments, loading, error, refetch } = useMyTeaching();
   const [search, setSearch] = useState("");
+  const [classSubjectFilter, setClassSubjectFilter] = useState("");
   const [formOpen, setFormOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [viewOpen, setViewOpen] = useState(false);
@@ -37,23 +38,31 @@ export default function LessonPlanPage() {
   const [files, setFiles] = useState([]);
   const [saving, setSaving] = useState(false);
 
-  const rows = lessons.map((lesson) => ({
-    _id: lesson._id,
-    title: lesson.title || "—",
-    topic: lesson.topic || "—",
-    class: lesson.teacherAssignment?.schoolClass
-      ? `${lesson.teacherAssignment.schoolClass.className || ""} ${lesson.teacherAssignment.schoolClass.arm || ""}`.trim()
-      : "—",
-    subject: lesson.teacherAssignment?.subject?.name || "—",
-    week: lesson.week || "—",
-    status: lesson.isPublished ? "published" : "draft",
-    date: formatDate(lesson.createdAt),
-    attachments: lesson.attachments?.length || 0,
-    __doc: lesson,
-    __search: `${lesson.title} ${lesson.topic} ${lesson.teacherAssignment?.subject?.name}`.toLowerCase(),
-  }));
+  const rows = lessons.map((lesson) => {
+    const classSubjectId = lesson.teacherAssignment?._id || lesson.teacherAssignment || "";
+    return {
+      _id: lesson._id,
+      title: lesson.title || "—",
+      topic: lesson.topic || "—",
+      class: lesson.teacherAssignment?.schoolClass
+        ? `${lesson.teacherAssignment.schoolClass.className || ""} ${lesson.teacherAssignment.schoolClass.arm || ""}`.trim()
+        : "—",
+      subject: lesson.teacherAssignment?.subject?.name || "—",
+      week: lesson.week || "—",
+      status: lesson.isPublished ? "published" : "draft",
+      date: formatDate(lesson.createdAt),
+      attachments: lesson.attachments?.length || 0,
+      classSubjectId,
+      __doc: lesson,
+      __search: `${lesson.title} ${lesson.topic} ${lesson.teacherAssignment?.subject?.name}`.toLowerCase(),
+    };
+  });
 
-  const filtered = rows.filter((row) => row.__search.includes(search.toLowerCase()));
+  const filtered = rows.filter((row) => {
+    const matchesSearch = row.__search.includes(search.toLowerCase());
+    const matchesClassSubject = !classSubjectFilter || String(row.classSubjectId) === String(classSubjectFilter);
+    return matchesSearch && matchesClassSubject;
+  });
 
   const assignmentOptions = assignments.map((assignment) => ({
     value: assignment.id,
@@ -189,6 +198,20 @@ export default function LessonPlanPage() {
         onRetry={refetch}
         emptyTitle="No lessons yet"
         emptyDescription="Create your first lesson for one of your assigned class subjects."
+        toolbar={
+          <div className="w-64">
+            <Select
+              name="class-subject-filter"
+              value={classSubjectFilter}
+              onChange={(e) => setClassSubjectFilter(e.target.value)}
+              options={[
+                { value: "", label: "All Class Subjects" },
+                ...assignmentOptions,
+              ]}
+              placeholder="Filter by Class-Subject"
+            />
+          </div>
+        }
       />
 
       <FormModal

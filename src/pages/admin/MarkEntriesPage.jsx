@@ -28,10 +28,19 @@ export default function AdminMarkEntriesPage() {
       classSubjectService
         .list({ schoolClass: schoolClassId })
         .then((data) => {
-          const options = asArray(data).map((cs) => ({
-            value: cs.subject?._id || cs.subject,
-            label: cs.subject?.name || "Subject",
-          }));
+          const seen = new Set();
+          const options = [];
+          asArray(data).forEach((cs) => {
+            const subjectId = cs.subject?._id || cs.subject;
+            if (!subjectId) return;
+            const key = subjectId.toString();
+            if (seen.has(key)) return;
+            seen.add(key);
+            options.push({
+              value: subjectId,
+              label: cs.subject?.name || "Subject",
+            });
+          });
           setSubjectsByClass((prev) => ({ ...prev, [schoolClassId]: options }));
         })
         .catch(() => {

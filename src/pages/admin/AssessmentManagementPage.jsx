@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import toast from "react-hot-toast";
 import { FaBan, FaCheckCircle, FaEye, FaTrashAlt } from "react-icons/fa";
 
@@ -12,11 +12,13 @@ import Modal from "../../components/ui/Modal";
 import ConfirmDeleteModal from "../../components/modals/ConfirmDeleteModal";
 import Button from "../../components/ui/Button";
 import Badge from "../../components/ui/Badge";
+import Select from "../../components/ui/Select";
 import StatusBadge from "../../components/common/StatusBadge";
 
 export default function AssessmentManagementPage() {
   const { data, loading, error, refetch } = useApi(assessmentService.list);
   const [search, setSearch] = useState("");
+  const [classFilter, setClassFilter] = useState("");
   const [viewOpen, setViewOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [selected, setSelected] = useState(null);
@@ -39,7 +41,25 @@ export default function AssessmentManagementPage() {
     };
   });
 
-  const filtered = rows.filter((row) => row.__search.includes(search.toLowerCase()));
+  const classes = useMemo(() => {
+    const seen = new Set();
+    const list = [];
+    rows.forEach((row) => {
+      if (row.class && row.class !== "—") {
+        if (!seen.has(row.class)) {
+          seen.add(row.class);
+          list.push(row.class);
+        }
+      }
+    });
+    return list.sort();
+  }, [rows]);
+
+  const filtered = rows.filter((row) => {
+    const matchesSearch = row.__search.includes(search.toLowerCase());
+    const matchesClass = !classFilter || row.class === classFilter;
+    return matchesSearch && matchesClass;
+  });
 
   const togglePublish = async (row) => {
     setBusyId(row._id);
@@ -132,6 +152,20 @@ export default function AssessmentManagementPage() {
         onRetry={refetch}
         emptyTitle="No assessments found"
         emptyDescription="Assessments created by teachers will appear here."
+        toolbar={
+          <div className="w-48">
+            <Select
+              name="class-filter"
+              value={classFilter}
+              onChange={(e) => setClassFilter(e.target.value)}
+              options={[
+                { value: "", label: "All Classes" },
+                ...classes.map((c) => ({ value: c, label: c })),
+              ]}
+              placeholder="Filter by Class"
+            />
+          </div>
+        }
       />
 
       <Modal isOpen={viewOpen} onClose={() => setViewOpen(false)} title={selected?.title || "Assessment"} maxWidth="xl">
