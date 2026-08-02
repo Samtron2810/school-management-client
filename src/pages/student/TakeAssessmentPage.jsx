@@ -51,6 +51,11 @@ export default function TakeAssessmentPage() {
   const hasTarget = Boolean(assessmentId || attemptId);
   const initRef = useRef(false); // guards StrictMode double-mount (would start the attempt twice)
   const submittedRef = useRef(false);
+  // Debounce timer ref — one per question slot, keyed by question ID.
+  // Selecting an option updates React state instantly (snappy UI), but the
+  // actual DB write is delayed 600 ms. Changing your mind within that window
+  // cancels the previous write and only sends the final selection.
+  const saveTimers = useRef({});
 
   // Boot: start a fresh attempt or resume an in-progress one.
   useEffect(() => {
@@ -131,6 +136,22 @@ export default function TakeAssessmentPage() {
     submittedRef.current = true;
     setConfirmOpen(false);
     setPhase("submitting");
+
+    // Flush any debounced answer saves that haven't fired yet.
+    // Clear the timers so they don't fire after submit, then fire them
+    // all immediately and wait for them to settle before submitting.
+    const pendingWrites = Object.entries(saveTimers.current).map(
+      ([questionId, timerId]) => {
+        clearTimeout(timerId);
+        const selectedAnswer = answers[questionId];
+        if (!selectedAnswer) return Promise.resolve();
+        return studentAnswerService
+          .save({ attempt: attempt._id, question: questionId, selectedAnswer })
+          .catch(() => {});
+      },
+    );
+    saveTimers.current = {};
+    await Promise.allSettled(pendingWrites);
     try {
       const finalized = await studentAttemptService.submit(attempt._id);
       setResult(finalized);
@@ -165,20 +186,27 @@ export default function TakeAssessmentPage() {
     [answers],
   );
 
-  const chooseOption = async (questionItem, key) => {
+  const chooseOption = (questionItem, key) => {
+    // Update UI immediately — no waiting for the network.
     setAnswers((prev) => ({ ...prev, [questionItem.id]: key }));
+
+    // Cancel any pending save for this question, then schedule a new one.
+    clearTimeout(saveTimers.current[questionItem.id]);
     setSaving(true);
-    try {
-      await studentAnswerService.save({
-        attempt: attempt._id,
-        question: questionItem.id,
-        selectedAnswer: key,
-      });
-    } catch {
-      // Global interceptor surfaces the error (e.g. time expired).
-    } finally {
-      setSaving(false);
-    }
+
+    saveTimers.current[questionItem.id] = setTimeout(async () => {
+      try {
+        await studentAnswerService.save({
+          attempt: attempt._id,
+          question: questionItem.id,
+          selectedAnswer: key,
+        });
+      } catch {
+        // Global interceptor surfaces the error (e.g. time expired).
+      } finally {
+        setSaving(false);
+      }
+    }, 600);
   };
 
   /* ---------------- Loading / error / submitting states ---------------- */
