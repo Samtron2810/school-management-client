@@ -19,7 +19,7 @@ export default function ActivityPanels({ recentActivity, resultsLink, announceme
         <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100">
           <h3 className="text-base font-semibold text-primary">Recent Results</h3>
           {resultsLink && (
-            <Link to={resultsLink} className="text-xs text-royal-blue hover:underline">
+            <Link to={resultsLink} className="text-xs text-accent hover:underline">
               View all
             </Link>
           )}
@@ -49,7 +49,7 @@ export default function ActivityPanels({ recentActivity, resultsLink, announceme
         <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100">
           <h3 className="text-base font-semibold text-primary">Latest Announcements</h3>
           {announcementsLink && (
-            <Link to={announcementsLink} className="text-xs text-royal-blue hover:underline">
+            <Link to={announcementsLink} className="text-xs text-accent hover:underline">
               View all
             </Link>
           )}
@@ -61,7 +61,7 @@ export default function ActivityPanels({ recentActivity, resultsLink, announceme
             {announcements.slice(0, 5).map((announcement) => (
               <li key={announcement._id} className="px-5 py-3">
                 <div className="flex items-center gap-2">
-                  <FaBullhorn className="text-royal-blue text-xs shrink-0" />
+                  <FaBullhorn className="text-accent text-xs shrink-0" />
                   <p className="text-sm font-medium text-primary">{announcement.title}</p>
                   {announcement.priority && announcement.priority !== "Normal" && (
                     <Badge variant={announcement.priority === "Urgent" ? "danger" : "warning"}>
@@ -88,7 +88,7 @@ export function DistributionBars({ title, data = {}, icon: Icon = FaClipboardLis
   return (
     <Card>
       <h3 className="text-base font-semibold text-primary mb-4 flex items-center gap-2">
-        <Icon className="text-royal-blue" /> {title}
+        <Icon className="text-accent" /> {title}
       </h3>
       {entries.length === 0 || total === 0 ? (
         <p className="text-sm text-slate-gray">No data yet</p>
@@ -106,7 +106,7 @@ export function DistributionBars({ title, data = {}, icon: Icon = FaClipboardLis
                 </div>
                 <div className="h-2 rounded-full bg-gray-100 overflow-hidden">
                   <div
-                    className="h-full rounded-full bg-royal-blue transition-all"
+                    className="h-full rounded-full bg-coral transition-all"
                     style={{ width: `${pct}%` }}
                   />
                 </div>

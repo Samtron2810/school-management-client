@@ -315,7 +315,7 @@ export default function StudentManagementPage() {
               onChange={(e) =>
                 setForm((prev) => ({ ...prev, isActive: e.target.checked }))
               }
-              className="w-4 h-4 accent-royal-blue"
+              className="w-4 h-4 accent-coral"
             />
             <label htmlFor="student-active" className="text-sm text-primary">
               Student is active
@@ -349,7 +349,7 @@ export default function StudentManagementPage() {
                       type="button"
                       variant="outline"
                       size="sm"
-                      className="text-crimson border-crimson hover:bg-crimson/5 py-1 px-2 text-[10px]"
+                      className="text-danger border-danger hover:bg-danger/5 py-1 px-2 text-[10px]"
                       onClick={() => {
                         setLinkToUnlink(item);
                         setUnlinkOpen(true);

@@ -51,11 +51,6 @@ export default function TakeAssessmentPage() {
   const hasTarget = Boolean(assessmentId || attemptId);
   const initRef = useRef(false); // guards StrictMode double-mount (would start the attempt twice)
   const submittedRef = useRef(false);
-  // Debounce timer ref — one per question slot, keyed by question ID.
-  // Selecting an option updates React state instantly (snappy UI), but the
-  // actual DB write is delayed 600 ms. Changing your mind within that window
-  // cancels the previous write and only sends the final selection.
-  const saveTimers = useRef({});
 
   // Boot: start a fresh attempt or resume an in-progress one.
   useEffect(() => {
@@ -136,22 +131,6 @@ export default function TakeAssessmentPage() {
     submittedRef.current = true;
     setConfirmOpen(false);
     setPhase("submitting");
-
-    // Flush any debounced answer saves that haven't fired yet.
-    // Clear the timers so they don't fire after submit, then fire them
-    // all immediately and wait for them to settle before submitting.
-    const pendingWrites = Object.entries(saveTimers.current).map(
-      ([questionId, timerId]) => {
-        clearTimeout(timerId);
-        const selectedAnswer = answers[questionId];
-        if (!selectedAnswer) return Promise.resolve();
-        return studentAnswerService
-          .save({ attempt: attempt._id, question: questionId, selectedAnswer })
-          .catch(() => {});
-      },
-    );
-    saveTimers.current = {};
-    await Promise.allSettled(pendingWrites);
     try {
       const finalized = await studentAttemptService.submit(attempt._id);
       setResult(finalized);
@@ -186,27 +165,20 @@ export default function TakeAssessmentPage() {
     [answers],
   );
 
-  const chooseOption = (questionItem, key) => {
-    // Update UI immediately — no waiting for the network.
+  const chooseOption = async (questionItem, key) => {
     setAnswers((prev) => ({ ...prev, [questionItem.id]: key }));
-
-    // Cancel any pending save for this question, then schedule a new one.
-    clearTimeout(saveTimers.current[questionItem.id]);
     setSaving(true);
-
-    saveTimers.current[questionItem.id] = setTimeout(async () => {
-      try {
-        await studentAnswerService.save({
-          attempt: attempt._id,
-          question: questionItem.id,
-          selectedAnswer: key,
-        });
-      } catch {
-        // Global interceptor surfaces the error (e.g. time expired).
-      } finally {
-        setSaving(false);
-      }
-    }, 600);
+    try {
+      await studentAnswerService.save({
+        attempt: attempt._id,
+        question: questionItem.id,
+        selectedAnswer: key,
+      });
+    } catch {
+      // Global interceptor surfaces the error (e.g. time expired).
+    } finally {
+      setSaving(false);
+    }
   };
 
   /* ---------------- Loading / error / submitting states ---------------- */
@@ -263,7 +235,7 @@ export default function TakeAssessmentPage() {
             />
             {showScore ? (
               <>
-                <p className="text-5xl font-bold text-royal-blue mt-4">
+                <p className="text-5xl font-bold text-accent mt-4">
                   {Math.round(result?.percentage ?? 0)}%
                 </p>
                 <p className="text-sm text-slate-gray mt-1">
@@ -287,7 +259,7 @@ export default function TakeAssessmentPage() {
 
           {showScore && (
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-center">
-              <div className="p-3 rounded-lg bg-light-blue">
+              <div className="p-3 rounded-lg bg-accent-light">
                 <p className="text-xs text-slate-gray">Answered</p>
                 <p className="text-lg font-bold text-primary">
                   {result?.answeredQuestions ?? answeredCount}/
@@ -302,7 +274,7 @@ export default function TakeAssessmentPage() {
               </div>
               <div className="p-3 rounded-lg bg-red-50">
                 <p className="text-xs text-slate-gray">Wrong</p>
-                <p className="text-lg font-bold text-crimson">
+                <p className="text-lg font-bold text-danger">
                   {result?.wrongAnswers ?? 0}
                 </p>
               </div>
@@ -375,8 +347,8 @@ export default function TakeAssessmentPage() {
           <div
             className={`inline-flex items-center gap-2 px-4 py-2 rounded-lg font-semibold ${
               lowTime
-                ? "bg-red-50 text-crimson"
-                : "bg-light-blue text-royal-blue"
+                ? "bg-red-50 text-danger"
+                : "bg-accent-light text-accent"
             }`}
           >
             <FaClock />
@@ -386,7 +358,7 @@ export default function TakeAssessmentPage() {
       </div>
 
       {assessment?.instructions && (
-        <Card className="mb-4 bg-light-blue/50">
+        <Card className="mb-4 bg-accent-light/50">
           <p className="text-xs font-medium text-slate-gray uppercase mb-1">
             Instructions
           </p>
@@ -404,9 +376,9 @@ export default function TakeAssessmentPage() {
             onClick={() => setCurrent(index)}
             className={`w-9 h-9 rounded-lg text-sm font-medium transition-colors ${
               index === current
-                ? "ring-2 ring-royal-blue bg-royal-blue text-white"
+                ? "ring-2 ring-accent bg-accent text-white"
                 : answers[item.id]
-                  ? "bg-royal-blue text-white hover:bg-royal-blue/80"
+                  ? "bg-accent text-white hover:bg-accent/80"
                   : "bg-gray-100 text-slate-gray hover:bg-gray-200"
             }`}
           >
@@ -437,14 +409,14 @@ export default function TakeAssessmentPage() {
                   onClick={() => chooseOption(questionItem, option.key)}
                   className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg border text-left transition-colors ${
                     selected
-                      ? "border-royal-blue bg-light-blue"
-                      : "border-gray-200 hover:border-royal-blue/50 hover:bg-gray-50"
+                      ? "border-accent bg-accent-light"
+                      : "border-gray-200 hover:border-accent/50 hover:bg-gray-50"
                   }`}
                 >
                   <span
                     className={`w-7 h-7 shrink-0 flex items-center justify-center rounded-full text-sm font-bold ${
                       selected
-                        ? "bg-royal-blue text-white"
+                        ? "bg-accent text-white"
                         : "bg-gray-100 text-slate-gray"
                     }`}
                   >
@@ -496,7 +468,7 @@ export default function TakeAssessmentPage() {
           questions.
         </p>
         {questions.length - answeredCount > 0 && (
-          <p className="text-sm text-crimson mb-4">
+          <p className="text-sm text-danger mb-4">
             {questions.length - answeredCount} question(s) will be submitted
             unanswered.
           </p>

@@ -156,7 +156,7 @@ export default function ClassReportCards({ classOptions }) {
           type="checkbox"
           checked={students.length > 0 && selectedIds.length === students.length}
           onChange={toggleSelectAll}
-          className="w-4 h-4 accent-royal-blue"
+          className="w-4 h-4 accent-coral"
         />
       ),
       render: (row) => (
@@ -164,7 +164,7 @@ export default function ClassReportCards({ classOptions }) {
           type="checkbox"
           checked={selectedIds.includes(row.student._id)}
           onChange={() => toggleSelect(row.student._id)}
-          className="w-4 h-4 accent-royal-blue"
+          className="w-4 h-4 accent-coral"
         />
       ),
     },

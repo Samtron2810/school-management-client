@@ -27,7 +27,7 @@ export default function Avatar({ src, name, size = "md", className = "" }) {
 
   return (
     <div
-      className={`rounded-full bg-royal-blue text-white flex items-center justify-center font-medium ${sizeClasses[size]} ${className}`}
+      className={`rounded-full bg-accent-dark text-white flex items-center justify-center font-medium ${sizeClasses[size]} ${className}`}
     >
       {initials}
     </div>

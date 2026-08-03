@@ -10,7 +10,7 @@ export default function Loader({ size = "md", text = "Loading..." }) {
   return (
     <div className="flex flex-col items-center justify-center py-12">
       <FaSpinner
-        className={`animate-spin text-royal-blue ${sizeClasses[size]}`}
+        className={`animate-spin text-accent ${sizeClasses[size]}`}
       />
       {text && <p className="text-sm text-slate-gray mt-3">{text}</p>}
     </div>

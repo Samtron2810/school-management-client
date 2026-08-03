@@ -16,7 +16,7 @@ export default function Breadcrumb({ items = [] }) {
             ) : (
               <NavLink
                 to={item.path}
-                className="text-slate-gray hover:text-royal-blue transition-colors"
+                className="text-slate-gray hover:text-accent transition-colors"
               >
                 {item.label}
               </NavLink>

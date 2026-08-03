@@ -52,13 +52,13 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-light-blue p-4">
+    <div className="min-h-screen flex items-center justify-center bg-accent-light p-4">
       <div className="bg-white rounded-xl shadow-md border border-gray-100 w-full max-w-md p-8">
         <div className="flex flex-col items-center mb-8">
           <img src={logo} alt="Tronschool Logo" className="h-12 w-auto mb-4" />
           <h1 className="text-2xl font-bold text-primary">
             <span className="text-primary">Tron</span>
-            <span className="text-electric-blue">School</span>
+            <span className="text-coral">School</span>
           </h1>
           <p className="text-sm text-slate-gray mt-2">
             Sign in to your account
@@ -66,7 +66,7 @@ export default function LoginPage() {
         </div>
 
         {error && (
-          <div className="mb-4 px-4 py-3 rounded-lg bg-red-50 border border-red-200 text-sm text-crimson">
+          <div className="mb-4 px-4 py-3 rounded-lg bg-red-50 border border-red-200 text-sm text-danger">
             {error}
           </div>
         )}

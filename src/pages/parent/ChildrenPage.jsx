@@ -47,7 +47,7 @@ export default function ChildrenPage() {
               </div>
               <div className="flex items-center justify-between pt-3 border-t border-gray-100">
                 <span className="flex items-center gap-2 text-sm text-slate-gray">
-                  <FaUserGraduate className="text-royal-blue" />
+                  <FaUserGraduate className="text-accent" />
                   Results on record
                 </span>
                 <Badge variant="info">{child.results}</Badge>

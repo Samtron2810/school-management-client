@@ -89,10 +89,10 @@ export default function AttendancePage() {
       <div className="grid grid-cols-2 lg:grid-cols-5 gap-4 mb-6">
         <Card>
           <p className="text-sm text-slate-gray">Attendance Rate</p>
-          <p className="text-2xl font-bold text-royal-blue mt-1">{percentage}%</p>
+          <p className="text-2xl font-bold text-accent mt-1">{percentage}%</p>
         </Card>
         <Card><p className="text-sm text-slate-gray">Present</p><p className="text-2xl font-bold text-primary mt-1">{s.present ?? 0}</p></Card>
-        <Card><p className="text-sm text-slate-gray">Absent</p><p className="text-2xl font-bold text-crimson mt-1">{s.absent ?? 0}</p></Card>
+        <Card><p className="text-sm text-slate-gray">Absent</p><p className="text-2xl font-bold text-danger mt-1">{s.absent ?? 0}</p></Card>
         <Card><p className="text-sm text-slate-gray">Late</p><p className="text-2xl font-bold text-yellow-600 mt-1">{s.late ?? 0}</p></Card>
         <Card><p className="text-sm text-slate-gray">Excused</p><p className="text-2xl font-bold text-primary mt-1">{s.excused ?? 0}</p></Card>
       </div>

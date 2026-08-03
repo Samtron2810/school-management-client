@@ -77,7 +77,7 @@ export default function AnnouncementsPage() {
                     {announcement.isPinned ? (
                       <FaThumbtack className="text-yellow-600 shrink-0" />
                     ) : (
-                      <FaBullhorn className="text-royal-blue shrink-0" />
+                      <FaBullhorn className="text-accent shrink-0" />
                     )}
                     <h3 className="text-base font-semibold text-primary truncate">
                       {announcement.title}

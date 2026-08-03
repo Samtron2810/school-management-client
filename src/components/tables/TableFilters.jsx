@@ -13,7 +13,7 @@ export default function TableFilters({
           key={index}
           value={filter.value}
           onChange={(e) => onFilterChange?.(filter.name, e.target.value)}
-          className="px-3 py-1.5 rounded-lg border border-gray-200 text-sm text-slate-gray focus:outline-none focus:border-royal-blue bg-white"
+          className="px-3 py-1.5 rounded-lg border border-gray-200 text-sm text-slate-gray focus:outline-none focus:border-accent bg-white"
         >
           <option value="">
             {filter.placeholder || `All ${filter.label}`}

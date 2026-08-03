@@ -8,9 +8,9 @@ import {
 
 const toastStyles = {
   success: "bg-green-50 border-green-200 text-green-700",
-  error: "bg-red-50 border-red-200 text-crimson",
+  error: "bg-red-50 border-red-200 text-danger",
   warning: "bg-yellow-50 border-yellow-200 text-yellow-700",
-  info: "bg-light-blue border-royal-blue/20 text-royal-blue",
+  info: "bg-accent-light border-accent/20 text-accent",
 };
 
 const toastIcons = {

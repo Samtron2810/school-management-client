@@ -83,9 +83,9 @@ export default function DataTable({
                     {col.sortable &&
                       (sortKey === col.accessor ? (
                         sortDir === "asc" ? (
-                          <FaSortUp className="text-royal-blue" />
+                          <FaSortUp className="text-accent" />
                         ) : (
-                          <FaSortDown className="text-royal-blue" />
+                          <FaSortDown className="text-accent" />
                         )
                       ) : (
                         <FaSort className="text-slate-gray" />

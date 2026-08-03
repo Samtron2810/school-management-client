@@ -19,7 +19,7 @@ export default function Dropdown({ label, items, onSelect, className = "" }) {
     <div className={`relative ${className}`} ref={ref}>
       <button
         onClick={() => setOpen(!open)}
-        className="flex items-center gap-2 px-4 py-2 rounded-lg border border-gray-200 text-sm text-slate-gray hover:border-royal-blue transition-colors bg-white"
+        className="flex items-center gap-2 px-4 py-2 rounded-lg border border-gray-200 text-sm text-slate-gray hover:border-accent transition-colors bg-white"
       >
         <span>{label}</span>
         <FaChevronDown

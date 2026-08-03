@@ -17,7 +17,7 @@ export default function Tabs({ tabs, defaultIndex = 0, onChange }) {
             onClick={() => handleTabClick(index)}
             className={`px-4 py-2.5 text-sm font-medium transition-colors border-b-2 -mb-px ${
               activeIndex === index
-                ? "text-royal-blue border-royal-blue"
+                ? "text-accent-dark border-coral"
                 : "text-slate-gray border-transparent hover:text-primary hover:border-gray-300"
             }`}
           >

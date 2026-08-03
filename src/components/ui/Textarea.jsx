@@ -23,7 +23,7 @@ const Textarea = forwardRef(function Textarea(
           className="block text-sm font-medium text-primary"
         >
           {label}
-          {required && <span className="text-crimson ml-1">*</span>}
+          {required && <span className="text-danger ml-1">*</span>}
         </label>
       )}
       <textarea
@@ -36,13 +36,13 @@ const Textarea = forwardRef(function Textarea(
         required={required}
         disabled={disabled}
         rows={rows}
-        className={`w-full px-4 py-2 rounded-lg border text-sm text-primary placeholder-slate-gray focus:outline-none focus:ring-2 focus:ring-royal-blue/20 focus:border-royal-blue transition-colors resize-vertical ${
-          error ? "border-crimson" : "border-gray-200"
+        className={`w-full px-4 py-2 rounded-lg border text-sm text-primary placeholder-slate-gray focus:outline-none focus:ring-2 focus:ring-accent/20 focus:border-accent transition-colors resize-vertical ${
+          error ? "border-danger" : "border-gray-200"
         } ${
           disabled ? "bg-gray-50 cursor-not-allowed" : "bg-white"
         } ${className}`}
       />
-      {error && <p className="text-xs text-crimson mt-1">{error}</p>}
+      {error && <p className="text-xs text-danger mt-1">{error}</p>}
     </div>
   );
 });

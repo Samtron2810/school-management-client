@@ -347,7 +347,7 @@ export default function SettingsPage() {
                 <button
                   type="button"
                   onClick={() => removeBand(index)}
-                  className="justify-self-end text-crimson hover:bg-red-50 p-2 rounded-lg transition-colors"
+                  className="justify-self-end text-danger hover:bg-red-50 p-2 rounded-lg transition-colors"
                   aria-label="Remove band"
                 >
                   <FaTrashAlt />
@@ -409,7 +409,7 @@ export default function SettingsPage() {
                 <button
                   type="button"
                   onClick={() => removeComponent(index)}
-                  className="justify-self-end text-crimson hover:bg-red-50 p-2 rounded-lg transition-colors"
+                  className="justify-self-end text-danger hover:bg-red-50 p-2 rounded-lg transition-colors"
                   aria-label="Remove column"
                 >
                   <FaTrashAlt />

@@ -259,7 +259,7 @@ export default function AttemptsPage() {
                               isCorrectOption
                                 ? "bg-green-50 text-green-700 font-medium"
                                 : isChosen
-                                  ? "bg-red-50 text-crimson"
+                                  ? "bg-red-50 text-danger"
                                   : "text-slate-gray"
                             }`}
                           >

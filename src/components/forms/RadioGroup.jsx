@@ -11,7 +11,7 @@ export default function RadioGroup({
       {label && (
         <p className="block text-sm font-medium text-primary">
           {label}
-          {required && <span className="text-crimson ml-1">*</span>}
+          {required && <span className="text-danger ml-1">*</span>}
         </p>
       )}
       <div className="space-y-2">
@@ -23,7 +23,7 @@ export default function RadioGroup({
               value={opt.value}
               checked={value === opt.value}
               onChange={onChange}
-              className="w-4 h-4 border-gray-300 text-royal-blue focus:ring-royal-blue/20"
+              className="w-4 h-4 border-gray-300 text-accent focus:ring-accent/20"
             />
             <span className="text-sm text-primary">{opt.label}</span>
           </label>

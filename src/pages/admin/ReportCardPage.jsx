@@ -86,7 +86,7 @@ export default function ReportCardPage() {
           onClick={() => setActiveTab("class")}
           className={`pb-2.5 text-sm font-semibold transition-colors border-b-2 cursor-pointer ${
             activeTab === "class"
-              ? "border-royal-blue text-royal-blue"
+              ? "border-accent text-accent"
               : "border-transparent text-slate-gray hover:text-primary"
           }`}
         >
@@ -96,7 +96,7 @@ export default function ReportCardPage() {
           onClick={() => setActiveTab("student")}
           className={`pb-2.5 text-sm font-semibold transition-colors border-b-2 cursor-pointer ${
             activeTab === "student"
-              ? "border-royal-blue text-royal-blue"
+              ? "border-accent text-accent"
               : "border-transparent text-slate-gray hover:text-primary"
           }`}
         >

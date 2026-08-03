@@ -9,7 +9,7 @@ export default function ErrorState({
 }) {
   return (
     <div className="flex flex-col items-center justify-center py-12 text-center">
-      <div className="p-4 rounded-full bg-red-50 text-crimson mb-4">
+      <div className="p-4 rounded-full bg-red-50 text-danger mb-4">
         <FaExclamationTriangle className="text-3xl" />
       </div>
       <h3 className="text-lg font-semibold text-primary mb-2">{title}</h3>

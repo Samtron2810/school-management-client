@@ -18,7 +18,7 @@ export default function CheckboxGroup({
       {label && (
         <p className="block text-sm font-medium text-primary">
           {label}
-          {required && <span className="text-crimson ml-1">*</span>}
+          {required && <span className="text-danger ml-1">*</span>}
         </p>
       )}
       <div className="space-y-2">
@@ -30,7 +30,7 @@ export default function CheckboxGroup({
               value={opt.value}
               checked={selectedValues.includes(opt.value)}
               onChange={() => handleChange(opt.value)}
-              className="w-4 h-4 rounded border-gray-300 text-royal-blue focus:ring-royal-blue/20"
+              className="w-4 h-4 rounded border-gray-300 text-accent focus:ring-accent/20"
             />
             <span className="text-sm text-primary">{opt.label}</span>
           </label>

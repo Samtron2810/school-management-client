@@ -16,7 +16,7 @@ export default class ErrorBoundary extends Component {
     if (this.state.hasError) {
       return (
         <div className="flex flex-col items-center justify-center py-16 text-center">
-          <FaExclamationTriangle className="text-5xl text-crimson mb-4" />
+          <FaExclamationTriangle className="text-5xl text-danger mb-4" />
           <h2 className="text-xl font-bold text-primary mb-2">
             Something went wrong
           </h2>

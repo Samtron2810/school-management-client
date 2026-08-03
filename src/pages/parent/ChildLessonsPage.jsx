@@ -94,7 +94,7 @@ export default function ChildLessonsPage() {
                 </p>
               )}
               {lesson.files > 0 && (
-                <p className="text-xs text-royal-blue mt-2">
+                <p className="text-xs text-accent mt-2">
                   {lesson.files} attachment{lesson.files === 1 ? "" : "s"}
                 </p>
               )}

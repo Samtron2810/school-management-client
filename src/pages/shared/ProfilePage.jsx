@@ -85,7 +85,7 @@ export default function ProfilePage() {
 
           <dl className="space-y-4 text-sm">
             <div className="flex items-center gap-3">
-              <FaUserTag className="text-royal-blue shrink-0" />
+              <FaUserTag className="text-accent shrink-0" />
               <div>
                 <dt className="text-xs text-slate-gray">Username</dt>
                 <dd className="font-medium text-primary">
@@ -94,7 +94,7 @@ export default function ProfilePage() {
               </div>
             </div>
             <div className="flex items-center gap-3">
-              <FaEnvelope className="text-royal-blue shrink-0" />
+              <FaEnvelope className="text-accent shrink-0" />
               <div>
                 <dt className="text-xs text-slate-gray">Email</dt>
                 <dd className="font-medium text-primary">
@@ -103,7 +103,7 @@ export default function ProfilePage() {
               </div>
             </div>
             <div className="flex items-center gap-3">
-              <FaPhone className="text-royal-blue shrink-0" />
+              <FaPhone className="text-accent shrink-0" />
               <div>
                 <dt className="text-xs text-slate-gray">Phone</dt>
                 <dd className="font-medium text-primary">
@@ -112,7 +112,7 @@ export default function ProfilePage() {
               </div>
             </div>
             <div className="flex items-center gap-3">
-              <FaLock className="text-royal-blue shrink-0" />
+              <FaLock className="text-accent shrink-0" />
               <div>
                 <dt className="text-xs text-slate-gray">Last sign-in</dt>
                 <dd className="font-medium text-primary">
@@ -134,7 +134,7 @@ export default function ProfilePage() {
           </p>
 
           {formError && (
-            <div className="mb-4 px-4 py-3 rounded-lg bg-red-50 border border-red-200 text-sm text-crimson">
+            <div className="mb-4 px-4 py-3 rounded-lg bg-red-50 border border-red-200 text-sm text-danger">
               {formError}
             </div>
           )}

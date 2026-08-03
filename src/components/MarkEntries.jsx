@@ -275,7 +275,7 @@ export default function MarkEntries({
                                 ? undefined
                                 : "This column is inactive — set by admin"
                             }
-                            className={`w-20 px-2 py-1.5 rounded-lg border text-sm text-primary focus:outline-none focus:ring-2 focus:ring-royal-blue/20 focus:border-royal-blue transition-colors ${
+                            className={`w-20 px-2 py-1.5 rounded-lg border text-sm text-primary focus:outline-none focus:ring-2 focus:ring-accent/20 focus:border-accent transition-colors ${
                               !component.isActive
                                 ? "bg-gray-50 border-gray-100 cursor-not-allowed text-slate-gray"
                                 : "border-gray-200"

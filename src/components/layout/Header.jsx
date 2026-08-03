@@ -1,6 +1,11 @@
 import { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { FaUserCircle, FaSignOutAlt, FaChevronDown, FaBars } from "react-icons/fa";
+import {
+  FaUserCircle,
+  FaSignOutAlt,
+  FaChevronDown,
+  FaBars,
+} from "react-icons/fa";
 import logo from "../../assets/logos/Tronschool-logo.png";
 import useAuth from "../../hooks/useAuth";
 import NotificationBell from "./NotificationBell";
@@ -40,38 +45,43 @@ export default function Header({ onToggleMobile }) {
 
   return (
     <header className="bg-header h-16 flex items-center justify-between px-6 gap-4">
-      {/* Branding + Hamburger button */}
+      {/* Branding + Hamburger */}
       <div className="flex items-center gap-3">
         <button
           onClick={onToggleMobile}
-          className="md:hidden text-primary p-2 hover:bg-gray-100 rounded-lg transition-colors flex items-center justify-center"
+          className="md:hidden p-2 rounded-lg hover:bg-white/10 transition-colors flex items-center justify-center"
           aria-label="Toggle Navigation Menu"
         >
-          <FaBars className="text-xl" />
+          <FaBars className="text-xl text-white" />
         </button>
-        <img src={logo} alt="Tronschool Logo" className="h-8 w-auto" />
-        <h1 className="text-xl font-bold hidden md:block">
-          <span className="text-primary">Tron</span>
-          <span className="text-electric-blue">School</span>
-        </h1>
+        <div className="flex items-center gap-2.5">
+          <img src={logo} alt="Tronschool Logo" className="h-8 w-auto" />
+          <h1 className="text-xl font-bold hidden md:block tracking-wide">
+            <span className="text-white">Tron</span>
+            <span className="text-coral font-bold">School</span>
+          </h1>
+        </div>
       </div>
 
-      {/* Right side actions */}
+      {/* Right side */}
       <div className="flex items-center gap-4">
         <NotificationBell />
 
-        {/* Profile Dropdown */}
+        {/* Profile Dropdown — original style */}
         <div className="relative" ref={dropdownRef}>
           <button
             onClick={() => setDropdownOpen(!dropdownOpen)}
-            className="flex items-center gap-2 text-primary hover:opacity-80 transition-opacity"
+            className="flex items-center gap-2 text-white hover:opacity-80 transition-opacity"
           >
             <FaUserCircle className="text-2xl" />
-            <span className="text-sm font-medium">{`${roleTitle}: ${userName}`}</span>
+            <span
+              className="text-sm font-medium truncate max-w-45"
+              title={`${roleTitle}: ${userName}`}
+            >
+              {`${roleTitle}: ${userName}`}
+            </span>
             <FaChevronDown
-              className={`text-xs transition-transform ${
-                dropdownOpen ? "rotate-180" : ""
-              }`}
+              className={`text-xs transition-transform ${dropdownOpen ? "rotate-180" : ""}`}
             />
           </button>
 
@@ -86,7 +96,7 @@ export default function Header({ onToggleMobile }) {
               </button>
               <button
                 onClick={handleLogout}
-                className="flex items-center gap-2 w-full px-4 py-2 text-sm text-crimson hover:bg-red-50 transition-colors"
+                className="flex items-center gap-2 w-full px-4 py-2 text-sm text-danger hover:bg-red-50 transition-colors"
               >
                 <FaSignOutAlt className="text-lg" />
                 Logout

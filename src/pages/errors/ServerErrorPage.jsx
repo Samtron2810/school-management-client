@@ -3,9 +3,9 @@ import Button from "../../components/ui/Button";
 
 export default function ServerErrorPage() {
   return (
-    <div className="min-h-screen flex items-center justify-center bg-light-blue p-4">
+    <div className="min-h-screen flex items-center justify-center bg-accent-light p-4">
       <div className="bg-white rounded-xl shadow-md border border-gray-100 w-full max-w-md p-8 text-center">
-        <FaServer className="text-6xl text-crimson mb-4 mx-auto" />
+        <FaServer className="text-6xl text-danger mb-4 mx-auto" />
         <h1 className="text-3xl font-bold text-primary mb-2">500</h1>
         <h2 className="text-xl font-semibold text-primary mb-2">
           Server Error

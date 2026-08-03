@@ -20,15 +20,15 @@ export default function FileInput({
           className="block text-sm font-medium text-primary"
         >
           {label}
-          {required && <span className="text-crimson ml-1">*</span>}
+          {required && <span className="text-danger ml-1">*</span>}
         </label>
       )}
       <div
         onClick={() => inputRef.current?.click()}
         className={`flex items-center justify-between px-4 py-3 rounded-lg border border-dashed cursor-pointer transition-colors ${
           error
-            ? "border-crimson bg-red-50"
-            : "border-gray-200 hover:border-royal-blue bg-gray-50"
+            ? "border-danger bg-red-50"
+            : "border-gray-200 hover:border-accent bg-gray-50"
         }`}
       >
         <span className="text-sm text-slate-gray">
@@ -49,12 +49,12 @@ export default function FileInput({
         <button
           type="button"
           onClick={() => onChange(null)}
-          className="text-xs text-crimson flex items-center gap-1 mt-1 hover:underline"
+          className="text-xs text-danger flex items-center gap-1 mt-1 hover:underline"
         >
           <FaTimes /> Remove file
         </button>
       )}
-      {error && <p className="text-xs text-crimson mt-1">{error}</p>}
+      {error && <p className="text-xs text-danger mt-1">{error}</p>}
     </div>
   );
 }

@@ -33,7 +33,7 @@ export default function FileUploadButton({
       <button
         type="button"
         onClick={handleClick}
-        className={`inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-gray-200 text-sm text-slate-gray hover:border-royal-blue hover:text-royal-blue transition-colors bg-white ${className}`}
+        className={`inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-gray-200 text-sm text-slate-gray hover:border-accent hover:text-accent transition-colors bg-white ${className}`}
       >
         <FaUpload />
         <span>{label}</span>

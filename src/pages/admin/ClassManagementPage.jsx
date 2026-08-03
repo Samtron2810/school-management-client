@@ -200,7 +200,7 @@ export default function ClassManagementPage() {
               onChange={(e) =>
                 setForm((prev) => ({ ...prev, isActive: e.target.checked }))
               }
-              className="w-4 h-4 accent-royal-blue"
+              className="w-4 h-4 accent-coral"
             />
             <label htmlFor="class-active" className="text-sm text-primary">
               Class is active

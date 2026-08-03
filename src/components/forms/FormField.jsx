@@ -9,11 +9,11 @@ export default function FormField({
       {label && (
         <label className="block text-sm font-medium text-primary">
           {label}
-          {required && <span className="text-crimson ml-1">*</span>}
+          {required && <span className="text-danger ml-1">*</span>}
         </label>
       )}
       {children}
-      {error && <p className="text-xs text-crimson mt-1">{error}</p>}
+      {error && <p className="text-xs text-danger mt-1">{error}</p>}
     </div>
   );
 }

@@ -94,7 +94,7 @@ export default function MyLessonsPage() {
                         href={file.url || file.secure_url}
                         target="_blank"
                         rel="noreferrer"
-                        className="text-royal-blue hover:underline text-sm"
+                        className="text-accent hover:underline text-sm"
                       >
                         {file.originalName || file.fileName || "Download attachment"}
                       </a>

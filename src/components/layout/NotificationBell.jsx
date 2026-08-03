@@ -57,12 +57,12 @@ export default function NotificationBell() {
     <div className="relative" ref={dropdownRef}>
       <button
         onClick={() => setOpen((prev) => !prev)}
-        className="relative p-2 text-primary hover:bg-gray-100 rounded-lg transition-colors"
+        className="relative p-2 text-coral hover:bg-gray-100 rounded-lg transition-colors"
         aria-label="Notifications"
       >
         <FaBell className="text-xl" />
         {unreadCount > 0 && (
-          <span className="absolute -top-0.5 -right-0.5 min-w-4.5 h-4.5 px-1 rounded-full bg-crimson text-white text-[10px] font-bold flex items-center justify-center">
+          <span className="absolute -top-0.5 -right-0.5 min-w-4.5 h-4.5 px-1 rounded-full bg-danger text-white text-[10px] font-bold flex items-center justify-center">
             {unreadCount > 99 ? "99+" : unreadCount}
           </span>
         )}
@@ -75,7 +75,7 @@ export default function NotificationBell() {
             {unreadCount > 0 && (
               <button
                 onClick={handleMarkAll}
-                className="inline-flex items-center gap-1 text-xs text-royal-blue hover:underline"
+                className="inline-flex items-center gap-1 text-xs text-accent hover:underline"
               >
                 <FaCheckDouble /> Mark all read
               </button>
@@ -98,7 +98,7 @@ export default function NotificationBell() {
                 >
                   <div className="flex items-start gap-2">
                     {!item.isRead && (
-                      <span className="mt-1.5 w-2 h-2 rounded-full bg-royal-blue shrink-0" />
+                      <span className="mt-1.5 w-2 h-2 rounded-full bg-accent shrink-0" />
                     )}
                     <div className={item.isRead ? "pl-4" : ""}>
                       <p className="text-sm font-medium text-primary">
@@ -122,7 +122,7 @@ export default function NotificationBell() {
               setOpen(false);
               navigate(notificationsPath);
             }}
-            className="w-full px-4 py-2.5 text-sm text-royal-blue font-medium hover:bg-gray-50 transition-colors"
+            className="w-full px-4 py-2.5 text-sm text-accent font-medium hover:bg-gray-50 transition-colors"
           >
             View all notifications
           </button>

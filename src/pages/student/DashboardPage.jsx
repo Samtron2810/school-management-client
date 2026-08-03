@@ -56,7 +56,7 @@ export default function StudentDashboardPage() {
       </div>
 
       {!schoolClass && (
-        <Card className="mb-6 border-l-4 border-royal-blue">
+        <Card className="mb-6 border-l-4 border-accent">
           <p className="text-sm text-slate-gray">
             You are not enrolled in a class for the current session and term yet.
             Some features unlock once an admin enrolls you.
@@ -71,12 +71,12 @@ export default function StudentDashboardPage() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
-        <Link to="/student/my-lessons" className="block p-5 rounded-xl bg-royal-blue text-white hover:bg-royal-blue/80 transition-colors">
+        <Link to="/student/my-lessons" className="block p-5 rounded-xl bg-accent text-white hover:bg-accent/80 transition-colors">
           <FaBook className="text-2xl mb-2" />
           <p className="font-semibold">Read Lessons</p>
           <p className="text-sm text-white/80">Catch up on class lessons</p>
         </Link>
-        <Link to="/student/my-assessments" className="block p-5 rounded-xl bg-electric-blue text-white hover:opacity-90 transition-opacity">
+        <Link to="/student/my-assessments" className="block p-5 rounded-xl bg-accent text-white hover:opacity-90 transition-opacity">
           <FaClipboardCheck className="text-2xl mb-2" />
           <p className="font-semibold">Take Assessments</p>
           <p className="text-sm text-white/80">Quizzes, tests, and exams</p>

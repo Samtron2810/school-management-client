@@ -2,12 +2,12 @@ export default function InfoCard({
   label,
   value,
   icon: Icon,
-  color = "text-royal-blue",
+  color = "text-accent",
 }) {
   return (
     <div className="bg-white rounded-xl shadow-md p-5 border border-gray-100">
       <div className="flex items-start gap-4">
-        <div className={`p-3 rounded-lg bg-light-blue ${color}`}>
+        <div className={`p-3 rounded-lg bg-accent-light ${color}`}>
           <Icon className="text-xl" />
         </div>
         <div>

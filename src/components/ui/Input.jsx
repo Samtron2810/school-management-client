@@ -29,7 +29,7 @@ const Input = forwardRef(function Input(
           className="block text-sm font-medium text-primary"
         >
           {label}
-          {required && <span className="text-crimson ml-1">*</span>}
+          {required && <span className="text-danger ml-1">*</span>}
         </label>
       )}
       <div className="relative">
@@ -48,8 +48,8 @@ const Input = forwardRef(function Input(
           placeholder={placeholder}
           required={required}
           disabled={disabled}
-          className={`w-full px-4 py-2 rounded-lg border text-sm text-primary placeholder-slate-gray focus:outline-none focus:ring-2 focus:ring-royal-blue/20 focus:border-royal-blue transition-colors ${
-            error ? "border-crimson" : "border-gray-200"
+          className={`w-full px-4 py-2 rounded-lg border text-sm text-primary placeholder-slate-gray focus:outline-none focus:ring-2 focus:ring-accent/20 focus:border-accent transition-colors ${
+            error ? "border-danger" : "border-gray-200"
           } ${Icon ? "pl-10" : ""} ${isPassword ? "pr-10" : ""} ${
             disabled ? "bg-gray-50 cursor-not-allowed" : "bg-white"
           } ${className}`}
@@ -66,7 +66,7 @@ const Input = forwardRef(function Input(
           </button>
         )}
       </div>
-      {error && <p className="text-xs text-crimson mt-1">{error}</p>}
+      {error && <p className="text-xs text-danger mt-1">{error}</p>}
     </div>
   );
 });

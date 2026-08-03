@@ -139,7 +139,7 @@ export default function ChildAttendancePage() {
           <div className="grid grid-cols-2 lg:grid-cols-5 gap-4 mb-6">
             <Card>
               <p className="text-sm text-slate-gray">Attendance Rate</p>
-              <p className="text-2xl font-bold text-royal-blue mt-1">
+              <p className="text-2xl font-bold text-accent mt-1">
                 {percentage}%
               </p>
             </Card>
@@ -151,7 +151,7 @@ export default function ChildAttendancePage() {
             </Card>
             <Card>
               <p className="text-sm text-slate-gray">Absent</p>
-              <p className="text-2xl font-bold text-crimson mt-1">
+              <p className="text-2xl font-bold text-danger mt-1">
                 {s.absent ?? 0}
               </p>
             </Card>

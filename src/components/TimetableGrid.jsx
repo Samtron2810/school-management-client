@@ -44,7 +44,7 @@ export default function TimetableGrid({
           key={day}
           className="bg-white rounded-xl shadow-md border border-gray-100 overflow-hidden"
         >
-          <div className="px-3 py-2.5 bg-royal-blue/10 border-b border-royal-blue/20">
+          <div className="px-3 py-2.5 bg-accent/10 border-b border-accent/20">
             <h3 className="text-sm font-semibold text-primary">{day}</h3>
           </div>
           <div className="p-2.5 space-y-2.5">
@@ -59,10 +59,10 @@ export default function TimetableGrid({
                   key={entry._id}
                   onClick={() => onSelect?.(entry)}
                   className={`w-full text-left px-3 py-2 rounded-lg border border-gray-100 bg-gray-50 transition-colors ${
-                    onSelect ? "hover:border-royal-blue/40 hover:bg-royal-blue/5 cursor-pointer" : "cursor-default"
+                    onSelect ? "hover:border-accent/40 hover:bg-accent/5 cursor-pointer" : "cursor-default"
                   }`}
                 >
-                  <p className="text-xs font-semibold text-royal-blue">
+                  <p className="text-xs font-semibold text-accent">
                     {entry.startTime} – {entry.endTime}
                   </p>
                   <p className="text-sm font-medium text-primary mt-0.5">

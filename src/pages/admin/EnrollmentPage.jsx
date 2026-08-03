@@ -340,7 +340,7 @@ export default function EnrollmentPage() {
         />
         <div className="space-y-1">
           <label className="block text-sm font-medium text-primary">
-            Students <span className="text-crimson">*</span>
+            Students <span className="text-danger">*</span>
           </label>
           <div className="max-h-64 overflow-y-auto border border-gray-200 rounded-lg divide-y divide-gray-100">
             {studentOptions.length === 0 ? (
@@ -355,7 +355,7 @@ export default function EnrollmentPage() {
                     type="checkbox"
                     checked={bulkForm.students.includes(option.value)}
                     onChange={() => toggleBulkStudent(option.value)}
-                    className="w-4 h-4 accent-royal-blue"
+                    className="w-4 h-4 accent-coral"
                   />
                   {option.label}
                 </label>

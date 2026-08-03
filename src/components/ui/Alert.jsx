@@ -6,10 +6,10 @@ import {
 } from "react-icons/fa";
 
 const alertStyles = {
-  info: "bg-light-blue text-royal-blue border-royal-blue/20",
+  info: "bg-accent-light text-accent border-accent/20",
   success: "bg-green-50 text-green-700 border-green-200",
   warning: "bg-yellow-50 text-yellow-700 border-yellow-200",
-  error: "bg-red-50 text-crimson border-red-200",
+  error: "bg-red-50 text-danger border-red-200",
 };
 
 const alertIcons = {

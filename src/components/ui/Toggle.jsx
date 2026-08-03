@@ -8,8 +8,8 @@ export default function Toggle({ enabled, onChange, label, className = "" }) {
         role="switch"
         aria-checked={enabled}
         onClick={() => onChange?.(!enabled)}
-        className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-royal-blue/20 ${
-          enabled ? "bg-royal-blue" : "bg-gray-200"
+        className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-accent/20 ${
+          enabled ? "bg-coral" : "bg-gray-200"
         }`}
       >
         <span

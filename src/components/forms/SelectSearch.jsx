@@ -34,7 +34,7 @@ export default function SelectSearch({
       {label && (
         <label className="block text-sm font-medium text-primary">
           {label}
-          {required && <span className="text-crimson ml-1">*</span>}
+          {required && <span className="text-danger ml-1">*</span>}
         </label>
       )}
       <div className="relative">
@@ -42,7 +42,7 @@ export default function SelectSearch({
           type="button"
           onClick={() => setOpen(!open)}
           className={`w-full flex items-center justify-between px-4 py-2 rounded-lg border text-sm text-left transition-colors bg-white ${
-            error ? "border-crimson" : "border-gray-200 hover:border-royal-blue"
+            error ? "border-danger" : "border-gray-200 hover:border-accent"
           }`}
         >
           <span className={selected ? "text-primary" : "text-slate-gray"}>
@@ -61,7 +61,7 @@ export default function SelectSearch({
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 placeholder="Type to search..."
-                className="w-full px-3 py-1.5 rounded border border-gray-200 text-sm focus:outline-none focus:border-royal-blue"
+                className="w-full px-3 py-1.5 rounded border border-gray-200 text-sm focus:outline-none focus:border-accent"
                 autoFocus
               />
             </div>
@@ -80,9 +80,9 @@ export default function SelectSearch({
                       setOpen(false);
                       setSearch("");
                     }}
-                    className={`w-full text-left px-4 py-2 text-sm transition-colors hover:bg-light-blue ${
+                    className={`w-full text-left px-4 py-2 text-sm transition-colors hover:bg-accent-light ${
                       value === opt.value
-                        ? "bg-light-blue text-royal-blue font-medium"
+                        ? "bg-accent-light text-accent font-medium"
                         : "text-primary"
                     }`}
                   >
@@ -94,7 +94,7 @@ export default function SelectSearch({
           </div>
         )}
       </div>
-      {error && <p className="text-xs text-crimson mt-1">{error}</p>}
+      {error && <p className="text-xs text-danger mt-1">{error}</p>}
     </div>
   );
 }

@@ -294,7 +294,7 @@ export default function ClassSubjectPage() {
         />
         <div className="space-y-1">
           <label className="block text-sm font-medium text-primary">
-            Subjects <span className="text-crimson">*</span>
+            Subjects <span className="text-danger">*</span>
           </label>
           <div className="max-h-64 overflow-y-auto border border-gray-200 rounded-lg divide-y divide-gray-100">
             {subjectOptions.length === 0 ? (
@@ -309,7 +309,7 @@ export default function ClassSubjectPage() {
                     type="checkbox"
                     checked={bulkForm.subjects.includes(option.value)}
                     onChange={() => toggleBulkSubject(option.value)}
-                    className="w-4 h-4 accent-royal-blue"
+                    className="w-4 h-4 accent-coral"
                   />
                   {option.label}
                 </label>

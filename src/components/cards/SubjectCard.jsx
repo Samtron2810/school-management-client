@@ -8,7 +8,7 @@ export default function SubjectCard({ subject, onSelect }) {
       className="bg-white rounded-xl shadow-md p-5 border border-gray-100 hover:shadow-lg transition-shadow cursor-pointer"
     >
       <div className="flex items-start justify-between mb-3">
-        <div className="p-3 rounded-lg bg-light-blue text-royal-blue">
+        <div className="p-3 rounded-lg bg-accent-light text-accent">
           <FaBook className="text-xl" />
         </div>
         <Badge variant={subject.status === "active" ? "success" : "warning"}>

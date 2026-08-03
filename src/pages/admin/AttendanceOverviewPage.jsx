@@ -143,7 +143,7 @@ export default function AttendanceOverviewPage() {
                 onClick={() => setRowStatus(row.studentId, status)}
                 className={`px-2.5 py-1 rounded-full text-xs font-medium transition-colors ${
                   row.status === status
-                    ? "bg-royal-blue text-white"
+                    ? "bg-coral text-white"
                     : "bg-gray-100 text-slate-gray hover:bg-gray-200"
                 }`}
               >
@@ -442,7 +442,7 @@ function ClassSummaryView() {
       render: (row) => (
         <span
           className={`text-xs font-semibold ${
-            parseInt(row.percentage, 10) >= 75 ? "text-green-600" : "text-crimson"
+            parseInt(row.percentage, 10) >= 75 ? "text-green-600" : "text-danger"
           }`}
         >
           {row.percentage}

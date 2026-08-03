@@ -103,7 +103,7 @@ export default function ParentDashboardPage() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
         <Link
           to="/parent/child-results"
-          className="block p-5 rounded-xl bg-royal-blue text-white hover:bg-royal-blue/80 transition-colors"
+          className="block p-5 rounded-xl bg-coral text-white hover:bg-coral/80 transition-colors"
         >
           <FaClipboardCheck className="text-2xl mb-2" />
           <p className="font-semibold">Results</p>
@@ -111,7 +111,7 @@ export default function ParentDashboardPage() {
         </Link>
         <Link
           to="/parent/child-report-cards"
-          className="block p-5 rounded-xl bg-electric-blue text-white hover:opacity-90 transition-opacity"
+          className="block p-5 rounded-xl bg-coral text-white hover:opacity-90 transition-opacity"
         >
           <FaFileAlt className="text-2xl mb-2" />
           <p className="font-semibold">Report Cards</p>

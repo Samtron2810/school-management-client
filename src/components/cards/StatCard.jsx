@@ -7,14 +7,14 @@ export default function StatCard({ label, value, icon: Icon, trend }) {
           <p className="text-2xl font-bold text-primary mt-1">{value}</p>
           {trend !== undefined && (
             <p
-              className={`text-xs mt-1 ${trend >= 0 ? "text-green-600" : "text-crimson"}`}
+              className={`text-xs mt-1 ${trend >= 0 ? "text-green-600" : "text-danger"}`}
             >
               {trend >= 0 ? "+" : ""}
               {trend}% from last month
             </p>
           )}
         </div>
-        <div className="p-3 rounded-lg bg-light-blue text-royal-blue">
+        <div className="p-3 rounded-lg bg-accent-light text-accent">
           <Icon className="text-2xl" />
         </div>
       </div>

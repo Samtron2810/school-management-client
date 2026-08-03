@@ -1,10 +1,10 @@
 const badgeStyles = {
   default: "bg-gray-100 text-slate-gray",
-  primary: "bg-royal-blue/10 text-royal-blue",
+  primary: "bg-accent-light text-accent-dark",
   success: "bg-green-50 text-green-700",
   warning: "bg-yellow-50 text-yellow-700",
-  danger: "bg-red-50 text-crimson",
-  info: "bg-light-blue text-royal-blue",
+  danger: "bg-danger-light text-danger",
+  info: "bg-accent-light text-accent",
 };
 
 const sizeClasses = {

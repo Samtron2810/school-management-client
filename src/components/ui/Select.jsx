@@ -23,7 +23,7 @@ const Select = forwardRef(function Select(
           className="block text-sm font-medium text-primary"
         >
           {label}
-          {required && <span className="text-crimson ml-1">*</span>}
+          {required && <span className="text-danger ml-1">*</span>}
         </label>
       )}
       <select
@@ -34,8 +34,8 @@ const Select = forwardRef(function Select(
         onChange={onChange}
         required={required}
         disabled={disabled}
-        className={`w-full px-4 py-2 rounded-lg border text-sm text-primary focus:outline-none focus:ring-2 focus:ring-royal-blue/20 focus:border-royal-blue transition-colors ${
-          error ? "border-crimson" : "border-gray-200"
+        className={`w-full px-4 py-2 rounded-lg border text-sm text-primary focus:outline-none focus:ring-2 focus:ring-accent/20 focus:border-accent transition-colors ${
+          error ? "border-danger" : "border-gray-200"
         } ${
           disabled ? "bg-gray-50 cursor-not-allowed" : "bg-white"
         } ${className}`}
@@ -49,7 +49,7 @@ const Select = forwardRef(function Select(
           </option>
         ))}
       </select>
-      {error && <p className="text-xs text-crimson mt-1">{error}</p>}
+      {error && <p className="text-xs text-danger mt-1">{error}</p>}
     </div>
   );
 });

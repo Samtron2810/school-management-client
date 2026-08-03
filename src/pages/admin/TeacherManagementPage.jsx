@@ -234,7 +234,7 @@ export default function TeacherManagementPage() {
                 onChange={(e) =>
                   setForm((prev) => ({ ...prev, isActive: e.target.checked }))
                 }
-                className="w-4 h-4 accent-royal-blue"
+                className="w-4 h-4 accent-coral"
               />
               <label htmlFor="teacher-active" className="text-sm text-primary">
                 Teacher is active

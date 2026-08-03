@@ -101,7 +101,7 @@ export default function NotificationsPage() {
             onClick={() => setUnreadOnly(tab.key)}
             className={`px-3.5 py-1.5 rounded-full text-xs font-medium transition-colors ${
               unreadOnly === tab.key
-                ? "bg-royal-blue text-white"
+                ? "bg-coral text-white"
                 : "bg-white text-slate-gray border border-gray-200 hover:bg-gray-50"
             }`}
           >
@@ -137,7 +137,7 @@ export default function NotificationsPage() {
                     className={`mt-0.5 p-2 rounded-lg shrink-0 ${
                       item.isRead
                         ? "bg-gray-100 text-slate-gray"
-                        : "bg-royal-blue/10 text-royal-blue"
+                        : "bg-accent/10 text-accent"
                     }`}
                   >
                     <Icon />
@@ -148,7 +148,7 @@ export default function NotificationsPage() {
                         {item.title}
                       </span>
                       {!item.isRead && (
-                        <span className="w-2 h-2 rounded-full bg-royal-blue shrink-0" />
+                        <span className="w-2 h-2 rounded-full bg-accent shrink-0" />
                       )}
                     </span>
                     <span className="block text-sm text-slate-gray mt-0.5">
@@ -170,7 +170,7 @@ export default function NotificationsPage() {
                       toast.error("Could not delete notification");
                     }
                   }}
-                  className="p-2 rounded-lg text-slate-gray hover:text-crimson hover:bg-red-50 opacity-0 group-hover:opacity-100 transition-all shrink-0 self-center"
+                  className="p-2 rounded-lg text-slate-gray hover:text-danger hover:bg-red-50 opacity-0 group-hover:opacity-100 transition-all shrink-0 self-center"
                   aria-label="Delete notification"
                 >
                   <FaTrashAlt />

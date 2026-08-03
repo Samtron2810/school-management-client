@@ -1,11 +1,11 @@
 import { FaSpinner } from "react-icons/fa";
 
 const variantStyles = {
-  primary: "bg-royal-blue text-white hover:bg-royal-blue/80",
+  primary: "bg-coral text-white hover:bg-coral/80",
   secondary: "bg-gray-100 text-slate-gray hover:bg-gray-200",
-  danger: "bg-crimson text-white hover:bg-crimson/80",
+  danger: "bg-danger text-white hover:bg-danger/80",
   ghost: "text-slate-gray hover:bg-gray-100",
-  outline: "border border-royal-blue text-royal-blue hover:bg-royal-blue/10",
+  outline: "border border-accent text-accent hover:bg-accent/10",
 };
 
 const sizeClasses = {

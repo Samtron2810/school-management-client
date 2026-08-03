@@ -6,7 +6,7 @@ export default function ProfileCard({ name, role, email, avatar, stats = [] }) {
       <div className="flex flex-col items-center text-center">
         <Avatar src={avatar} name={name} size="xl" />
         <h3 className="text-lg font-semibold text-primary mt-4">{name}</h3>
-        <p className="text-sm text-royal-blue font-medium">{role}</p>
+        <p className="text-sm text-accent font-medium">{role}</p>
         <p className="text-sm text-slate-gray mt-1">{email}</p>
       </div>
       {stats.length > 0 && (

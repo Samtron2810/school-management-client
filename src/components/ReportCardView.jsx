@@ -48,7 +48,7 @@ export default function ReportCardView({ card }) {
 
   return (
     <div className="space-y-5">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 p-4 rounded-xl bg-light-blue">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 p-4 rounded-xl bg-accent-light">
         <div>
           <div className="flex items-center gap-2">
             <h3 className="text-lg font-bold text-primary">{name}</h3>
@@ -86,7 +86,7 @@ export default function ReportCardView({ card }) {
         </Card>
         <Card>
           <p className="text-sm text-slate-gray">Average</p>
-          <p className="text-2xl font-bold text-royal-blue mt-1">{summary.averagePercentage ?? 0}%</p>
+          <p className="text-2xl font-bold text-accent mt-1">{summary.averagePercentage ?? 0}%</p>
         </Card>
         <Card>
           <p className="text-sm text-slate-gray">Attendance</p>
