@@ -10,15 +10,19 @@ export default defineConfig({
         // Split vendor code into stable, separately-cacheable chunks.
         // When you push a new deploy, only the chunks that actually changed
         // get re-downloaded — users keep the rest from their browser cache.
-        manualChunks: {
-          // Core React runtime — almost never changes between deploys.
-          "vendor-react": ["react", "react-dom"],
-          // Router — changes independently of React itself.
-          "vendor-router": ["react-router-dom"],
-          // Icon library — large, changes only when you bump the package.
-          "vendor-icons": ["react-icons"],
-          // Toast — small but stable, worth isolating so it's always cached.
-          "vendor-toast": ["react-hot-toast"],
+        // NOTE: Vite 8 uses Rolldown, which requires manualChunks to be a
+        // function (the object form was removed).
+        manualChunks(id) {
+          if (!id.includes("node_modules")) return undefined;
+
+          // Order matters: check more specific paths first,
+          // since "react-router-dom" also contains "react".
+          if (id.includes("react-router-dom")) return "vendor-router";
+          if (id.includes("react-icons")) return "vendor-icons";
+          if (id.includes("react-hot-toast")) return "vendor-toast";
+          if (id.includes("react")) return "vendor-react"; // catches react + react-dom
+
+          return undefined;
         },
       },
     },
