@@ -141,7 +141,9 @@ export default function ClassReportCards({ classOptions }) {
         isPublished: nextValue,
       });
       toast.success(
-        nextValue ? "Student report card published" : "Student report card unpublished",
+        nextValue
+          ? "Student report card published"
+          : "Student report card unpublished",
       );
       await load();
     } catch {
@@ -154,7 +156,9 @@ export default function ClassReportCards({ classOptions }) {
       header: (
         <input
           type="checkbox"
-          checked={students.length > 0 && selectedIds.length === students.length}
+          checked={
+            students.length > 0 && selectedIds.length === students.length
+          }
           onChange={toggleSelectAll}
           className="w-4 h-4 accent-coral"
         />
@@ -201,20 +205,32 @@ export default function ClassReportCards({ classOptions }) {
       header: "",
       render: (row) => (
         <div className="flex items-center gap-1">
-          <Button variant="outline" size="sm" onClick={() => viewCard(row.student._id)}>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => viewCard(row.student._id)}
+          >
             View
           </Button>
           <Button
             variant="ghost"
             size="sm"
             icon={FaDownload}
-            onClick={() => downloadOne(row.student._id, displayName(row.student.user))}
+            title="Download report card"
+            onClick={() =>
+              downloadOne(row.student._id, displayName(row.student.user))
+            }
           />
           <Button
             variant="ghost"
             size="sm"
             icon={row.isPublished ? FaLock : FaLockOpen}
-            onClick={() => toggleStudentPublish(row.student._id, !row.isPublished)}
+            title={
+              row.isPublished ? "Unpublish report card" : "Publish report card"
+            }
+            onClick={() =>
+              toggleStudentPublish(row.student._id, !row.isPublished)
+            }
           />
         </div>
       ),
@@ -223,7 +239,9 @@ export default function ClassReportCards({ classOptions }) {
 
   return (
     <Card>
-      <h2 className="text-base font-semibold text-primary mb-4">Class Report Cards</h2>
+      <h2 className="text-base font-semibold text-primary mb-4">
+        Class Report Cards
+      </h2>
       <div className="flex flex-col sm:flex-row gap-3 sm:items-end mb-5">
         <div className="flex-1">
           <Select
@@ -236,10 +254,16 @@ export default function ClassReportCards({ classOptions }) {
               if (e.target.value) load(e.target.value);
             }}
             options={classOptions}
-            placeholder={classOptions.length ? "Select a class" : "No classes available"}
+            placeholder={
+              classOptions.length ? "Select a class" : "No classes available"
+            }
           />
         </div>
-        <Button onClick={() => load()} disabled={!classId || busy} loading={busy}>
+        <Button
+          onClick={() => load()}
+          disabled={!classId || busy}
+          loading={busy}
+        >
           Load Class
         </Button>
       </div>
@@ -250,9 +274,9 @@ export default function ClassReportCards({ classOptions }) {
         <ErrorState onRetry={() => load()} />
       ) : payload === null ? (
         <p className="text-sm text-slate-gray">
-          Pick a class to see every student who has at least one score recorded this
-          term — complete or incomplete — and to publish or download their report
-          cards.
+          Pick a class to see every student who has at least one score recorded
+          this term — complete or incomplete — and to publish or download their
+          report cards.
         </p>
       ) : students.length === 0 ? (
         <EmptyState
@@ -266,7 +290,9 @@ export default function ClassReportCards({ classOptions }) {
               {students.length} student{students.length === 1 ? "" : "s"} ·{" "}
               {payload.session?.name} · {payload.term?.name} ·{" "}
               {payload.batch?.isPublished ? (
-                <span className="text-green-600 font-medium">Class published</span>
+                <span className="text-green-600 font-medium">
+                  Class published
+                </span>
               ) : (
                 <span className="text-slate-gray">Class not published</span>
               )}
@@ -283,11 +309,22 @@ export default function ClassReportCards({ classOptions }) {
                 Download Selected ({selectedIds.length})
               </Button>
               {payload.batch?.isPublished ? (
-                <Button variant="secondary" size="sm" icon={FaLock} onClick={unpublishClass} loading={publishing}>
+                <Button
+                  variant="secondary"
+                  size="sm"
+                  icon={FaLock}
+                  onClick={unpublishClass}
+                  loading={publishing}
+                >
                   Unpublish Class
                 </Button>
               ) : (
-                <Button size="sm" icon={FaCheckCircle} onClick={publishClass} loading={publishing}>
+                <Button
+                  size="sm"
+                  icon={FaCheckCircle}
+                  onClick={publishClass}
+                  loading={publishing}
+                >
                   Publish Class
                 </Button>
               )}
@@ -306,7 +343,11 @@ export default function ClassReportCards({ classOptions }) {
         title="Report Card"
         maxWidth="2xl"
       >
-        {cardLoading ? <Loader text="Loading report card..." /> : <ReportCardView card={activeCard} />}
+        {cardLoading ? (
+          <Loader text="Loading report card..." />
+        ) : (
+          <ReportCardView card={activeCard} />
+        )}
       </Modal>
     </Card>
   );

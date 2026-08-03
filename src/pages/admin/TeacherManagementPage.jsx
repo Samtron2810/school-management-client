@@ -56,11 +56,14 @@ export default function TeacherManagementPage() {
       employmentDate: formatDate(teacher.employmentDate) || "—",
       status: teacher.isActive === false ? "inactive" : "active",
       __doc: teacher,
-      __search: `${name} ${user.username} ${user.email} ${teacher.teacherId} ${teacher.qualification} ${teacher.specialization}`.toLowerCase(),
+      __search:
+        `${name} ${user.username} ${user.email} ${teacher.teacherId} ${teacher.qualification} ${teacher.specialization}`.toLowerCase(),
     };
   });
 
-  const filtered = rows.filter((row) => row.__search.includes(search.toLowerCase()));
+  const filtered = rows.filter((row) =>
+    row.__search.includes(search.toLowerCase()),
+  );
 
   const columns = [
     { header: "Name", accessor: "name" },
@@ -84,6 +87,7 @@ export default function TeacherManagementPage() {
           variant="ghost"
           size="sm"
           icon={FaEdit}
+          title="Edit teacher"
           onClick={() => openEdit(row.__doc)}
         />
       ),
@@ -185,15 +189,47 @@ export default function TeacherManagementPage() {
         loading={saving}
       >
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <Input label="First Name" name="firstName" value={form.firstName} onChange={set("firstName")} required />
-          <Input label="Last Name" name="lastName" value={form.lastName} onChange={set("lastName")} required />
+          <Input
+            label="First Name"
+            name="firstName"
+            value={form.firstName}
+            onChange={set("firstName")}
+            required
+          />
+          <Input
+            label="Last Name"
+            name="lastName"
+            value={form.lastName}
+            onChange={set("lastName")}
+            required
+          />
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <Input label="Username" name="username" value={form.username} onChange={set("username")} required />
-          <Input label="Email" name="email" type="email" value={form.email} onChange={set("email")} required />
+          <Input
+            label="Username"
+            name="username"
+            value={form.username}
+            onChange={set("username")}
+            required
+          />
+          <Input
+            label="Email"
+            name="email"
+            type="email"
+            value={form.email}
+            onChange={set("email")}
+            required
+          />
         </div>
         {!selected && (
-          <Input label="Password" name="password" type="password" value={form.password} onChange={set("password")} required />
+          <Input
+            label="Password"
+            name="password"
+            type="password"
+            value={form.password}
+            onChange={set("password")}
+            required
+          />
         )}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <Input
@@ -216,14 +252,42 @@ export default function TeacherManagementPage() {
           />
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <Input label="Phone Number" name="phoneNumber" value={form.phoneNumber} onChange={set("phoneNumber")} />
-          <Input label="Employment Date" name="employmentDate" type="date" value={form.employmentDate} onChange={set("employmentDate")} />
+          <Input
+            label="Phone Number"
+            name="phoneNumber"
+            value={form.phoneNumber}
+            onChange={set("phoneNumber")}
+          />
+          <Input
+            label="Employment Date"
+            name="employmentDate"
+            type="date"
+            value={form.employmentDate}
+            onChange={set("employmentDate")}
+          />
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <Input label="Qualification" name="qualification" value={form.qualification} onChange={set("qualification")} placeholder="e.g. B.Ed, M.Sc" />
-          <Input label="Specialization" name="specialization" value={form.specialization} onChange={set("specialization")} placeholder="e.g. Mathematics" />
+          <Input
+            label="Qualification"
+            name="qualification"
+            value={form.qualification}
+            onChange={set("qualification")}
+            placeholder="e.g. B.Ed, M.Sc"
+          />
+          <Input
+            label="Specialization"
+            name="specialization"
+            value={form.specialization}
+            onChange={set("specialization")}
+            placeholder="e.g. Mathematics"
+          />
         </div>
-        <Input label="Address" name="address" value={form.address} onChange={set("address")} />
+        <Input
+          label="Address"
+          name="address"
+          value={form.address}
+          onChange={set("address")}
+        />
         {selected && (
           <>
             <div className="flex items-center gap-3">

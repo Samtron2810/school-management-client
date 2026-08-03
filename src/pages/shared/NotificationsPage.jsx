@@ -172,6 +172,7 @@ export default function NotificationsPage() {
                   }}
                   className="p-2 rounded-lg text-slate-gray hover:text-danger hover:bg-red-50 opacity-0 group-hover:opacity-100 transition-all shrink-0 self-center"
                   aria-label="Delete notification"
+                  title="Delete notification"
                 >
                   <FaTrashAlt />
                 </button>

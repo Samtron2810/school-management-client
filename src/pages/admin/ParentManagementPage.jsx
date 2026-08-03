@@ -53,8 +53,9 @@ export default function ParentManagementPage() {
   useEffect(() => {
     if (selected) {
       setLoadingLinks(true);
-      parentService.getChildren(selected._id)
-        .then(data => setLinkedStudents(asArray(data)))
+      parentService
+        .getChildren(selected._id)
+        .then((data) => setLinkedStudents(asArray(data)))
         .catch(() => setLinkedStudents([]))
         .finally(() => setLoadingLinks(false));
     } else {
@@ -102,13 +103,19 @@ export default function ParentManagementPage() {
       workplace: parent.workplace || "—",
       status: parent.isActive === false ? "inactive" : "active",
       __doc: parent,
-      __search: `${name} ${user.username} ${user.email} ${parent.occupation}`.toLowerCase(),
+      __search:
+        `${name} ${user.username} ${user.email} ${parent.occupation}`.toLowerCase(),
     };
   });
 
-  const filtered = rows.filter((row) => row.__search.includes(search.toLowerCase()));
+  const filtered = rows.filter((row) =>
+    row.__search.includes(search.toLowerCase()),
+  );
 
-  const parentOptions = rows.map((row) => ({ value: row._id, label: row.name }));
+  const parentOptions = rows.map((row) => ({
+    value: row._id,
+    label: row.name,
+  }));
   const studentOptions = asArray(studentsApi.data).map((student) => ({
     value: student._id,
     label: displayName(student.user || student),
@@ -132,6 +139,7 @@ export default function ParentManagementPage() {
           variant="ghost"
           size="sm"
           icon={FaEdit}
+          title="Edit parent"
           onClick={() => openEdit(row.__doc)}
         />
       ),
@@ -207,7 +215,11 @@ export default function ParentManagementPage() {
         emptyTitle="No parents found"
         emptyDescription="Register your first parent to get started."
         toolbar={
-          <Button variant="outline" icon={FaLink} onClick={() => setLinkOpen(true)}>
+          <Button
+            variant="outline"
+            icon={FaLink}
+            onClick={() => setLinkOpen(true)}
+          >
             Link to Student
           </Button>
         }
@@ -224,18 +236,56 @@ export default function ParentManagementPage() {
         loading={saving}
       >
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <Input label="First Name" name="firstName" value={form.firstName} onChange={set("firstName")} required />
-          <Input label="Last Name" name="lastName" value={form.lastName} onChange={set("lastName")} required />
+          <Input
+            label="First Name"
+            name="firstName"
+            value={form.firstName}
+            onChange={set("firstName")}
+            required
+          />
+          <Input
+            label="Last Name"
+            name="lastName"
+            value={form.lastName}
+            onChange={set("lastName")}
+            required
+          />
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <Input label="Username" name="username" value={form.username} onChange={set("username")} required />
-          <Input label="Email" name="email" type="email" value={form.email} onChange={set("email")} required />
+          <Input
+            label="Username"
+            name="username"
+            value={form.username}
+            onChange={set("username")}
+            required
+          />
+          <Input
+            label="Email"
+            name="email"
+            type="email"
+            value={form.email}
+            onChange={set("email")}
+            required
+          />
         </div>
         {!selected && (
-          <Input label="Password" name="password" type="password" value={form.password} onChange={set("password")} required />
+          <Input
+            label="Password"
+            name="password"
+            type="password"
+            value={form.password}
+            onChange={set("password")}
+            required
+          />
         )}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <Input label="Parent ID" name="parentId" value={form.parentId} onChange={set("parentId")} placeholder="Leave blank to auto-generate" />
+          <Input
+            label="Parent ID"
+            name="parentId"
+            value={form.parentId}
+            onChange={set("parentId")}
+            placeholder="Leave blank to auto-generate"
+          />
           <Select
             label="Gender"
             name="gender"
@@ -249,10 +299,26 @@ export default function ParentManagementPage() {
           />
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <Input label="Occupation" name="occupation" value={form.occupation} onChange={set("occupation")} />
-          <Input label="Workplace" name="workplace" value={form.workplace} onChange={set("workplace")} />
+          <Input
+            label="Occupation"
+            name="occupation"
+            value={form.occupation}
+            onChange={set("occupation")}
+          />
+          <Input
+            label="Workplace"
+            name="workplace"
+            value={form.workplace}
+            onChange={set("workplace")}
+          />
         </div>
-        <Textarea label="Address" name="address" value={form.address} onChange={set("address")} rows={2} />
+        <Textarea
+          label="Address"
+          name="address"
+          value={form.address}
+          onChange={set("address")}
+          rows={2}
+        />
         {selected && (
           <div className="flex items-center gap-3">
             <input
@@ -271,15 +337,22 @@ export default function ParentManagementPage() {
         )}
         {selected && (
           <div className="border-t border-gray-100 pt-4 mt-4">
-            <h4 className="text-sm font-semibold text-primary mb-2">Linked Students</h4>
+            <h4 className="text-sm font-semibold text-primary mb-2">
+              Linked Students
+            </h4>
             {loadingLinks ? (
               <p className="text-xs text-slate-gray">Loading links...</p>
             ) : linkedStudents.length === 0 ? (
-              <p className="text-xs text-slate-gray">No linked students found.</p>
+              <p className="text-xs text-slate-gray">
+                No linked students found.
+              </p>
             ) : (
               <ul className="space-y-2">
                 {linkedStudents.map((item) => (
-                  <li key={item._id} className="flex items-center justify-between p-2 rounded-lg bg-gray-50 text-xs">
+                  <li
+                    key={item._id}
+                    className="flex items-center justify-between p-2 rounded-lg bg-gray-50 text-xs"
+                  >
                     <div>
                       <span className="font-semibold text-primary">
                         {displayName(item.student?.user || item.student)}

@@ -26,7 +26,9 @@ export default function AssessmentManagementPage() {
 
   const rows = asArray(data).map((assessment) => {
     const classSubject = assessment.classSubject || {};
-    const teacherName = displayName(assessment.teacher?.user || assessment.teacher);
+    const teacherName = displayName(
+      assessment.teacher?.user || assessment.teacher,
+    );
     return {
       _id: assessment._id,
       title: assessment.title || "—",
@@ -37,7 +39,8 @@ export default function AssessmentManagementPage() {
       window: `${formatDate(assessment.availableFrom)} → ${formatDate(assessment.availableTo)}`,
       status: assessment.isPublished ? "published" : "draft",
       __doc: assessment,
-      __search: `${assessment.title} ${assessment.type} ${classSubject.subject?.name} ${teacherName}`.toLowerCase(),
+      __search:
+        `${assessment.title} ${assessment.type} ${classSubject.subject?.name} ${teacherName}`.toLowerCase(),
     };
   });
 
@@ -111,6 +114,7 @@ export default function AssessmentManagementPage() {
             variant="ghost"
             size="sm"
             icon={FaEye}
+            title="View assessment"
             onClick={() => {
               setSelected(row.__doc);
               setViewOpen(true);
@@ -120,6 +124,11 @@ export default function AssessmentManagementPage() {
             variant="ghost"
             size="sm"
             icon={row.status === "published" ? FaBan : FaCheckCircle}
+            title={
+              row.status === "published"
+                ? "Unpublish assessment"
+                : "Publish assessment"
+            }
             loading={busyId === row._id}
             onClick={() => togglePublish(row)}
           />
@@ -127,6 +136,7 @@ export default function AssessmentManagementPage() {
             variant="ghost"
             size="sm"
             icon={FaTrashAlt}
+            title="Delete assessment"
             onClick={() => {
               setSelected(row.__doc);
               setDeleteOpen(true);
@@ -168,23 +178,72 @@ export default function AssessmentManagementPage() {
         }
       />
 
-      <Modal isOpen={viewOpen} onClose={() => setViewOpen(false)} title={selected?.title || "Assessment"} maxWidth="xl">
+      <Modal
+        isOpen={viewOpen}
+        onClose={() => setViewOpen(false)}
+        title={selected?.title || "Assessment"}
+        maxWidth="xl"
+      >
         {selected && (
           <div className="space-y-3 text-sm">
             <div className="flex gap-2">
               <Badge variant="info">{selected.type}</Badge>
-              <StatusBadge status={selected.isPublished ? "published" : "draft"} />
+              <StatusBadge
+                status={selected.isPublished ? "published" : "draft"}
+              />
             </div>
-            <p className="text-slate-gray">{selected.instructions || "No instructions provided."}</p>
+            <p className="text-slate-gray">
+              {selected.instructions || "No instructions provided."}
+            </p>
             <dl className="grid grid-cols-2 gap-x-4 gap-y-2">
-              <div><dt className="text-xs text-slate-gray">Class</dt><dd className="font-medium text-primary">{classLabel(selected.classSubject?.schoolClass)}</dd></div>
-              <div><dt className="text-xs text-slate-gray">Subject</dt><dd className="font-medium text-primary">{selected.classSubject?.subject?.name || "—"}</dd></div>
-              <div><dt className="text-xs text-slate-gray">Duration</dt><dd className="font-medium text-primary">{selected.duration || "—"} mins</dd></div>
-              <div><dt className="text-xs text-slate-gray">Max Attempts</dt><dd className="font-medium text-primary">{selected.maxAttempts || "—"}</dd></div>
-              <div><dt className="text-xs text-slate-gray">Opens</dt><dd className="font-medium text-primary">{formatDate(selected.availableFrom)}</dd></div>
-              <div><dt className="text-xs text-slate-gray">Closes</dt><dd className="font-medium text-primary">{formatDate(selected.availableTo)}</dd></div>
-              <div><dt className="text-xs text-slate-gray">Session</dt><dd className="font-medium text-primary">{selected.session?.name || "—"}</dd></div>
-              <div><dt className="text-xs text-slate-gray">Term</dt><dd className="font-medium text-primary">{selected.term?.name || "—"}</dd></div>
+              <div>
+                <dt className="text-xs text-slate-gray">Class</dt>
+                <dd className="font-medium text-primary">
+                  {classLabel(selected.classSubject?.schoolClass)}
+                </dd>
+              </div>
+              <div>
+                <dt className="text-xs text-slate-gray">Subject</dt>
+                <dd className="font-medium text-primary">
+                  {selected.classSubject?.subject?.name || "—"}
+                </dd>
+              </div>
+              <div>
+                <dt className="text-xs text-slate-gray">Duration</dt>
+                <dd className="font-medium text-primary">
+                  {selected.duration || "—"} mins
+                </dd>
+              </div>
+              <div>
+                <dt className="text-xs text-slate-gray">Max Attempts</dt>
+                <dd className="font-medium text-primary">
+                  {selected.maxAttempts || "—"}
+                </dd>
+              </div>
+              <div>
+                <dt className="text-xs text-slate-gray">Opens</dt>
+                <dd className="font-medium text-primary">
+                  {formatDate(selected.availableFrom)}
+                </dd>
+              </div>
+              <div>
+                <dt className="text-xs text-slate-gray">Closes</dt>
+                <dd className="font-medium text-primary">
+                  {formatDate(selected.availableTo)}
+                </dd>
+              </div>
+              <div>
+                <dt className="text-xs text-slate-gray">Session</dt>
+                <dd className="font-medium text-primary">
+                  {selected.session?.name || "—"}
+                </dd>
+              </div>
+              <div>
+                <dt className="text-xs text-slate-gray">Term</dt>
+                <dd className="font-medium text-primary">
+                  {selected.term?.name || "—"}
+                </dd>
+              </div>
             </dl>
           </div>
         )}

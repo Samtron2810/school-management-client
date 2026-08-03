@@ -60,6 +60,7 @@ const Input = forwardRef(function Input(
             onClick={() => setShowPassword((visible) => !visible)}
             className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-gray hover:text-primary transition-colors"
             aria-label={showPassword ? "Hide password" : "Show password"}
+            title={showPassword ? "Hide password" : "Show password"}
             tabIndex={-1}
           >
             {showPassword ? <FaEyeSlash /> : <FaEye />}

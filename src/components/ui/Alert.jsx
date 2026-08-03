@@ -32,6 +32,8 @@ export default function Alert({ type = "info", message, onClose }) {
         <button
           onClick={onClose}
           className="shrink-0 hover:opacity-70 transition-opacity"
+          aria-label="Dismiss"
+          title="Dismiss"
         >
           <FaTimesCircle />
         </button>

@@ -59,7 +59,8 @@ export default function UserManagementPage() {
       status: user.isActive === false ? "inactive" : "active",
       __doc: user,
       __self: Boolean(isSelf),
-      __search: `${name} ${user.username} ${user.email} ${user.role}`.toLowerCase(),
+      __search:
+        `${name} ${user.username} ${user.email} ${user.role}`.toLowerCase(),
     };
   });
 
@@ -75,7 +76,9 @@ export default function UserManagementPage() {
       const activate = row.__doc.isActive === false;
       await adminService.updateUserStatus(row._id, { isActive: activate });
       toast.success(
-        activate ? `${row.__doc.username} activated` : `${row.__doc.username} deactivated`,
+        activate
+          ? `${row.__doc.username} activated`
+          : `${row.__doc.username} deactivated`,
       );
       refetch();
     } catch {
@@ -122,6 +125,7 @@ export default function UserManagementPage() {
             variant="ghost"
             size="sm"
             icon={FaEdit}
+            title="Edit user"
             onClick={() => openEdit(row.__doc)}
           />
           {!row.__self && (
@@ -130,6 +134,7 @@ export default function UserManagementPage() {
                 variant="ghost"
                 size="sm"
                 icon={FaKey}
+                title="Reset password"
                 onClick={() => {
                   setSelected(row.__doc);
                   setNewPassword("");
@@ -140,6 +145,11 @@ export default function UserManagementPage() {
                 variant="ghost"
                 size="sm"
                 icon={row.__doc.isActive === false ? FaUserCheck : FaUserSlash}
+                title={
+                  row.__doc.isActive === false
+                    ? "Activate user"
+                    : "Deactivate user"
+                }
                 loading={statusBusyId === row._id}
                 onClick={() => toggleStatus(row)}
               />
@@ -252,15 +262,47 @@ export default function UserManagementPage() {
         loading={saving}
       >
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <Input label="First Name" name="firstName" value={form.firstName} onChange={set("firstName")} required />
-          <Input label="Last Name" name="lastName" value={form.lastName} onChange={set("lastName")} required />
+          <Input
+            label="First Name"
+            name="firstName"
+            value={form.firstName}
+            onChange={set("firstName")}
+            required
+          />
+          <Input
+            label="Last Name"
+            name="lastName"
+            value={form.lastName}
+            onChange={set("lastName")}
+            required
+          />
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <Input label="Username" name="username" value={form.username} onChange={set("username")} required />
-          <Input label="Email" name="email" type="email" value={form.email} onChange={set("email")} required />
+          <Input
+            label="Username"
+            name="username"
+            value={form.username}
+            onChange={set("username")}
+            required
+          />
+          <Input
+            label="Email"
+            name="email"
+            type="email"
+            value={form.email}
+            onChange={set("email")}
+            required
+          />
         </div>
         {!selected && (
-          <Input label="Password" name="password" type="password" value={form.password} onChange={set("password")} required />
+          <Input
+            label="Password"
+            name="password"
+            type="password"
+            value={form.password}
+            onChange={set("password")}
+            required
+          />
         )}
         <Select
           label="Role"
@@ -271,7 +313,12 @@ export default function UserManagementPage() {
           placeholder="Select role"
           required
         />
-        <Input label="Phone Number" name="phoneNumber" value={form.phoneNumber} onChange={set("phoneNumber")} />
+        <Input
+          label="Phone Number"
+          name="phoneNumber"
+          value={form.phoneNumber}
+          onChange={set("phoneNumber")}
+        />
         {selected && (
           <p className="text-xs text-slate-gray">
             Passwords are changed from the key icon on the row — the user is

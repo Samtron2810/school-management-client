@@ -139,12 +139,14 @@ export default function AttemptsPage() {
             variant="ghost"
             size="sm"
             icon={FaEye}
+            title="Review attempt"
             onClick={() => openReview(row)}
           />
           <Button
             variant="ghost"
             size="sm"
             icon={FaFileSignature}
+            title="Record result"
             loading={recordingId === row._id}
             onClick={() => recordResult(row)}
           />

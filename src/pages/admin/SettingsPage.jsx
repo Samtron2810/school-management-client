@@ -67,7 +67,8 @@ export default function SettingsPage() {
   if (error) return <ErrorState onRetry={refetch} />;
   if (!form) return null;
 
-  const update = (patch) => setDraft((prev) => ({ ...(prev || form), ...patch }));
+  const update = (patch) =>
+    setDraft((prev) => ({ ...(prev || form), ...patch }));
 
   const setField = (field) => (e) => update({ [field]: e.target.value });
 
@@ -105,7 +106,9 @@ export default function SettingsPage() {
     });
 
   const removeComponent = (index) =>
-    update({ scoreComponents: form.scoreComponents.filter((_, i) => i !== index) });
+    update({
+      scoreComponents: form.scoreComponents.filter((_, i) => i !== index),
+    });
 
   const setIdFormat = (kind, field, value) =>
     update({
@@ -233,8 +236,8 @@ export default function SettingsPage() {
             Automatic ID Formats
           </h2>
           <p className="text-xs text-slate-gray mb-4">
-            Used when a teacher, student, or parent is registered without an
-            ID. The counter itself is managed by the server.
+            Used when a teacher, student, or parent is registered without an ID.
+            The counter itself is managed by the server.
           </p>
           <div className="space-y-3">
             {idFormatKinds.map(({ key, label }) => (
@@ -333,9 +336,7 @@ export default function SettingsPage() {
                   step="0.1"
                   min="0"
                   value={band.gradePoint}
-                  onChange={(e) =>
-                    setBand(index, "gradePoint", e.target.value)
-                  }
+                  onChange={(e) => setBand(index, "gradePoint", e.target.value)}
                 />
                 <Input
                   aria-label="Remark"
@@ -349,6 +350,7 @@ export default function SettingsPage() {
                   onClick={() => removeBand(index)}
                   className="justify-self-end text-danger hover:bg-red-50 p-2 rounded-lg transition-colors"
                   aria-label="Remove band"
+                  title="Remove band"
                 >
                   <FaTrashAlt />
                 </button>
@@ -363,16 +365,20 @@ export default function SettingsPage() {
             <h2 className="text-base font-semibold text-primary">
               Mark Entry Columns
             </h2>
-            <Button variant="outline" size="sm" icon={FaPlus} onClick={addComponent}>
+            <Button
+              variant="outline"
+              size="sm"
+              icon={FaPlus}
+              onClick={addComponent}
+            >
               Add Column
             </Button>
           </div>
           <p className="text-xs text-slate-gray mb-4">
             These columns apply to every class and subject school-wide, so
             report cards stay consistent no matter who enters the scores.
-            Turning a column off excludes it from the total but keeps any
-            scores already entered — teachers still see it, but can no
-            longer edit it.
+            Turning a column off excludes it from the total but keeps any scores
+            already entered — teachers still see it, but can no longer edit it.
           </p>
 
           <div className="space-y-2">
@@ -400,7 +406,9 @@ export default function SettingsPage() {
                   type="number"
                   min="0"
                   value={component.maxMarks}
-                  onChange={(e) => setComponent(index, "maxMarks", e.target.value)}
+                  onChange={(e) =>
+                    setComponent(index, "maxMarks", e.target.value)
+                  }
                 />
                 <Toggle
                   enabled={component.isActive !== false}
@@ -411,6 +419,7 @@ export default function SettingsPage() {
                   onClick={() => removeComponent(index)}
                   className="justify-self-end text-danger hover:bg-red-50 p-2 rounded-lg transition-colors"
                   aria-label="Remove column"
+                  title="Remove column"
                 >
                   <FaTrashAlt />
                 </button>

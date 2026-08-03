@@ -18,7 +18,9 @@ import Button from "../../components/ui/Button";
 const emptyForm = { teacher: "", schoolClass: "", subject: "" };
 
 export default function TeacherAssignmentPage() {
-  const { data, loading, error, refetch } = useApi(teacherAssignmentService.list);
+  const { data, loading, error, refetch } = useApi(
+    teacherAssignmentService.list,
+  );
   const teachersApi = useApi(teacherService.list);
   const classesApi = useApi(classService.list);
   const subjectsApi = useApi(subjectService.list);
@@ -31,7 +33,8 @@ export default function TeacherAssignmentPage() {
   const [saving, setSaving] = useState(false);
 
   const rows = asArray(data).map((assignment) => {
-    const teacherName = displayName(assignment.teacher?.user || assignment.teacher) || "—";
+    const teacherName =
+      displayName(assignment.teacher?.user || assignment.teacher) || "—";
     const cls = classLabel(assignment.schoolClass);
     const subj = assignment.subject?.name || "—";
     return {
@@ -46,7 +49,9 @@ export default function TeacherAssignmentPage() {
     };
   });
 
-  const filtered = rows.filter((row) => row.__search.includes(search.toLowerCase()));
+  const filtered = rows.filter((row) =>
+    row.__search.includes(search.toLowerCase()),
+  );
 
   const teacherOptions = asArray(teachersApi.data).map((teacher) => ({
     value: teacher._id,
@@ -87,12 +92,14 @@ export default function TeacherAssignmentPage() {
             variant="ghost"
             size="sm"
             icon={FaEdit}
+            title="Edit assignment"
             onClick={() => openEdit(row.__doc)}
           />
           <Button
             variant="ghost"
             size="sm"
             icon={FaTrashAlt}
+            title="Remove assignment"
             onClick={() => {
               setSelected(row.__doc);
               setDeleteOpen(true);

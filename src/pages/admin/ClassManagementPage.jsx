@@ -65,12 +65,14 @@ export default function ClassManagementPage() {
             variant="ghost"
             size="sm"
             icon={FaEdit}
+            title="Edit class"
             onClick={() => openEdit(row.__doc)}
           />
           <Button
             variant="ghost"
             size="sm"
             icon={FaTrashAlt}
+            title="Delete class"
             onClick={() => {
               setSelected(row.__doc);
               setDeleteOpen(true);
@@ -179,8 +181,21 @@ export default function ClassManagementPage() {
         loading={saving}
       >
         <div className="grid grid-cols-2 gap-4">
-          <Input label="Class Name" name="className" value={form.className} onChange={set("className")} placeholder="e.g. JSS 1" required />
-          <Input label="Arm" name="arm" value={form.arm} onChange={set("arm")} placeholder="e.g. A" />
+          <Input
+            label="Class Name"
+            name="className"
+            value={form.className}
+            onChange={set("className")}
+            placeholder="e.g. JSS 1"
+            required
+          />
+          <Input
+            label="Arm"
+            name="arm"
+            value={form.arm}
+            onChange={set("arm")}
+            placeholder="e.g. A"
+          />
         </div>
         <Select
           label="Level"
@@ -190,7 +205,13 @@ export default function ClassManagementPage() {
           options={levelOptions}
           required
         />
-        <Input label="Description" name="description" value={form.description} onChange={set("description")} placeholder="Optional" />
+        <Input
+          label="Description"
+          name="description"
+          value={form.description}
+          onChange={set("description")}
+          placeholder="Optional"
+        />
         {selected && (
           <div className="flex items-center gap-3">
             <input

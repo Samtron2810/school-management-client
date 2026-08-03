@@ -56,6 +56,7 @@ export default function Modal({
               onClick={onClose}
               className="text-slate-gray hover:text-primary transition-colors"
               aria-label="Close"
+              title="Close"
             >
               <FaTimes />
             </button>

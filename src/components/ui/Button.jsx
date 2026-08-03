@@ -24,19 +24,25 @@ export default function Button({
   type = "button",
   icon: Icon,
   loading = false,
+  title,
 }) {
   return (
     <button
       type={type}
       onClick={onClick}
       disabled={disabled || loading}
+      title={title}
       className={`inline-flex items-center justify-center gap-2 font-medium rounded-lg transition-colors ${
         variantStyles[variant]
       } ${sizeClasses[size]} ${
         disabled || loading ? "opacity-50 cursor-not-allowed" : "cursor-pointer"
       } ${className}`}
     >
-      {loading ? <FaSpinner className="animate-spin" /> : Icon && <Icon className="text-base" />}
+      {loading ? (
+        <FaSpinner className="animate-spin" />
+      ) : (
+        Icon && <Icon className="text-base" />
+      )}
       {children}
     </button>
   );

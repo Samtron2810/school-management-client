@@ -63,12 +63,14 @@ export default function SessionManagementPage() {
             variant="ghost"
             size="sm"
             icon={FaEdit}
+            title="Edit session"
             onClick={() => openEdit(row.__doc)}
           />
           <Button
             variant="ghost"
             size="sm"
             icon={FaTrashAlt}
+            title="Delete session"
             onClick={() => {
               setSelected(row.__doc);
               setDeleteOpen(true);
@@ -173,10 +175,31 @@ export default function SessionManagementPage() {
         onSubmit={handleSubmit}
         loading={saving}
       >
-        <Input label="Session Name" name="name" value={form.name} onChange={set("name")} placeholder="e.g. 2025/2026" required />
+        <Input
+          label="Session Name"
+          name="name"
+          value={form.name}
+          onChange={set("name")}
+          placeholder="e.g. 2025/2026"
+          required
+        />
         <div className="grid grid-cols-2 gap-4">
-          <Input label="Start Date" name="startDate" type="date" value={form.startDate} onChange={set("startDate")} required />
-          <Input label="End Date" name="endDate" type="date" value={form.endDate} onChange={set("endDate")} required />
+          <Input
+            label="Start Date"
+            name="startDate"
+            type="date"
+            value={form.startDate}
+            onChange={set("startDate")}
+            required
+          />
+          <Input
+            label="End Date"
+            name="endDate"
+            type="date"
+            value={form.endDate}
+            onChange={set("endDate")}
+            required
+          />
         </div>
         {selected && (
           <Toggle

@@ -21,15 +21,24 @@ export default function MyLessonsPage() {
     _id: lesson._id,
     title: lesson.title || "—",
     topic: lesson.topic || "—",
-    subject: lesson.teacherAssignment?.subject?.name || lesson.classSubject?.subject?.name || "—",
-    teacher: displayName(lesson.teacherAssignment?.teacher?.user || lesson.teacher?.user) || "—",
+    subject:
+      lesson.teacherAssignment?.subject?.name ||
+      lesson.classSubject?.subject?.name ||
+      "—",
+    teacher:
+      displayName(
+        lesson.teacherAssignment?.teacher?.user || lesson.teacher?.user,
+      ) || "—",
     week: lesson.week || "—",
     date: formatDate(lesson.createdAt),
     __doc: lesson,
-    __search: `${lesson.title} ${lesson.topic} ${lesson.teacherAssignment?.subject?.name}`.toLowerCase(),
+    __search:
+      `${lesson.title} ${lesson.topic} ${lesson.teacherAssignment?.subject?.name}`.toLowerCase(),
   }));
 
-  const filtered = rows.filter((row) => row.__search.includes(search.toLowerCase()));
+  const filtered = rows.filter((row) =>
+    row.__search.includes(search.toLowerCase()),
+  );
 
   const openView = async (row) => {
     try {
@@ -50,7 +59,15 @@ export default function MyLessonsPage() {
     { header: "Added", accessor: "date" },
     {
       header: "Actions",
-      render: (row) => <Button variant="ghost" size="sm" icon={FaEye} onClick={() => openView(row)} />,
+      render: (row) => (
+        <Button
+          variant="ghost"
+          size="sm"
+          icon={FaEye}
+          title="View lesson"
+          onClick={() => openView(row)}
+        />
+      ),
     },
   ];
 
@@ -71,38 +88,52 @@ export default function MyLessonsPage() {
         emptyDescription="Lessons will appear here when your teachers publish them."
       />
 
-      <Modal isOpen={viewOpen} onClose={() => setViewOpen(false)} title={selected?.title || "Lesson"} maxWidth="lg">
+      <Modal
+        isOpen={viewOpen}
+        onClose={() => setViewOpen(false)}
+        title={selected?.title || "Lesson"}
+        maxWidth="lg"
+      >
         {selected && (
           <div className="space-y-3 text-sm">
             <div className="flex gap-2">
               <Badge variant="info">
-                {selected.teacherAssignment?.subject?.name || selected.classSubject?.subject?.name || "Subject"}
+                {selected.teacherAssignment?.subject?.name ||
+                  selected.classSubject?.subject?.name ||
+                  "Subject"}
               </Badge>
-              {selected.week && <Badge variant="primary">Week {selected.week}</Badge>}
+              {selected.week && (
+                <Badge variant="primary">Week {selected.week}</Badge>
+              )}
             </div>
             <p className="font-medium text-primary">{selected.topic}</p>
-            <p className="text-slate-gray whitespace-pre-line">{selected.description || "No description."}</p>
-            {Array.isArray(selected.attachments) && selected.attachments.length > 0 && (
-              <div>
-                <p className="text-xs font-medium text-slate-gray mb-1 flex items-center gap-1">
-                  <FaPaperclip /> Attachments
-                </p>
-                <ul className="space-y-1">
-                  {selected.attachments.map((file) => (
-                    <li key={file._id}>
-                      <a
-                        href={file.url || file.secure_url}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="text-accent hover:underline text-sm"
-                      >
-                        {file.originalName || file.fileName || "Download attachment"}
-                      </a>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            )}
+            <p className="text-slate-gray whitespace-pre-line">
+              {selected.description || "No description."}
+            </p>
+            {Array.isArray(selected.attachments) &&
+              selected.attachments.length > 0 && (
+                <div>
+                  <p className="text-xs font-medium text-slate-gray mb-1 flex items-center gap-1">
+                    <FaPaperclip /> Attachments
+                  </p>
+                  <ul className="space-y-1">
+                    {selected.attachments.map((file) => (
+                      <li key={file._id}>
+                        <a
+                          href={file.url || file.secure_url}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="text-accent hover:underline text-sm"
+                        >
+                          {file.originalName ||
+                            file.fileName ||
+                            "Download attachment"}
+                        </a>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
           </div>
         )}
       </Modal>

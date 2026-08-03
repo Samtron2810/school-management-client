@@ -22,7 +22,12 @@ const termNameOptions = [
   { value: "Third Term", label: "Third Term" },
 ];
 
-const emptyForm = { name: "First Term", startDate: "", endDate: "", isCurrent: false };
+const emptyForm = {
+  name: "First Term",
+  startDate: "",
+  endDate: "",
+  isCurrent: false,
+};
 const toDateInput = (value) => (value ? String(value).slice(0, 10) : "");
 
 export default function TermManagementPage() {
@@ -75,12 +80,14 @@ export default function TermManagementPage() {
             variant="ghost"
             size="sm"
             icon={FaEdit}
+            title="Edit term"
             onClick={() => openEdit(row.__doc)}
           />
           <Button
             variant="ghost"
             size="sm"
             icon={FaTrashAlt}
+            title="Delete term"
             onClick={() => {
               setSelected(row.__doc);
               setDeleteOpen(true);
@@ -195,8 +202,22 @@ export default function TermManagementPage() {
           required
         />
         <div className="grid grid-cols-2 gap-4">
-          <Input label="Start Date" name="startDate" type="date" value={form.startDate} onChange={set("startDate")} required />
-          <Input label="End Date" name="endDate" type="date" value={form.endDate} onChange={set("endDate")} required />
+          <Input
+            label="Start Date"
+            name="startDate"
+            type="date"
+            value={form.startDate}
+            onChange={set("startDate")}
+            required
+          />
+          <Input
+            label="End Date"
+            name="endDate"
+            type="date"
+            value={form.endDate}
+            onChange={set("endDate")}
+            required
+          />
         </div>
         {selected && (
           <div className="space-y-2">
@@ -208,7 +229,8 @@ export default function TermManagementPage() {
               }
             />
             <p className="text-xs text-slate-gray">
-              The term stays in its original session ({selected.session?.name || "—"}).
+              The term stays in its original session (
+              {selected.session?.name || "—"}).
               {form.isCurrent &&
                 !selected.isCurrent &&
                 " Saving clears the flag on the session's other terms."}

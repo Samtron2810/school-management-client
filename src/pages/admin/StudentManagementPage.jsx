@@ -58,8 +58,9 @@ export default function StudentManagementPage() {
   useEffect(() => {
     if (selected) {
       setLoadingLinks(true);
-      parentService.getParentsOfStudent(selected._id)
-        .then(data => setLinkedParents(asArray(data)))
+      parentService
+        .getParentsOfStudent(selected._id)
+        .then((data) => setLinkedParents(asArray(data)))
         .catch(() => setLinkedParents([]))
         .finally(() => setLoadingLinks(false));
     } else {
@@ -72,7 +73,10 @@ export default function StudentManagementPage() {
   const openForm = () => {
     setSelected(null);
     const existingIds = asArray(data).map((student) => student.admissionNumber);
-    setForm({ ...emptyForm, admissionNumber: suggestId(ID_PREFIX, existingIds) });
+    setForm({
+      ...emptyForm,
+      admissionNumber: suggestId(ID_PREFIX, existingIds),
+    });
     setFormOpen(true);
   };
 
@@ -88,8 +92,12 @@ export default function StudentManagementPage() {
       password: "",
       admissionNumber: student.admissionNumber || "",
       gender: student.gender || "Male",
-      dateOfBirth: student.dateOfBirth ? String(student.dateOfBirth).slice(0, 10) : "",
-      admissionDate: student.admissionDate ? String(student.admissionDate).slice(0, 10) : "",
+      dateOfBirth: student.dateOfBirth
+        ? String(student.dateOfBirth).slice(0, 10)
+        : "",
+      admissionDate: student.admissionDate
+        ? String(student.admissionDate).slice(0, 10)
+        : "",
       isActive: student.isActive !== false,
     });
     setFormOpen(true);
@@ -102,7 +110,10 @@ export default function StudentManagementPage() {
     const studentId = idOf(enrollment.student);
     // Keep the most recently created active enrollment if there's more than one.
     const existing = classByStudent.get(studentId);
-    if (!existing || new Date(enrollment.createdAt) > new Date(existing.createdAt)) {
+    if (
+      !existing ||
+      new Date(enrollment.createdAt) > new Date(existing.createdAt)
+    ) {
       classByStudent.set(studentId, {
         label: classLabel(enrollment.schoolClass),
         createdAt: enrollment.createdAt,
@@ -125,7 +136,8 @@ export default function StudentManagementPage() {
       status: student.isActive === false ? "inactive" : "active",
       className,
       __doc: student,
-      __search: `${name} ${user.username} ${user.email} ${student.admissionNumber} ${className}`.toLowerCase(),
+      __search:
+        `${name} ${user.username} ${user.email} ${student.admissionNumber} ${className}`.toLowerCase(),
     };
   });
 
@@ -165,6 +177,7 @@ export default function StudentManagementPage() {
           variant="ghost"
           size="sm"
           icon={FaEdit}
+          title="Edit student"
           onClick={() => openEdit(row.__doc)}
         />
       ),
@@ -216,7 +229,9 @@ export default function StudentManagementPage() {
       <PageHeader
         title="Student Management"
         subtitle="View and register students, grouped by class"
-        actions={<ActionButton label="Add Student" icon={FaPlus} onClick={openForm} />}
+        actions={
+          <ActionButton label="Add Student" icon={FaPlus} onClick={openForm} />
+        }
       />
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
@@ -278,19 +293,62 @@ export default function StudentManagementPage() {
         loading={saving}
       >
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <Input label="First Name" name="firstName" value={form.firstName} onChange={set("firstName")} required />
-          <Input label="Last Name" name="lastName" value={form.lastName} onChange={set("lastName")} required />
+          <Input
+            label="First Name"
+            name="firstName"
+            value={form.firstName}
+            onChange={set("firstName")}
+            required
+          />
+          <Input
+            label="Last Name"
+            name="lastName"
+            value={form.lastName}
+            onChange={set("lastName")}
+            required
+          />
         </div>
-        <Input label="Other Name" name="otherName" value={form.otherName} onChange={set("otherName")} />
+        <Input
+          label="Other Name"
+          name="otherName"
+          value={form.otherName}
+          onChange={set("otherName")}
+        />
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <Input label="Username" name="username" value={form.username} onChange={set("username")} required />
-          <Input label="Email" name="email" type="email" value={form.email} onChange={set("email")} required />
+          <Input
+            label="Username"
+            name="username"
+            value={form.username}
+            onChange={set("username")}
+            required
+          />
+          <Input
+            label="Email"
+            name="email"
+            type="email"
+            value={form.email}
+            onChange={set("email")}
+            required
+          />
         </div>
         {!selected && (
-          <Input label="Password" name="password" type="password" value={form.password} onChange={set("password")} required />
+          <Input
+            label="Password"
+            name="password"
+            type="password"
+            value={form.password}
+            onChange={set("password")}
+            required
+          />
         )}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <Input label="Admission Number" name="admissionNumber" value={form.admissionNumber} onChange={set("admissionNumber")} placeholder="Leave blank to auto-generate" />
+          <Input
+            label="Admission Number"
+            name="admissionNumber"
+            value={form.admissionNumber}
+            onChange={set("admissionNumber")}
+            placeholder="Leave blank to auto-generate"
+          />
           <Select
             label="Gender"
             name="gender"
@@ -303,8 +361,20 @@ export default function StudentManagementPage() {
           />
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <Input label="Date of Birth" name="dateOfBirth" type="date" value={form.dateOfBirth} onChange={set("dateOfBirth")} />
-          <Input label="Admission Date" name="admissionDate" type="date" value={form.admissionDate} onChange={set("admissionDate")} />
+          <Input
+            label="Date of Birth"
+            name="dateOfBirth"
+            type="date"
+            value={form.dateOfBirth}
+            onChange={set("dateOfBirth")}
+          />
+          <Input
+            label="Admission Date"
+            name="admissionDate"
+            type="date"
+            value={form.admissionDate}
+            onChange={set("admissionDate")}
+          />
         </div>
         {selected && (
           <div className="flex items-center gap-3">
@@ -330,15 +400,22 @@ export default function StudentManagementPage() {
         )}
         {selected && (
           <div className="border-t border-gray-100 pt-4 mt-4">
-            <h4 className="text-sm font-semibold text-primary mb-2">Linked Parents</h4>
+            <h4 className="text-sm font-semibold text-primary mb-2">
+              Linked Parents
+            </h4>
             {loadingLinks ? (
               <p className="text-xs text-slate-gray">Loading links...</p>
             ) : linkedParents.length === 0 ? (
-              <p className="text-xs text-slate-gray">No linked parents found.</p>
+              <p className="text-xs text-slate-gray">
+                No linked parents found.
+              </p>
             ) : (
               <ul className="space-y-2">
                 {linkedParents.map((item) => (
-                  <li key={item._id} className="flex items-center justify-between p-2 rounded-lg bg-gray-50 text-xs">
+                  <li
+                    key={item._id}
+                    className="flex items-center justify-between p-2 rounded-lg bg-gray-50 text-xs"
+                  >
                     <div>
                       <span className="font-semibold text-primary">
                         {displayName(item.parent?.user || item.parent)}
@@ -376,7 +453,9 @@ export default function StudentManagementPage() {
           try {
             await parentService.removeLink(linkToUnlink._id);
             toast.success("Parent unlinked successfully");
-            const updated = await parentService.getParentsOfStudent(selected._id);
+            const updated = await parentService.getParentsOfStudent(
+              selected._id,
+            );
             setLinkedParents(asArray(updated));
           } catch {
             toast.error("Failed to unlink parent");

@@ -82,7 +82,10 @@ export default function ViewResultsPage() {
           if (id && !map.has(id)) {
             map.set(id, {
               value: id,
-              label: displayName(student.user) || student.admissionNumber || "Student",
+              label:
+                displayName(student.user) ||
+                student.admissionNumber ||
+                "Student",
             });
           }
         });
@@ -103,7 +106,8 @@ export default function ViewResultsPage() {
     _id: result._id,
     student: displayName(result.student?.user) || "—",
     title: result.title || "—",
-    subject: result.classSubject?.subject?.name || result.metadata?.subjectName || "—",
+    subject:
+      result.classSubject?.subject?.name || result.metadata?.subjectName || "—",
     class: result.classSubject?.schoolClass
       ? `${result.classSubject.schoolClass.className || ""} ${result.classSubject.schoolClass.arm || ""}`.trim()
       : "—",
@@ -112,10 +116,13 @@ export default function ViewResultsPage() {
     grade: result.grade,
     type: result.type || "—",
     __doc: result,
-    __search: `${displayName(result.student?.user)} ${result.title} ${result.type}`.toLowerCase(),
+    __search:
+      `${displayName(result.student?.user)} ${result.title} ${result.type}`.toLowerCase(),
   }));
 
-  const filtered = rows.filter((row) => row.__search.includes(search.toLowerCase()));
+  const filtered = rows.filter((row) =>
+    row.__search.includes(search.toLowerCase()),
+  );
 
   const columns = [
     { header: "Student", accessor: "student" },
@@ -137,6 +144,7 @@ export default function ViewResultsPage() {
             variant="ghost"
             size="sm"
             icon={FaEdit}
+            title="Edit result"
             onClick={() => {
               setSelected(row.__doc);
               setForm({
@@ -154,6 +162,7 @@ export default function ViewResultsPage() {
             variant="ghost"
             size="sm"
             icon={FaTrashAlt}
+            title="Delete result"
             onClick={() => {
               setSelected(row.__doc);
               setDeleteOpen(true);
@@ -263,16 +272,50 @@ export default function ViewResultsPage() {
           required
         />
         <div className="grid grid-cols-2 gap-4">
-          <Input label="Title" name="title" value={form.title} onChange={set("title")} placeholder="e.g. Mid-term test" required />
-          <Select label="Type" name="type" value={form.type} onChange={set("type")} options={typeOptions} />
+          <Input
+            label="Title"
+            name="title"
+            value={form.title}
+            onChange={set("title")}
+            placeholder="e.g. Mid-term test"
+            required
+          />
+          <Select
+            label="Type"
+            name="type"
+            value={form.type}
+            onChange={set("type")}
+            options={typeOptions}
+          />
         </div>
         <div className="grid grid-cols-2 gap-4">
-          <Input label="Score" name="score" type="number" value={form.score} onChange={set("score")} required />
-          <Input label="Total Marks" name="totalMarks" type="number" value={form.totalMarks} onChange={set("totalMarks")} required />
+          <Input
+            label="Score"
+            name="score"
+            type="number"
+            value={form.score}
+            onChange={set("score")}
+            required
+          />
+          <Input
+            label="Total Marks"
+            name="totalMarks"
+            type="number"
+            value={form.totalMarks}
+            onChange={set("totalMarks")}
+            required
+          />
         </div>
-        <Textarea label="Remark" name="remark" value={form.remark} onChange={set("remark")} rows={2} />
+        <Textarea
+          label="Remark"
+          name="remark"
+          value={form.remark}
+          onChange={set("remark")}
+          rows={2}
+        />
         <p className="text-xs text-slate-gray">
-          Recorded under the current session and term ({context?.session?.name || "…"} · {context?.term?.name || "…"}).
+          Recorded under the current session and term (
+          {context?.session?.name || "…"} · {context?.term?.name || "…"}).
         </p>
       </FormModal>
 

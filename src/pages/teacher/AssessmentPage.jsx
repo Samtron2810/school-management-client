@@ -1,7 +1,13 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
-import { FaBan, FaCheckCircle, FaEye, FaPlus, FaFileSignature } from "react-icons/fa";
+import {
+  FaBan,
+  FaCheckCircle,
+  FaEye,
+  FaPlus,
+  FaFileSignature,
+} from "react-icons/fa";
 
 import assessmentService from "../../services/assessmentService";
 import questionService from "../../services/questionService";
@@ -66,7 +72,8 @@ export default function AssessmentPage() {
 
   const rows = asArray(data)
     .map((assessment) => {
-      const teacherUserId = assessment.teacher?.user?._id || assessment.teacher?.user || null;
+      const teacherUserId =
+        assessment.teacher?.user?._id || assessment.teacher?.user || null;
       const classSubject = assessment.classSubject || {};
       return {
         _id: assessment._id,
@@ -74,12 +81,18 @@ export default function AssessmentPage() {
         type: assessment.type || "—",
         class: classLabel(classSubject.schoolClass),
         subject: classSubject.subject?.name || "—",
-        teacher: displayName(assessment.teacher?.user || assessment.teacher) || "—",
+        teacher:
+          displayName(assessment.teacher?.user || assessment.teacher) || "—",
         window: `${formatDate(assessment.availableFrom)} → ${formatDate(assessment.availableTo)}`,
         status: assessment.isPublished ? "published" : "draft",
-        mine: Boolean(myUserId && teacherUserId && String(teacherUserId) === String(myUserId)),
+        mine: Boolean(
+          myUserId &&
+          teacherUserId &&
+          String(teacherUserId) === String(myUserId),
+        ),
         __doc: assessment,
-        __search: `${assessment.title} ${assessment.type} ${classSubject.subject?.name}`.toLowerCase(),
+        __search:
+          `${assessment.title} ${assessment.type} ${classSubject.subject?.name}`.toLowerCase(),
       };
     })
     .filter((row) => row.mine);
@@ -118,15 +131,24 @@ export default function AssessmentPage() {
     setQuestionIds([]);
     try {
       const payload = await questionService.list({ limit: 100 });
-      const subjectId = row.__doc.classSubject?.subject?._id || row.__doc.classSubject?.subject;
-      const classId = row.__doc.classSubject?.schoolClass?._id || row.__doc.classSubject?.schoolClass;
+      const subjectId =
+        row.__doc.classSubject?.subject?._id || row.__doc.classSubject?.subject;
+      const classId =
+        row.__doc.classSubject?.schoolClass?._id ||
+        row.__doc.classSubject?.schoolClass;
       setBank(
         asArray(payload).filter((question) => {
-          const questionSubject = question.classSubject?.subject?._id || question.classSubject?.subject;
-          const questionClass = question.classSubject?.schoolClass?._id || question.classSubject?.schoolClass;
-          
-          const matchesSubject = !subjectId || String(questionSubject) === String(subjectId);
-          const matchesClass = !classId || String(questionClass) === String(classId);
+          const questionSubject =
+            question.classSubject?.subject?._id ||
+            question.classSubject?.subject;
+          const questionClass =
+            question.classSubject?.schoolClass?._id ||
+            question.classSubject?.schoolClass;
+
+          const matchesSubject =
+            !subjectId || String(questionSubject) === String(subjectId);
+          const matchesClass =
+            !classId || String(questionClass) === String(classId);
           return matchesSubject && matchesClass;
         }),
       );
@@ -175,7 +197,8 @@ export default function AssessmentPage() {
     availableFrom: form.availableFrom,
     availableTo: form.availableTo,
     maxAttempts: Number(form.maxAttempts) || 1,
-    passingScore: form.passingScore === "" ? undefined : Number(form.passingScore),
+    passingScore:
+      form.passingScore === "" ? undefined : Number(form.passingScore),
     shuffleQuestions: form.shuffleQuestions,
     shuffleOptions: form.shuffleOptions,
     showScoreImmediately: form.showScoreImmediately,
@@ -186,7 +209,9 @@ export default function AssessmentPage() {
     setSaving(true);
     try {
       await assessmentService.create(buildPayload());
-      toast.success("Assessment created (draft) — add questions, then publish it");
+      toast.success(
+        "Assessment created (draft) — add questions, then publish it",
+      );
       setFormOpen(false);
       setForm(emptyForm);
       refetch();
@@ -212,12 +237,22 @@ export default function AssessmentPage() {
       header: "Actions",
       render: (row) => (
         <div className="flex items-center gap-1">
-          <Button variant="ghost" size="sm" icon={FaEye} title="Questions" onClick={() => openQuestions(row)} />
+          <Button
+            variant="ghost"
+            size="sm"
+            icon={FaEye}
+            title="Manage questions"
+            onClick={() => openQuestions(row)}
+          />
           <Button
             variant="ghost"
             size="sm"
             icon={row.status === "published" ? FaBan : FaCheckCircle}
-            title={row.status === "published" ? "Unpublish" : "Publish"}
+            title={
+              row.status === "published"
+                ? "Unpublish assessment"
+                : "Publish assessment"
+            }
             loading={busyId === row._id}
             onClick={() => togglePublish(row)}
           />
@@ -225,7 +260,7 @@ export default function AssessmentPage() {
             variant="ghost"
             size="sm"
             icon={FaFileSignature}
-            title="Attempts"
+            title="View attempts"
             onClick={() => navigate(`/teacher/attempts?assessment=${row._id}`)}
           />
         </div>
@@ -272,7 +307,11 @@ export default function AssessmentPage() {
                 placeholder="Filter by Class"
               />
             </div>
-            <Button variant="outline" icon={FaFileSignature} onClick={() => navigate("/teacher/attempts")}>
+            <Button
+              variant="outline"
+              icon={FaFileSignature}
+              onClick={() => navigate("/teacher/attempts")}
+            >
               View All Attempts
             </Button>
           </div>
@@ -290,7 +329,9 @@ export default function AssessmentPage() {
           label="Class Subject"
           name="teacherAssignment"
           value={form.teacherAssignment}
-          onChange={(e) => setForm({ ...form, teacherAssignment: e.target.value })}
+          onChange={(e) =>
+            setForm({ ...form, teacherAssignment: e.target.value })
+          }
           options={assignmentOptions}
           placeholder="Select class subject"
           required
@@ -324,7 +365,9 @@ export default function AssessmentPage() {
             name="availableFrom"
             type="datetime-local"
             value={form.availableFrom}
-            onChange={(e) => setForm({ ...form, availableFrom: e.target.value })}
+            onChange={(e) =>
+              setForm({ ...form, availableFrom: e.target.value })
+            }
             required
           />
           <Input
@@ -360,10 +403,26 @@ export default function AssessmentPage() {
           />
         </div>
         <div className="space-y-2">
-          <Toggle label="Shuffle questions" enabled={form.shuffleQuestions} onChange={(v) => setForm({ ...form, shuffleQuestions: v })} />
-          <Toggle label="Shuffle options" enabled={form.shuffleOptions} onChange={(v) => setForm({ ...form, shuffleOptions: v })} />
-          <Toggle label="Show score immediately" enabled={form.showScoreImmediately} onChange={(v) => setForm({ ...form, showScoreImmediately: v })} />
-          <Toggle label="Show correct answers" enabled={form.showCorrectAnswers} onChange={(v) => setForm({ ...form, showCorrectAnswers: v })} />
+          <Toggle
+            label="Shuffle questions"
+            enabled={form.shuffleQuestions}
+            onChange={(v) => setForm({ ...form, shuffleQuestions: v })}
+          />
+          <Toggle
+            label="Shuffle options"
+            enabled={form.shuffleOptions}
+            onChange={(v) => setForm({ ...form, shuffleOptions: v })}
+          />
+          <Toggle
+            label="Show score immediately"
+            enabled={form.showScoreImmediately}
+            onChange={(v) => setForm({ ...form, showScoreImmediately: v })}
+          />
+          <Toggle
+            label="Show correct answers"
+            enabled={form.showCorrectAnswers}
+            onChange={(v) => setForm({ ...form, showCorrectAnswers: v })}
+          />
         </div>
       </FormModal>
 
@@ -378,7 +437,8 @@ export default function AssessmentPage() {
         </p>
         {bank.length === 0 ? (
           <p className="text-sm text-slate-gray">
-            No questions in your bank for this subject yet — create some in the Question Bank.
+            No questions in your bank for this subject yet — create some in the
+            Question Bank.
           </p>
         ) : (
           <div className="max-h-64 overflow-y-auto pr-1">
@@ -390,8 +450,15 @@ export default function AssessmentPage() {
           </div>
         )}
         <div className="flex justify-end gap-3 mt-4">
-          <Button variant="secondary" onClick={() => setQuestionsOpen(false)}>Done</Button>
-          <Button icon={FaPlus} onClick={submitQuestions} loading={saving} disabled={bank.length === 0}>
+          <Button variant="secondary" onClick={() => setQuestionsOpen(false)}>
+            Done
+          </Button>
+          <Button
+            icon={FaPlus}
+            onClick={submitQuestions}
+            loading={saving}
+            disabled={bank.length === 0}
+          >
             Add Selected ({questionIds.length})
           </Button>
         </div>

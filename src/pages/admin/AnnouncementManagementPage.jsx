@@ -46,7 +46,11 @@ const emptyForm = {
 };
 
 function priorityVariant(priority) {
-  return { Low: "default", Normal: "info", High: "warning", Urgent: "danger" }[priority] || "default";
+  return (
+    { Low: "default", Normal: "info", High: "warning", Urgent: "danger" }[
+      priority
+    ] || "default"
+  );
 }
 
 export default function AnnouncementManagementPage() {
@@ -72,15 +76,20 @@ export default function AnnouncementManagementPage() {
     audience:
       announcement.targetRoles?.length === 4
         ? "Everyone"
-        : announcement.targetRoles?.map((role) => role).join(", ") || "Everyone",
+        : announcement.targetRoles?.map((role) => role).join(", ") ||
+          "Everyone",
     publishAt: formatDate(announcement.publishAt),
-    expiresAt: announcement.expiresAt ? formatDate(announcement.expiresAt) : "—",
+    expiresAt: announcement.expiresAt
+      ? formatDate(announcement.expiresAt)
+      : "—",
     pinned: announcement.isPinned,
     __search: `${announcement.title} ${announcement.message}`.toLowerCase(),
     __doc: announcement,
   }));
 
-  const filtered = rows.filter((row) => row.__search.includes(search.toLowerCase()));
+  const filtered = rows.filter((row) =>
+    row.__search.includes(search.toLowerCase()),
+  );
 
   const canManage = (row) => myId && row.createdBy === myId;
 
@@ -100,7 +109,9 @@ export default function AnnouncementManagementPage() {
     {
       header: "Priority",
       accessor: "priority",
-      render: (row) => <Badge variant={priorityVariant(row.priority)}>{row.priority}</Badge>,
+      render: (row) => (
+        <Badge variant={priorityVariant(row.priority)}>{row.priority}</Badge>
+      ),
     },
     { header: "Audience", accessor: "audience" },
     { header: "Published", accessor: "publishAt" },
@@ -114,6 +125,7 @@ export default function AnnouncementManagementPage() {
               variant="ghost"
               size="sm"
               icon={FaEdit}
+              title="Edit announcement"
               onClick={() => {
                 setSelected(row.__doc);
                 const doc = row.__doc;
@@ -122,7 +134,9 @@ export default function AnnouncementManagementPage() {
                   message: doc.message || "",
                   priority: doc.priority || "Normal",
                   targetRoles: doc.targetRoles || [],
-                  targetClasses: (doc.targetClasses || []).map((cls) => cls._id || cls),
+                  targetClasses: (doc.targetClasses || []).map(
+                    (cls) => cls._id || cls,
+                  ),
                   publishAt: doc.publishAt ? doc.publishAt.slice(0, 10) : "",
                   expiresAt: doc.expiresAt ? doc.expiresAt.slice(0, 10) : "",
                   isPinned: Boolean(doc.isPinned),
@@ -134,6 +148,7 @@ export default function AnnouncementManagementPage() {
               variant="ghost"
               size="sm"
               icon={FaTrashAlt}
+              title="Delete announcement"
               onClick={() => {
                 setSelected(row.__doc);
                 setDeleteOpen(true);

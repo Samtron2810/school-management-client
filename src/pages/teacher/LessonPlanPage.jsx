@@ -39,7 +39,8 @@ export default function LessonPlanPage() {
   const [saving, setSaving] = useState(false);
 
   const rows = lessons.map((lesson) => {
-    const classSubjectId = lesson.teacherAssignment?._id || lesson.teacherAssignment || "";
+    const classSubjectId =
+      lesson.teacherAssignment?._id || lesson.teacherAssignment || "";
     return {
       _id: lesson._id,
       title: lesson.title || "—",
@@ -54,13 +55,16 @@ export default function LessonPlanPage() {
       attachments: lesson.attachments?.length || 0,
       classSubjectId,
       __doc: lesson,
-      __search: `${lesson.title} ${lesson.topic} ${lesson.teacherAssignment?.subject?.name}`.toLowerCase(),
+      __search:
+        `${lesson.title} ${lesson.topic} ${lesson.teacherAssignment?.subject?.name}`.toLowerCase(),
     };
   });
 
   const filtered = rows.filter((row) => {
     const matchesSearch = row.__search.includes(search.toLowerCase());
-    const matchesClassSubject = !classSubjectFilter || String(row.classSubjectId) === String(classSubjectFilter);
+    const matchesClassSubject =
+      !classSubjectFilter ||
+      String(row.classSubjectId) === String(classSubjectFilter);
     return matchesSearch && matchesClassSubject;
   });
 
@@ -87,7 +91,8 @@ export default function LessonPlanPage() {
     const lesson = row.__doc;
     setSelected(lesson);
     setForm({
-      teacherAssignment: lesson.teacherAssignment?._id || lesson.teacherAssignment || "",
+      teacherAssignment:
+        lesson.teacherAssignment?._id || lesson.teacherAssignment || "",
       title: lesson.title || "",
       topic: lesson.topic || "",
       description: lesson.description || "",
@@ -148,7 +153,15 @@ export default function LessonPlanPage() {
     {
       header: "Files",
       accessor: "attachments",
-      render: (row) => (row.attachments > 0 ? <Badge variant="info"><FaPaperclip className="mr-1" />{row.attachments}</Badge> : "—"),
+      render: (row) =>
+        row.attachments > 0 ? (
+          <Badge variant="info">
+            <FaPaperclip className="mr-1" />
+            {row.attachments}
+          </Badge>
+        ) : (
+          "—"
+        ),
     },
     { header: "Created", accessor: "date" },
     {
@@ -159,13 +172,21 @@ export default function LessonPlanPage() {
             variant="ghost"
             size="sm"
             icon={FaEye}
+            title="View lesson"
             onClick={() => openView(row)}
           />
-          <Button variant="ghost" size="sm" icon={FaEdit} onClick={() => openEdit(row)} />
+          <Button
+            variant="ghost"
+            size="sm"
+            icon={FaEdit}
+            title="Edit lesson"
+            onClick={() => openEdit(row)}
+          />
           <Button
             variant="ghost"
             size="sm"
             icon={FaTrashAlt}
+            title="Delete lesson"
             onClick={() => {
               setSelected(row.__doc);
               setDeleteOpen(true);
@@ -230,47 +251,100 @@ export default function LessonPlanPage() {
           value={form.teacherAssignment}
           onChange={set("teacherAssignment")}
           options={assignmentOptions}
-          placeholder={assignmentOptions.length ? "Select class subject" : "Create a lesson first via an admin assignment"}
+          placeholder={
+            assignmentOptions.length
+              ? "Select class subject"
+              : "Create a lesson first via an admin assignment"
+          }
           required
         />
-        <Input label="Title" name="title" value={form.title} onChange={set("title")} required />
-        <Input label="Topic" name="topic" value={form.topic} onChange={set("topic")} required />
-        <Textarea label="Description" name="description" value={form.description} onChange={set("description")} rows={3} />
-        <Input label="Week" name="week" type="number" value={form.week} onChange={set("week")} placeholder="e.g. 3" />
-        <FileInput label="Attachments (up to 10)" name="files" onChange={(e) => setFiles(Array.from(e.target.files || []).slice(0, 10))} />
+        <Input
+          label="Title"
+          name="title"
+          value={form.title}
+          onChange={set("title")}
+          required
+        />
+        <Input
+          label="Topic"
+          name="topic"
+          value={form.topic}
+          onChange={set("topic")}
+          required
+        />
+        <Textarea
+          label="Description"
+          name="description"
+          value={form.description}
+          onChange={set("description")}
+          rows={3}
+        />
+        <Input
+          label="Week"
+          name="week"
+          type="number"
+          value={form.week}
+          onChange={set("week")}
+          placeholder="e.g. 3"
+        />
+        <FileInput
+          label="Attachments (up to 10)"
+          name="files"
+          onChange={(e) =>
+            setFiles(Array.from(e.target.files || []).slice(0, 10))
+          }
+        />
         {files.length > 0 && (
-          <p className="text-xs text-slate-gray">{files.length} file(s) selected</p>
+          <p className="text-xs text-slate-gray">
+            {files.length} file(s) selected
+          </p>
         )}
       </FormModal>
 
-      <Modal isOpen={viewOpen} onClose={() => setViewOpen(false)} title={selected?.title || "Lesson"} maxWidth="lg">
+      <Modal
+        isOpen={viewOpen}
+        onClose={() => setViewOpen(false)}
+        title={selected?.title || "Lesson"}
+        maxWidth="lg"
+      >
         {selected && (
           <div className="space-y-3 text-sm">
             <div className="flex gap-2">
-              <Badge variant="info">{selected.teacherAssignment?.subject?.name || "Subject"}</Badge>
-              <StatusBadge status={selected.isPublished ? "published" : "draft"} />
+              <Badge variant="info">
+                {selected.teacherAssignment?.subject?.name || "Subject"}
+              </Badge>
+              <StatusBadge
+                status={selected.isPublished ? "published" : "draft"}
+              />
             </div>
             <p className="font-medium text-primary">{selected.topic}</p>
-            <p className="text-slate-gray whitespace-pre-line">{selected.description || "No description."}</p>
-            {Array.isArray(selected.attachments) && selected.attachments.length > 0 && (
-              <div>
-                <p className="text-xs font-medium text-slate-gray mb-1">Attachments</p>
-                <ul className="space-y-1">
-                  {selected.attachments.map((file) => (
-                    <li key={file._id}>
-                      <a
-                        href={file.url || file.secure_url}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="text-accent hover:underline text-sm"
-                      >
-                        {file.originalName || file.fileName || "Download attachment"}
-                      </a>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            )}
+            <p className="text-slate-gray whitespace-pre-line">
+              {selected.description || "No description."}
+            </p>
+            {Array.isArray(selected.attachments) &&
+              selected.attachments.length > 0 && (
+                <div>
+                  <p className="text-xs font-medium text-slate-gray mb-1">
+                    Attachments
+                  </p>
+                  <ul className="space-y-1">
+                    {selected.attachments.map((file) => (
+                      <li key={file._id}>
+                        <a
+                          href={file.url || file.secure_url}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="text-accent hover:underline text-sm"
+                        >
+                          {file.originalName ||
+                            file.fileName ||
+                            "Download attachment"}
+                        </a>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
           </div>
         )}
       </Modal>

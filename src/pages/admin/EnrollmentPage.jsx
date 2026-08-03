@@ -65,11 +65,14 @@ export default function EnrollmentPage() {
       status: String(enrollment.status || "active").toLowerCase(),
       roll: enrollment.rollNumber ?? "—",
       __doc: enrollment,
-      __search: `${name} ${student?.admissionNumber} ${cls} ${sessionName} ${termName}`.toLowerCase(),
+      __search:
+        `${name} ${student?.admissionNumber} ${cls} ${sessionName} ${termName}`.toLowerCase(),
     };
   });
 
-  const filtered = rows.filter((row) => row.__search.includes(search.toLowerCase()));
+  const filtered = rows.filter((row) =>
+    row.__search.includes(search.toLowerCase()),
+  );
 
   const studentOptions = asArray(studentsApi.data).map((student) => ({
     value: student._id,
@@ -100,12 +103,14 @@ export default function EnrollmentPage() {
             variant="ghost"
             size="sm"
             icon={FaEdit}
+            title="Edit enrollment"
             onClick={() => openEdit(row.__doc)}
           />
           <Button
             variant="ghost"
             size="sm"
             icon={FaTrashAlt}
+            title="Delete enrollment"
             onClick={() => {
               setSelected(row.__doc);
               setDeleteOpen(true);
@@ -193,7 +198,9 @@ export default function EnrollmentPage() {
         students: bulkForm.students,
         schoolClass: bulkForm.schoolClass,
       });
-      toast.success(`${result?.length ?? bulkForm.students.length} student(s) enrolled`);
+      toast.success(
+        `${result?.length ?? bulkForm.students.length} student(s) enrolled`,
+      );
       setBulkOpen(false);
       setBulkForm(emptyBulkForm);
       refetch();
@@ -274,8 +281,8 @@ export default function EnrollmentPage() {
               required
             />
             <p className="text-xs text-slate-gray">
-              The student is enrolled into the current academic session and
-              term resolved by the server.
+              The student is enrolled into the current academic session and term
+              resolved by the server.
             </p>
           </>
         ) : (
@@ -365,8 +372,8 @@ export default function EnrollmentPage() {
         </div>
         <p className="text-xs text-slate-gray">
           Enrolls into the current session and term. If any selected student
-          can't be enrolled (already enrolled, etc.), the whole batch is
-          rolled back and nothing is saved.
+          can't be enrolled (already enrolled, etc.), the whole batch is rolled
+          back and nothing is saved.
         </p>
       </FormModal>
     </>

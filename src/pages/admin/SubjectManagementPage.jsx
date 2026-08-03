@@ -46,12 +46,14 @@ export default function SubjectManagementPage() {
             variant="ghost"
             size="sm"
             icon={FaEdit}
+            title="Edit subject"
             onClick={() => openEdit(row.__doc)}
           />
           <Button
             variant="ghost"
             size="sm"
             icon={FaTrashAlt}
+            title="Delete subject"
             onClick={() => {
               setSelected(row.__doc);
               setDeleteOpen(true);
@@ -145,8 +147,22 @@ export default function SubjectManagementPage() {
         onSubmit={handleSubmit}
         loading={saving}
       >
-        <Input label="Subject Name" name="name" value={form.name} onChange={set("name")} placeholder="e.g. Mathematics" required />
-        <Input label="Code" name="code" value={form.code} onChange={set("code")} placeholder="e.g. MTH101" required />
+        <Input
+          label="Subject Name"
+          name="name"
+          value={form.name}
+          onChange={set("name")}
+          placeholder="e.g. Mathematics"
+          required
+        />
+        <Input
+          label="Code"
+          name="code"
+          value={form.code}
+          onChange={set("code")}
+          placeholder="e.g. MTH101"
+          required
+        />
       </FormModal>
 
       <ConfirmDeleteModal

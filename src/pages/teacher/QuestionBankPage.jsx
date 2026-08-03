@@ -41,7 +41,8 @@ function toForm(doc) {
     if (options[opt.key] !== undefined) options[opt.key] = opt.text;
   });
   return {
-    teacherAssignment: doc.teacherAssignment?._id || doc.teacherAssignment || "",
+    teacherAssignment:
+      doc.teacherAssignment?._id || doc.teacherAssignment || "",
     question: doc.question || "",
     options,
     correctAnswer: doc.correctAnswer || "A",
@@ -52,7 +53,12 @@ function toForm(doc) {
 }
 
 export default function QuestionBankPage() {
-  const { assignments, classes, error: assignmentsError, refetch: refetchAssignments } = useMyTeaching();
+  const {
+    assignments,
+    classes,
+    error: assignmentsError,
+    refetch: refetchAssignments,
+  } = useMyTeaching();
 
   const [search, setSearch] = useState("");
   const [classFilter, setClassFilter] = useState("");
@@ -69,7 +75,11 @@ export default function QuestionBankPage() {
   const [saving, setSaving] = useState(false);
   const [bulkOpen, setBulkOpen] = useState(false);
   const [bulkText, setBulkText] = useState("");
-  const [bulkForm, setBulkForm] = useState({ teacherAssignment: "", marks: 1, difficulty: "Medium" });
+  const [bulkForm, setBulkForm] = useState({
+    teacherAssignment: "",
+    marks: 1,
+    difficulty: "Medium",
+  });
 
   const load = async (targetPage = page, targetSearch = search) => {
     setLoading(true);
@@ -128,15 +138,23 @@ export default function QuestionBankPage() {
   }));
 
   const toggleSelect = (id) =>
-    setSelectedIds((prev) => (prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]));
+    setSelectedIds((prev) =>
+      prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id],
+    );
 
   const columns = [
     {
       header: (
         <input
           type="checkbox"
-          checked={selectedIds.length === filtered.length && filtered.length > 0}
-          onChange={(e) => setSelectedIds(e.target.checked ? filtered.map((row) => row._id) : [])}
+          checked={
+            selectedIds.length === filtered.length && filtered.length > 0
+          }
+          onChange={(e) =>
+            setSelectedIds(
+              e.target.checked ? filtered.map((row) => row._id) : [],
+            )
+          }
           className="w-4 h-4"
         />
       ),
@@ -152,7 +170,9 @@ export default function QuestionBankPage() {
     {
       header: "Question",
       accessor: "question",
-      render: (row) => <span className="line-clamp-2 max-w-md">{row.question}</span>,
+      render: (row) => (
+        <span className="line-clamp-2 max-w-md">{row.question}</span>
+      ),
     },
     { header: "Subject", accessor: "subject" },
     { header: "Class", accessor: "class" },
@@ -162,7 +182,15 @@ export default function QuestionBankPage() {
       header: "Difficulty",
       accessor: "difficulty",
       render: (row) => (
-        <Badge variant={row.difficulty === "Easy" ? "success" : row.difficulty === "Hard" ? "danger" : "warning"}>
+        <Badge
+          variant={
+            row.difficulty === "Easy"
+              ? "success"
+              : row.difficulty === "Hard"
+                ? "danger"
+                : "warning"
+          }
+        >
           {row.difficulty}
         </Badge>
       ),
@@ -175,6 +203,7 @@ export default function QuestionBankPage() {
             variant="ghost"
             size="sm"
             icon={FaEdit}
+            title="Edit question"
             onClick={() => {
               setSelected(row.__doc);
               setForm(toForm(row.__doc));
@@ -185,6 +214,7 @@ export default function QuestionBankPage() {
             variant="ghost"
             size="sm"
             icon={FaCopy}
+            title="Duplicate question"
             onClick={async () => {
               try {
                 await questionService.duplicate(row._id);
@@ -199,6 +229,7 @@ export default function QuestionBankPage() {
             variant="ghost"
             size="sm"
             icon={FaTrashAlt}
+            title="Delete question"
             onClick={() => {
               setSelected(row.__doc);
               setDeleteOpen(true);
@@ -278,16 +309,19 @@ export default function QuestionBankPage() {
   };
 
   const parseAiken = (text) => {
-    const lines = text.split("\n").map(l => l.trim()).filter(Boolean);
+    const lines = text
+      .split("\n")
+      .map((l) => l.trim())
+      .filter(Boolean);
     const questionsList = [];
     let currentQuestion = null;
-    
+
     for (let i = 0; i < lines.length; i++) {
       const line = lines[i];
-      
+
       const optionMatch = line.match(/^([A-D])[\.\)]\s+(.+)$/i);
       const answerMatch = line.match(/^ANSWER:\s*([A-D])$/i);
-      
+
       if (optionMatch) {
         if (currentQuestion) {
           const key = optionMatch[1].toUpperCase();
@@ -316,14 +350,14 @@ export default function QuestionBankPage() {
         };
       }
     }
-    
+
     if (currentQuestion) {
       const keys = Object.keys(currentQuestion.options);
       if (keys.length === 4 && currentQuestion.correctAnswer) {
         questionsList.push(currentQuestion);
       }
     }
-    
+
     return questionsList;
   };
 
@@ -340,7 +374,9 @@ export default function QuestionBankPage() {
     try {
       const parsed = parseAiken(bulkText);
       if (parsed.length === 0) {
-        toast.error("No valid questions parsed. Make sure they strictly follow the Aiken format.");
+        toast.error(
+          "No valid questions parsed. Make sure they strictly follow the Aiken format.",
+        );
         setSaving(false);
         return;
       }
@@ -350,13 +386,16 @@ export default function QuestionBankPage() {
           questionService.create({
             teacherAssignment: bulkForm.teacherAssignment,
             question: q.question,
-            options: Object.keys(q.options).map((key) => ({ key, text: q.options[key] })),
+            options: Object.keys(q.options).map((key) => ({
+              key,
+              text: q.options[key],
+            })),
             correctAnswer: q.correctAnswer,
             marks: Number(bulkForm.marks) || 1,
             difficulty: bulkForm.difficulty,
             isPublished: true,
-          })
-        )
+          }),
+        ),
       );
 
       toast.success(`Successfully imported ${parsed.length} questions!`);
@@ -408,15 +447,29 @@ export default function QuestionBankPage() {
                 placeholder="Filter by Class"
               />
             </div>
-            <Button variant="outline" onClick={() => {
-              setBulkText("");
-              setBulkForm({ teacherAssignment: assignmentOptions[0]?.value || "", marks: 1, difficulty: "Medium" });
-              setBulkOpen(true);
-            }}>
+            <Button
+              variant="outline"
+              onClick={() => {
+                setBulkText("");
+                setBulkForm({
+                  teacherAssignment: assignmentOptions[0]?.value || "",
+                  marks: 1,
+                  difficulty: "Medium",
+                });
+                setBulkOpen(true);
+              }}
+            >
               Bulk Import (Aiken)
             </Button>
             {selectedIds.length > 0 && (
-              <Button variant="danger" icon={FaTrashAlt} onClick={() => { setSelected(null); setDeleteOpen(true); }}>
+              <Button
+                variant="danger"
+                icon={FaTrashAlt}
+                onClick={() => {
+                  setSelected(null);
+                  setDeleteOpen(true);
+                }}
+              >
                 Delete ({selectedIds.length})
               </Button>
             )}
@@ -425,7 +478,14 @@ export default function QuestionBankPage() {
       />
 
       {pagination && pagination.pages > 1 && (
-        <Pagination currentPage={pagination.page} totalPages={pagination.pages} onPageChange={(p) => { setPage(p); load(p); }} />
+        <Pagination
+          currentPage={pagination.page}
+          totalPages={pagination.pages}
+          onPageChange={(p) => {
+            setPage(p);
+            load(p);
+          }}
+        />
       )}
 
       <FormModal
@@ -443,7 +503,9 @@ export default function QuestionBankPage() {
           label="Class Subject"
           name="teacherAssignment"
           value={form.teacherAssignment}
-          onChange={(e) => setForm({ ...form, teacherAssignment: e.target.value })}
+          onChange={(e) =>
+            setForm({ ...form, teacherAssignment: e.target.value })
+          }
           options={assignmentOptions}
           placeholder="Select class subject"
           required={!selected}
@@ -463,7 +525,12 @@ export default function QuestionBankPage() {
               label={`Option ${key}`}
               name={`option${key}`}
               value={form.options[key]}
-              onChange={(e) => setForm({ ...form, options: { ...form.options, [key]: e.target.value } })}
+              onChange={(e) =>
+                setForm({
+                  ...form,
+                  options: { ...form.options, [key]: e.target.value },
+                })
+              }
               required
             />
           ))}
@@ -473,7 +540,9 @@ export default function QuestionBankPage() {
             label="Correct Answer"
             name="correctAnswer"
             value={form.correctAnswer}
-            onChange={(e) => setForm({ ...form, correctAnswer: e.target.value })}
+            onChange={(e) =>
+              setForm({ ...form, correctAnswer: e.target.value })
+            }
             options={optionKeys.map((key) => ({ value: key, label: key }))}
           />
           <Input
@@ -511,7 +580,9 @@ export default function QuestionBankPage() {
           label="Class Subject"
           name="bulk-teacherAssignment"
           value={bulkForm.teacherAssignment}
-          onChange={(e) => setBulkForm({ ...bulkForm, teacherAssignment: e.target.value })}
+          onChange={(e) =>
+            setBulkForm({ ...bulkForm, teacherAssignment: e.target.value })
+          }
           options={assignmentOptions}
           placeholder="Select class subject"
           required
@@ -522,13 +593,17 @@ export default function QuestionBankPage() {
             name="bulk-marks"
             type="number"
             value={bulkForm.marks}
-            onChange={(e) => setBulkForm({ ...bulkForm, marks: e.target.value })}
+            onChange={(e) =>
+              setBulkForm({ ...bulkForm, marks: e.target.value })
+            }
           />
           <Select
             label="Default Difficulty"
             name="bulk-difficulty"
             value={bulkForm.difficulty}
-            onChange={(e) => setBulkForm({ ...bulkForm, difficulty: e.target.value })}
+            onChange={(e) =>
+              setBulkForm({ ...bulkForm, difficulty: e.target.value })
+            }
             options={difficultyOptions}
           />
         </div>
@@ -542,13 +617,18 @@ export default function QuestionBankPage() {
           required
         />
         <p className="text-xs text-slate-gray">
-          Aiken format rules: Every question must have exactly four options (labeled A., B., C., D. followed by a space) and a final line starting with "ANSWER: " followed by the correct choice.
+          Aiken format rules: Every question must have exactly four options
+          (labeled A., B., C., D. followed by a space) and a final line starting
+          with "ANSWER: " followed by the correct choice.
         </p>
       </FormModal>
 
       <ConfirmDeleteModal
         isOpen={deleteOpen}
-        onClose={() => { setDeleteOpen(false); setSelected(null); }}
+        onClose={() => {
+          setDeleteOpen(false);
+          setSelected(null);
+        }}
         onConfirm={handleDelete}
         title={selected ? "Delete Question" : "Delete Questions"}
         message={

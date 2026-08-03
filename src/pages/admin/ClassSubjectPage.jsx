@@ -50,7 +50,9 @@ export default function ClassSubjectPage() {
     };
   });
 
-  const filtered = rows.filter((row) => row.__search.includes(search.toLowerCase()));
+  const filtered = rows.filter((row) =>
+    row.__search.includes(search.toLowerCase()),
+  );
 
   const classOptions = asArray(classesApi.data).map((schoolClass) => ({
     value: schoolClass._id,
@@ -74,12 +76,14 @@ export default function ClassSubjectPage() {
             variant="ghost"
             size="sm"
             icon={FaEdit}
+            title="Edit class subject"
             onClick={() => openEdit(row.__doc)}
           />
           <Button
             variant="ghost"
             size="sm"
             icon={FaTrashAlt}
+            title="Remove class subject"
             onClick={() => {
               setSelected(row.__doc);
               setDeleteOpen(true);
@@ -169,7 +173,9 @@ export default function ClassSubjectPage() {
         subjects: bulkForm.subjects,
         isCompulsory: bulkForm.isCompulsory,
       });
-      toast.success(`${result?.length ?? bulkForm.subjects.length} subject(s) linked`);
+      toast.success(
+        `${result?.length ?? bulkForm.subjects.length} subject(s) linked`,
+      );
       setBulkOpen(false);
       setBulkForm(emptyBulkForm);
       refetch();
