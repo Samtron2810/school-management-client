@@ -53,7 +53,7 @@ export default function ReportCardPage() {
   };
 
   const downloadCard = async () => {
-    if (!studentId) return;
+    if (!studentId || !card) return;
     setDownloading(true);
     try {
       const response = await reportCardService.download(studentId);

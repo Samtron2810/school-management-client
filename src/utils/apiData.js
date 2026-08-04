@@ -38,3 +38,11 @@ export function classLabel(schoolClass) {
   const arm = schoolClass.arm || "";
   return [name, arm].filter(Boolean).join(" ").trim() || "—";
 }
+
+// Safe teacher name display - handles string IDs and unpopulated refs
+// Returns display name or "—" if teacher cannot be resolved
+export function teacherNameDisplay(teacher) {
+  if (!teacher) return "—";
+  if (typeof teacher === "string") return "—"; // ID only, cannot display
+  return displayName(teacher.user || teacher) || "—";
+}

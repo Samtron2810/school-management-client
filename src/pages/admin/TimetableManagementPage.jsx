@@ -6,7 +6,7 @@ import timetableService from "../../services/timetableService";
 import teacherAssignmentService from "../../services/teacherAssignmentService";
 import classService from "../../services/classService";
 import useApi from "../../hooks/useApi";
-import { asArray, classLabel } from "../../utils/apiData";
+import { asArray, classLabel, displayName } from "../../utils/apiData";
 
 import PageHeader from "../../components/common/PageHeader";
 import Loader from "../../components/common/Loader";
@@ -71,14 +71,8 @@ export default function TimetableManagementPage() {
         .map((assignment) => ({
           value: assignment._id,
           label: `${assignment.subject?.name || "Subject"} · ${
-            assignment.teacher?.user
-              ? [
-                  assignment.teacher.user.firstName,
-                  assignment.teacher.user.lastName,
-                ]
-                  .filter(Boolean)
-                  .join(" ")
-              : "Teacher"
+            displayName(assignment.teacher?.user || assignment.teacher) ||
+            "Teacher"
           }`,
         })),
     [assignmentsApi.data, classId],
@@ -104,7 +98,10 @@ export default function TimetableManagementPage() {
 
   const openCreate = () => {
     setSelected(null);
-    setForm({ ...emptyForm, teacherAssignment: assignmentOptions[0]?.value || "" });
+    setForm({
+      ...emptyForm,
+      teacherAssignment: assignmentOptions[0]?.value || "",
+    });
     setFormOpen(true);
   };
 
@@ -226,7 +223,9 @@ export default function TimetableManagementPage() {
               if (e.target.value) loadGrid(e.target.value);
             }}
             options={classOptions}
-            placeholder={classOptions.length ? "Select a class" : "No classes yet"}
+            placeholder={
+              classOptions.length ? "Select a class" : "No classes yet"
+            }
           />
           <div>
             <Button

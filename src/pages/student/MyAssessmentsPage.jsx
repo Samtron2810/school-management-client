@@ -31,21 +31,30 @@ export default function MyAssessmentsPage() {
     marks: assessment.totalMarks ?? "—",
     duration: assessment.duration ? `${assessment.duration} mins` : "—",
     closes: formatDate(assessment.availableTo),
-    __search: `${assessment.title} ${assessment.type} ${assessment.classSubject?.subject?.name}`.toLowerCase(),
+    __search:
+      `${assessment.title} ${assessment.type} ${assessment.classSubject?.subject?.name}`.toLowerCase(),
   }));
 
   const attempts = asArray(attemptsApi.data).map((attempt) => {
     const assessment = attempt.assessment || {};
-    const percentage = attempt.percentage ?? (assessment.totalMarks ? Math.round(((attempt.score || 0) / assessment.totalMarks) * 100) : 0);
+    const percentage =
+      attempt.percentage ??
+      (assessment.totalMarks && assessment.totalMarks > 0
+        ? Math.round(((attempt.score || 0) / assessment.totalMarks) * 100)
+        : 0);
     return {
       _id: attempt._id,
       title: assessment.title || "—",
       type: assessment.type || "—",
-      status: String(attempt.status || "").toLowerCase().replace(" ", "-"),
+      status: String(attempt.status || "")
+        .toLowerCase()
+        .replace(" ", "-"),
       score: attempt.score ?? "—",
       percentage: `${percentage}%`,
       grade: attempt.grade,
-      date: formatDate(attempt.submittedAt || attempt.startedAt || attempt.createdAt),
+      date: formatDate(
+        attempt.submittedAt || attempt.startedAt || attempt.createdAt,
+      ),
       __doc: attempt,
       __search: `${assessment.title} ${assessment.type}`.toLowerCase(),
     };
@@ -61,7 +70,15 @@ export default function MyAssessmentsPage() {
     {
       header: "Actions",
       render: (row) => (
-        <Button size="sm" icon={FaPlay} onClick={() => navigate("/student/take-assessment", { state: { assessmentId: row._id } })}>
+        <Button
+          size="sm"
+          icon={FaPlay}
+          onClick={() =>
+            navigate("/student/take-assessment", {
+              state: { assessmentId: row._id },
+            })
+          }
+        >
           Start
         </Button>
       ),
@@ -74,7 +91,17 @@ export default function MyAssessmentsPage() {
     {
       header: "Status",
       accessor: "status",
-      render: (row) => <StatusBadge status={row.status === "in-progress" ? "in-progress" : row.status === "auto-submitted" || row.status === "submitted" ? "submitted" : row.status} />,
+      render: (row) => (
+        <StatusBadge
+          status={
+            row.status === "in-progress"
+              ? "in-progress"
+              : row.status === "auto-submitted" || row.status === "submitted"
+                ? "submitted"
+                : row.status
+          }
+        />
+      ),
     },
     { header: "Score", accessor: "score" },
     { header: "%", accessor: "percentage" },
@@ -88,7 +115,15 @@ export default function MyAssessmentsPage() {
       header: "Actions",
       render: (row) =>
         row.status === "in-progress" ? (
-          <Button size="sm" variant="outline" onClick={() => navigate("/student/take-assessment", { state: { attemptId: row._id } })}>
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={() =>
+              navigate("/student/take-assessment", {
+                state: { attemptId: row._id },
+              })
+            }
+          >
             Resume
           </Button>
         ) : (
@@ -99,49 +134,56 @@ export default function MyAssessmentsPage() {
 
   return (
     <div>
-      <PageHeader title="My Assessments" subtitle="Take open assessments and review your past attempts" />
+      <PageHeader
+        title="My Assessments"
+        subtitle="Take open assessments and review your past attempts"
+      />
       <Tabs
-      tabs={[
-        {
-          label: "Available",
-          content: (
-            <ManagePage
-              hideHeader
-              searchable
-              searchValue={availableSearch}
-              onSearchChange={setAvailableSearch}
-              searchPlaceholder="Search available assessments..."
-              columns={availableColumns}
-              rows={available.filter((row) => row.__search.includes(availableSearch.toLowerCase()))}
-              loading={availableApi.loading}
-              error={availableApi.error}
-              onRetry={availableApi.refetch}
-              emptyTitle="No available assessments"
-              emptyDescription="Assessments open to your class will appear here."
-            />
-          ),
-        },
-        {
-          label: "My Attempts",
-          content: (
-            <ManagePage
-              hideHeader
-              searchable
-              searchValue={attemptsSearch}
-              onSearchChange={setAttemptsSearch}
-              searchPlaceholder="Search your attempts..."
-              columns={attemptColumns}
-              rows={attempts.filter((row) => row.__search.includes(attemptsSearch.toLowerCase()))}
-              loading={attemptsApi.loading}
-              error={attemptsApi.error}
-              onRetry={attemptsApi.refetch}
-              emptyTitle="No attempts yet"
-              emptyDescription="Your submitted assessments will appear here."
-            />
-          ),
-        },
-      ]}
-      onChange={() => {}}
+        tabs={[
+          {
+            label: "Available",
+            content: (
+              <ManagePage
+                hideHeader
+                searchable
+                searchValue={availableSearch}
+                onSearchChange={setAvailableSearch}
+                searchPlaceholder="Search available assessments..."
+                columns={availableColumns}
+                rows={available.filter((row) =>
+                  row.__search.includes(availableSearch.toLowerCase()),
+                )}
+                loading={availableApi.loading}
+                error={availableApi.error}
+                onRetry={availableApi.refetch}
+                emptyTitle="No available assessments"
+                emptyDescription="Assessments open to your class will appear here."
+              />
+            ),
+          },
+          {
+            label: "My Attempts",
+            content: (
+              <ManagePage
+                hideHeader
+                searchable
+                searchValue={attemptsSearch}
+                onSearchChange={setAttemptsSearch}
+                searchPlaceholder="Search your attempts..."
+                columns={attemptColumns}
+                rows={attempts.filter((row) =>
+                  row.__search.includes(attemptsSearch.toLowerCase()),
+                )}
+                loading={attemptsApi.loading}
+                error={attemptsApi.error}
+                onRetry={attemptsApi.refetch}
+                emptyTitle="No attempts yet"
+                emptyDescription="Your submitted assessments will appear here."
+              />
+            ),
+          },
+        ]}
+        onChange={() => {}}
       />
     </div>
   );

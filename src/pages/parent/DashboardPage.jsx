@@ -19,7 +19,9 @@ import Avatar from "../../components/ui/Avatar";
 import ActivityPanels from "../../components/dashboard/ActivityPanels";
 
 export default function ParentDashboardPage() {
-  const { data, loading, error, refetch } = useApi(dashboardService.getDashboard);
+  const { data, loading, error, refetch } = useApi(
+    dashboardService.getDashboard,
+  );
   const { children } = useMyChildren();
 
   if (loading) return <Loader text="Loading dashboard..." />;
@@ -42,7 +44,7 @@ export default function ParentDashboardPage() {
     {
       icon: FaFileAlt,
       title: "Results Recorded",
-      value: children.reduce((total, child) => total + child.results, 0),
+      value: children.reduce((total, child) => total + (child.results ?? 0), 0),
     },
   ];
 

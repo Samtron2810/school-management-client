@@ -44,8 +44,10 @@ export default function AssessmentManagementPage() {
         typeof rawTeacher === "string"
           ? rawTeacher
           : rawTeacher._id || rawTeacher.id;
-      const userObj = usersMap[id];
-      if (userObj) teacherName = displayName(userObj);
+      if (id) {
+        const userObj = usersMap[id];
+        if (userObj) teacherName = displayName(userObj);
+      }
     }
     return {
       _id: assessment._id,

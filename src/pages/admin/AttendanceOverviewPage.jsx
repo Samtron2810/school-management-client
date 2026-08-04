@@ -35,7 +35,11 @@ export default function AttendanceOverviewPage() {
 
   const assignments = asArray(assignmentsApi.data);
   const assignmentOptions = assignments.map((assignment) => {
-    const teacherName = displayName(assignment.teacher?.user || assignment.teacher) || "Teacher";
+    const rawTeacher = assignment.teacher?.user || assignment.teacher;
+    const teacherName =
+      typeof rawTeacher === "string"
+        ? "Teacher"
+        : displayName(rawTeacher) || "Teacher";
     return {
       value: assignment._id,
       label: `${classLabel(assignment.schoolClass)} · ${assignment.subject?.name || "Subject"} · ${teacherName}`,
@@ -50,31 +54,41 @@ export default function AttendanceOverviewPage() {
   // Roster = students enrolled in the selected assignment's class
   const roster = useMemo(() => {
     if (!selectedAssignment) return [];
-    const classId = selectedAssignment.schoolClass?._id || selectedAssignment.schoolClass;
+    const classId =
+      selectedAssignment.schoolClass?._id || selectedAssignment.schoolClass;
     return asArray(enrollmentsApi.data)
       .filter((enrollment) => {
-        const enrollmentClass = enrollment.schoolClass?._id || enrollment.schoolClass;
+        const enrollmentClass =
+          enrollment.schoolClass?._id || enrollment.schoolClass;
         return enrollmentClass === classId;
       })
       .map((enrollment) => ({
         studentId: enrollment.student?._id || enrollment.student,
-        name: displayName(enrollment.student?.user || enrollment.student) || "Student",
+        name:
+          displayName(enrollment.student?.user || enrollment.student) ||
+          "Student",
         admissionNumber: enrollment.student?.admissionNumber || "—",
       }));
   }, [enrollmentsApi.data, selectedAssignment]);
 
-  const loadForDate = async (targetAssignmentId = assignmentId, targetDate = date) => {
+  const loadForDate = async (
+    targetAssignmentId = assignmentId,
+    targetDate = date,
+  ) => {
     if (!targetAssignmentId) return;
     setBusy(true);
     try {
-      const payload = await attendanceService.byDate(targetAssignmentId, { date: targetDate });
+      const payload = await attendanceService.byDate(targetAssignmentId, {
+        date: targetDate,
+      });
       const existing = asArray(payload);
       setMarked(existing);
       setRecords(
         existing.map((record) => ({
           id: record._id,
           studentId: record.student?._id || record.student,
-          name: displayName(record.student?.user || record.student) || "Student",
+          name:
+            displayName(record.student?.user || record.student) || "Student",
           admissionNumber: record.student?.admissionNumber || "—",
           status: record.status,
         })),
@@ -99,7 +113,11 @@ export default function AttendanceOverviewPage() {
   };
 
   const setRowStatus = (studentId, status) =>
-    setRecords((prev) => prev.map((row) => (row.studentId === studentId ? { ...row, status } : row)));
+    setRecords((prev) =>
+      prev.map((row) =>
+        row.studentId === studentId ? { ...row, status } : row,
+      ),
+    );
 
   const submitAttendance = async () => {
     setBusy(true);
@@ -107,7 +125,10 @@ export default function AttendanceOverviewPage() {
       await attendanceService.mark({
         teacherAssignment: assignmentId,
         date,
-        records: records.map(({ studentId, status }) => ({ student: studentId, status })),
+        records: records.map(({ studentId, status }) => ({
+          student: studentId,
+          status,
+        })),
       });
       toast.success("Attendance saved");
       loadForDate();
@@ -159,11 +180,22 @@ export default function AttendanceOverviewPage() {
   const loadError = assignmentsApi.error || enrollmentsApi.error;
 
   if (loading) return <Loader text="Loading attendance..." />;
-  if (loadError) return <ErrorState onRetry={() => { assignmentsApi.refetch(); enrollmentsApi.refetch(); }} />;
+  if (loadError)
+    return (
+      <ErrorState
+        onRetry={() => {
+          assignmentsApi.refetch();
+          enrollmentsApi.refetch();
+        }}
+      />
+    );
 
   return (
     <div>
-      <PageHeader title="Attendance Overview" subtitle="Mark per-subject attendance, view the class register, or summarize a date range" />
+      <PageHeader
+        title="Attendance Overview"
+        subtitle="Mark per-subject attendance, view the class register, or summarize a date range"
+      />
 
       <Tabs
         tabs={[
@@ -226,14 +258,32 @@ function PerSubjectView({
             value={assignmentId}
             onChange={(e) => setAssignmentId(e.target.value)}
             options={assignmentOptions}
-            placeholder={assignmentOptions.length ? "Select class subject" : "No assignments yet"}
+            placeholder={
+              assignmentOptions.length
+                ? "Select class subject"
+                : "No assignments yet"
+            }
           />
-          <Input label="Date" name="date" type="date" value={date} onChange={(e) => setDate(e.target.value)} />
+          <Input
+            label="Date"
+            name="date"
+            type="date"
+            value={date}
+            onChange={(e) => setDate(e.target.value)}
+          />
           <div className="flex items-end gap-2">
-            <Button onClick={() => loadForDate()} disabled={!assignmentId || busy} loading={busy}>
+            <Button
+              onClick={() => loadForDate()}
+              disabled={!assignmentId || busy}
+              loading={busy}
+            >
               Load
             </Button>
-            <Button variant="outline" onClick={startMarking} disabled={!assignmentId || roster.length === 0 || busy}>
+            <Button
+              variant="outline"
+              onClick={startMarking}
+              disabled={!assignmentId || roster.length === 0 || busy}
+            >
               Mark Attendance
             </Button>
           </div>
@@ -351,11 +401,23 @@ function ClassRegisterView() {
               if (e.target.value) load(e.target.value, date);
             }}
             options={classOptions}
-            placeholder={classOptions.length ? "Select a class" : "No classes yet"}
+            placeholder={
+              classOptions.length ? "Select a class" : "No classes yet"
+            }
           />
-          <Input label="Date" name="register-date" type="date" value={date} onChange={(e) => setDate(e.target.value)} />
+          <Input
+            label="Date"
+            name="register-date"
+            type="date"
+            value={date}
+            onChange={(e) => setDate(e.target.value)}
+          />
           <div className="flex items-end">
-            <Button onClick={() => load()} disabled={!classId || busy} loading={busy}>
+            <Button
+              onClick={() => load()}
+              disabled={!classId || busy}
+              loading={busy}
+            >
               Load Register
             </Button>
           </div>
@@ -386,7 +448,9 @@ function ClassRegisterView() {
 function ClassSummaryView() {
   const classesApi = useApi(classService.list);
   const today = new Date().toISOString().slice(0, 10);
-  const monthAgo = new Date(Date.now() - 30 * 86400000).toISOString().slice(0, 10);
+  const monthAgo = new Date(Date.now() - 30 * 86400000)
+    .toISOString()
+    .slice(0, 10);
   const [classId, setClassId] = useState("");
   const [from, setFrom] = useState(monthAgo);
   const [to, setTo] = useState(today);
@@ -442,7 +506,9 @@ function ClassSummaryView() {
       render: (row) => (
         <span
           className={`text-xs font-semibold ${
-            parseInt(row.percentage, 10) >= 75 ? "text-green-600" : "text-danger"
+            parseInt(row.percentage, 10) >= 75
+              ? "text-green-600"
+              : "text-danger"
           }`}
         >
           {row.percentage}
@@ -468,12 +534,30 @@ function ClassSummaryView() {
               if (e.target.value) load(e.target.value);
             }}
             options={classOptions}
-            placeholder={classOptions.length ? "Select a class" : "No classes yet"}
+            placeholder={
+              classOptions.length ? "Select a class" : "No classes yet"
+            }
           />
-          <Input label="From" name="from" type="date" value={from} onChange={(e) => setFrom(e.target.value)} />
-          <Input label="To" name="to" type="date" value={to} onChange={(e) => setTo(e.target.value)} />
+          <Input
+            label="From"
+            name="from"
+            type="date"
+            value={from}
+            onChange={(e) => setFrom(e.target.value)}
+          />
+          <Input
+            label="To"
+            name="to"
+            type="date"
+            value={to}
+            onChange={(e) => setTo(e.target.value)}
+          />
           <div className="flex items-end">
-            <Button onClick={() => load()} disabled={!classId || busy} loading={busy}>
+            <Button
+              onClick={() => load()}
+              disabled={!classId || busy}
+              loading={busy}
+            >
               Load Summary
             </Button>
           </div>

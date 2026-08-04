@@ -134,9 +134,9 @@ export default function AnnouncementManagementPage() {
                   message: doc.message || "",
                   priority: doc.priority || "Normal",
                   targetRoles: doc.targetRoles || [],
-                  targetClasses: (doc.targetClasses || []).map(
-                    (cls) => cls._id || cls,
-                  ),
+                  targetClasses: (doc.targetClasses || [])
+                    .filter(Boolean)
+                    .map((cls) => cls._id || cls),
                   publishAt: doc.publishAt ? doc.publishAt.slice(0, 10) : "",
                   expiresAt: doc.expiresAt ? doc.expiresAt.slice(0, 10) : "",
                   isPinned: Boolean(doc.isPinned),

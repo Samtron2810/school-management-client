@@ -33,8 +33,9 @@ export default function TeacherAssignmentPage() {
   const [saving, setSaving] = useState(false);
 
   const rows = asArray(data).map((assignment) => {
+    const rawTeacher = assignment.teacher?.user || assignment.teacher;
     const teacherName =
-      displayName(assignment.teacher?.user || assignment.teacher) || "—";
+      typeof rawTeacher === "string" ? "—" : displayName(rawTeacher) || "—";
     const cls = classLabel(assignment.schoolClass);
     const subj = assignment.subject?.name || "—";
     return {
