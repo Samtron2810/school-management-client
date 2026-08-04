@@ -3,6 +3,7 @@ import toast from "react-hot-toast";
 import { FaBan, FaCheckCircle, FaEye, FaTrashAlt } from "react-icons/fa";
 
 import assessmentService from "../../services/assessmentService";
+import adminService from "../../services/adminService";
 import useApi from "../../hooks/useApi";
 import { asArray, classLabel, displayName } from "../../utils/apiData";
 import formatDate from "../../utils/formatDate";
@@ -17,6 +18,7 @@ import StatusBadge from "../../components/common/StatusBadge";
 
 export default function AssessmentManagementPage() {
   const { data, loading, error, refetch } = useApi(assessmentService.list);
+  const { data: usersData } = useApi(adminService.getUsers, []);
   const [search, setSearch] = useState("");
   const [classFilter, setClassFilter] = useState("");
   const [viewOpen, setViewOpen] = useState(false);
@@ -26,9 +28,25 @@ export default function AssessmentManagementPage() {
 
   const rows = asArray(data).map((assessment) => {
     const classSubject = assessment.classSubject || {};
-    const teacherName = displayName(
-      assessment.teacher?.user || assessment.teacher,
-    );
+    const usersMap = {}; // lightweight per-row map fallback
+    // build usersMap from usersData if available
+    if (Array.isArray(usersData)) {
+      usersData.forEach((u) => {
+        const id = u._id || u.id;
+        if (id) usersMap[id] = u;
+      });
+    }
+
+    const rawTeacher = assessment.teacher?.user || assessment.teacher;
+    let teacherName = displayName(rawTeacher);
+    if ((!teacherName || typeof rawTeacher === "string") && rawTeacher) {
+      const id =
+        typeof rawTeacher === "string"
+          ? rawTeacher
+          : rawTeacher._id || rawTeacher.id;
+      const userObj = usersMap[id];
+      if (userObj) teacherName = displayName(userObj);
+    }
     return {
       _id: assessment._id,
       title: assessment.title || "—",
