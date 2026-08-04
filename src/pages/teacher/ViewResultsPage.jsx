@@ -104,17 +104,19 @@ export default function ViewResultsPage() {
 
   const rows = results.map((result) => ({
     _id: result._id,
-    student: displayName(result.student?.user) || "—",
-    title: result.title || "—",
+    student: displayName(result.student?.user) || "N/A",
+    title: result.title || "N/A",
     subject:
-      result.classSubject?.subject?.name || result.metadata?.subjectName || "—",
+      result.classSubject?.subject?.name ||
+      result.metadata?.subjectName ||
+      "N/A",
     class: result.classSubject?.schoolClass
       ? `${result.classSubject.schoolClass.className || ""} ${result.classSubject.schoolClass.arm || ""}`.trim()
-      : "—",
+      : "N/A",
     score: `${result.score ?? 0}/${result.totalMarks ?? 0}`,
     percentage: `${result.percentage ?? 0}%`,
     grade: result.grade,
-    type: result.type || "—",
+    type: result.type || "N/A",
     __doc: result,
     __search:
       `${displayName(result.student?.user)} ${result.title} ${result.type}`.toLowerCase(),

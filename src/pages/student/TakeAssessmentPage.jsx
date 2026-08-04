@@ -71,12 +71,16 @@ export default function TakeAssessmentPage() {
             .catch(() => {});
         } else {
           activeAttempt = await studentAttemptService.get(attemptId);
-          if (activeAttempt?.assessment && typeof activeAttempt.assessment === "object") {
+          if (
+            activeAttempt?.assessment &&
+            typeof activeAttempt.assessment === "object"
+          ) {
             setAssessment(activeAttempt.assessment);
           }
         }
 
-        if (!activeAttempt?._id) throw new Error("Attempt could not be created.");
+        if (!activeAttempt?._id)
+          throw new Error("Attempt could not be created.");
         setAttempt(activeAttempt);
 
         // Reloaded after submitting, or the resumed attempt is already final.
@@ -134,7 +138,7 @@ export default function TakeAssessmentPage() {
     try {
       const finalized = await studentAttemptService.submit(attempt._id);
       setResult(finalized);
-      if (auto) toast("Time is up — your answers were submitted.");
+      if (auto) toast("Time is up: your answers were submitted.");
       else toast.success("Assessment submitted successfully.");
       setPhase("done");
     } catch {
@@ -186,7 +190,10 @@ export default function TakeAssessmentPage() {
   if (!hasTarget || phase === "error") {
     return (
       <div>
-        <PageHeader title="Take Assessment" subtitle="Start or resume an assessment" />
+        <PageHeader
+          title="Take Assessment"
+          subtitle="Start or resume an assessment"
+        />
         <Card className="max-w-xl mx-auto text-center">
           <h2 className="text-lg font-semibold text-primary mb-2">
             Unable to open this assessment
@@ -219,13 +226,18 @@ export default function TakeAssessmentPage() {
     const finalAssessment =
       (result?.assessment && typeof result.assessment === "object"
         ? result.assessment
-        : null) || assessment || {};
+        : null) ||
+      assessment ||
+      {};
     const showScore = finalAssessment.showScoreImmediately !== false;
     const totalMarks = finalAssessment.totalMarks;
 
     return (
       <div>
-        <PageHeader title={finalAssessment.title || "Assessment"} subtitle="Attempt summary" />
+        <PageHeader
+          title={finalAssessment.title || "Assessment"}
+          subtitle="Attempt summary"
+        />
         <Card className="max-w-2xl mx-auto">
           <div className="text-center mb-6">
             <StatusBadge
@@ -308,7 +320,10 @@ export default function TakeAssessmentPage() {
   if (questions.length === 0) {
     return (
       <div>
-        <PageHeader title="Take Assessment" subtitle={assessment?.title || ""} />
+        <PageHeader
+          title="Take Assessment"
+          subtitle={assessment?.title || ""}
+        />
         <Card className="max-w-xl mx-auto text-center">
           <p className="text-sm text-slate-gray mb-5">
             This assessment has no questions yet. Please check back later or
@@ -334,7 +349,9 @@ export default function TakeAssessmentPage() {
             {assessment?.title || "Assessment"}
           </h1>
           <div className="flex items-center gap-2 mt-1">
-            {assessment?.type && <Badge variant="info">{assessment.type}</Badge>}
+            {assessment?.type && (
+              <Badge variant="info">{assessment.type}</Badge>
+            )}
             <span className="text-sm text-slate-gray">
               {answeredCount}/{questions.length} answered
             </span>
@@ -346,9 +363,7 @@ export default function TakeAssessmentPage() {
         {attempt?.expiresAt && (
           <div
             className={`inline-flex items-center gap-2 px-4 py-2 rounded-lg font-semibold ${
-              lowTime
-                ? "bg-red-50 text-danger"
-                : "bg-accent-light text-accent"
+              lowTime ? "bg-red-50 text-danger" : "bg-accent-light text-accent"
             }`}
           >
             <FaClock />

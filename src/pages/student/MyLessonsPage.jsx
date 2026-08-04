@@ -19,17 +19,17 @@ export default function MyLessonsPage() {
 
   const rows = asArray(data).map((lesson) => ({
     _id: lesson._id,
-    title: lesson.title || "—",
-    topic: lesson.topic || "—",
+    title: lesson.title || "N/A",
+    topic: lesson.topic || "N/A",
     subject:
       lesson.teacherAssignment?.subject?.name ||
       lesson.classSubject?.subject?.name ||
-      "—",
+      "N/A",
     teacher:
       displayName(
         lesson.teacherAssignment?.teacher?.user || lesson.teacher?.user,
-      ) || "—",
-    week: lesson.week || "—",
+      ) || "N/A",
+    week: lesson.week || "N/A",
     date: formatDate(lesson.createdAt),
     __doc: lesson,
     __search:

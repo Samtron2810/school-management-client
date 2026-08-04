@@ -51,19 +51,19 @@ export default function EnrollmentPage() {
 
   const rows = asArray(data).map((enrollment) => {
     const student = enrollment.student;
-    const name = displayName(student?.user || student) || "—";
+    const name = displayName(student?.user || student) || "N/A";
     const cls = classLabel(enrollment.schoolClass);
-    const sessionName = enrollment.session?.name || "—";
-    const termName = enrollment.term?.name || "—";
+    const sessionName = enrollment.session?.name || "N/A";
+    const termName = enrollment.term?.name || "N/A";
     return {
       _id: enrollment._id,
       student: name,
-      admissionNumber: student?.admissionNumber || "—",
+      admissionNumber: student?.admissionNumber || "N/A",
       class: cls,
       session: sessionName,
       term: termName,
       status: String(enrollment.status || "active").toLowerCase(),
-      roll: enrollment.rollNumber ?? "—",
+      roll: enrollment.rollNumber ?? "N/A",
       __doc: enrollment,
       __search:
         `${name} ${student?.admissionNumber} ${cls} ${sessionName} ${termName}`.toLowerCase(),

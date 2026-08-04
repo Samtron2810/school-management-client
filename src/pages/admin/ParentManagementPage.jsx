@@ -97,10 +97,10 @@ export default function ParentManagementPage() {
     return {
       _id: parent._id,
       name,
-      username: user.username || "—",
-      email: user.email || "—",
-      occupation: parent.occupation || "—",
-      workplace: parent.workplace || "—",
+      username: user.username || "N/A",
+      email: user.email || "N/A",
+      occupation: parent.occupation || "N/A",
+      workplace: parent.workplace || "N/A",
       status: parent.isActive === false ? "inactive" : "active",
       __doc: parent,
       __search:

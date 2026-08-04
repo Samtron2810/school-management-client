@@ -24,12 +24,12 @@ export default function MyAssessmentsPage() {
 
   const available = asArray(availableApi.data).map((assessment) => ({
     _id: assessment._id,
-    title: assessment.title || "—",
-    type: assessment.type || "—",
-    subject: assessment.classSubject?.subject?.name || "—",
+    title: assessment.title || "N/A",
+    type: assessment.type || "N/A",
+    subject: assessment.classSubject?.subject?.name || "N/A",
     class: classLabel(assessment.classSubject?.schoolClass),
-    marks: assessment.totalMarks ?? "—",
-    duration: assessment.duration ? `${assessment.duration} mins` : "—",
+    marks: assessment.totalMarks ?? "N/A",
+    duration: assessment.duration ? `${assessment.duration} mins` : "N/A",
     closes: formatDate(assessment.availableTo),
     __search:
       `${assessment.title} ${assessment.type} ${assessment.classSubject?.subject?.name}`.toLowerCase(),
@@ -44,12 +44,12 @@ export default function MyAssessmentsPage() {
         : 0);
     return {
       _id: attempt._id,
-      title: assessment.title || "—",
-      type: assessment.type || "—",
+      title: assessment.title || "N/A",
+      type: assessment.type || "N/A",
       status: String(attempt.status || "")
         .toLowerCase()
         .replace(" ", "-"),
-      score: attempt.score ?? "—",
+      score: attempt.score ?? "N/A",
       percentage: `${percentage}%`,
       grade: attempt.grade,
       date: formatDate(
@@ -108,7 +108,7 @@ export default function MyAssessmentsPage() {
     {
       header: "Grade",
       accessor: "grade",
-      render: (row) => (row.grade ? <GradeBadge grade={row.grade} /> : "—"),
+      render: (row) => (row.grade ? <GradeBadge grade={row.grade} /> : "N/A"),
     },
     { header: "Date", accessor: "date" },
     {
@@ -127,7 +127,7 @@ export default function MyAssessmentsPage() {
             Resume
           </Button>
         ) : (
-          <span className="text-xs text-slate-gray">—</span>
+          <span className="text-xs text-slate-gray">N/A</span>
         ),
     },
   ];

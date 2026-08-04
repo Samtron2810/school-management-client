@@ -77,12 +77,12 @@ export default function AssessmentPage() {
       const classSubject = assessment.classSubject || {};
       return {
         _id: assessment._id,
-        title: assessment.title || "—",
-        type: assessment.type || "—",
+        title: assessment.title || "N/A",
+        type: assessment.type || "N/A",
         class: classLabel(classSubject.schoolClass),
-        subject: classSubject.subject?.name || "—",
+        subject: classSubject.subject?.name || "N/A",
         teacher:
-          displayName(assessment.teacher?.user || assessment.teacher) || "—",
+          displayName(assessment.teacher?.user || assessment.teacher) || "N/A",
         window: `${formatDate(assessment.availableFrom)} → ${formatDate(assessment.availableTo)}`,
         status: assessment.isPublished ? "published" : "draft",
         mine: Boolean(
@@ -210,7 +210,7 @@ export default function AssessmentPage() {
     try {
       await assessmentService.create(buildPayload());
       toast.success(
-        "Assessment created (draft) — add questions, then publish it",
+        "Assessment created (draft): add questions, then publish it",
       );
       setFormOpen(false);
       setForm(emptyForm);
@@ -429,7 +429,7 @@ export default function AssessmentPage() {
       <Modal
         isOpen={questionsOpen}
         onClose={() => setQuestionsOpen(false)}
-        title={`Questions — ${selected?.title || ""}`}
+        title={`Questions: ${selected?.title || ""}`}
         maxWidth="xl"
       >
         <p className="text-sm text-slate-gray mb-3">
@@ -437,7 +437,7 @@ export default function AssessmentPage() {
         </p>
         {bank.length === 0 ? (
           <p className="text-sm text-slate-gray">
-            No questions in your bank for this subject yet — create some in the
+            No questions in your bank for this subject yet, create some in the
             Question Bank.
           </p>
         ) : (

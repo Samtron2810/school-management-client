@@ -14,7 +14,12 @@ import FormModal from "../../components/modals/FormModal";
 import Select from "../../components/ui/Select";
 import Badge from "../../components/ui/Badge";
 
-const emptyForm = { fromClass: "", toClass: "", targetSession: "", targetTerm: "" };
+const emptyForm = {
+  fromClass: "",
+  toClass: "",
+  targetSession: "",
+  targetTerm: "",
+};
 
 export default function PromotionPage() {
   const { data, loading, error, refetch } = useApi(promotionService.list);
@@ -34,21 +39,24 @@ export default function PromotionPage() {
       _id: promotion._id,
       fromClass: classLabel(promotion.fromClass),
       toClass: classLabel(promotion.toClass),
-      route: `${promotion.sourceSession?.name || "current"} → ${promotion.targetSession?.name || "—"}`,
-      targetTerm: promotion.targetTerm?.name || "—",
+      route: `${promotion.sourceSession?.name || "current"} → ${promotion.targetSession?.name || "N/A"}`,
+      targetTerm: promotion.targetTerm?.name || "N/A",
       processed: (
         <>
           <Badge variant="info">{results.length} processed</Badge>{" "}
           <Badge variant="success">{promoted} promoted</Badge>
         </>
       ),
-      by: displayName(promotion.promotedBy) || "—",
+      by: displayName(promotion.promotedBy) || "N/A",
       date: formatDate(promotion.createdAt),
-      __search: `${classLabel(promotion.fromClass)} ${classLabel(promotion.toClass)}`.toLowerCase(),
+      __search:
+        `${classLabel(promotion.fromClass)} ${classLabel(promotion.toClass)}`.toLowerCase(),
     };
   });
 
-  const filtered = rows.filter((row) => row.__search.includes(search.toLowerCase()));
+  const filtered = rows.filter((row) =>
+    row.__search.includes(search.toLowerCase()),
+  );
 
   const classOptions = asArray(classesApi.data).map((schoolClass) => ({
     value: schoolClass._id,

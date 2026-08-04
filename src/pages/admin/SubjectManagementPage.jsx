@@ -25,8 +25,8 @@ export default function SubjectManagementPage() {
 
   const rows = asArray(data).map((subject) => ({
     _id: subject._id,
-    name: subject.name || "—",
-    code: subject.code || "—",
+    name: subject.name || "N/A",
+    code: subject.code || "N/A",
     __doc: subject,
     __search: `${subject.name} ${subject.code}`.toLowerCase(),
   }));

@@ -26,8 +26,7 @@ export default function ChildAssessmentsPage() {
       if (!classId) return;
       const childName = children.find(
         (child) =>
-          String(child.id) ===
-          String(result.student?._id || result.student),
+          String(child.id) === String(result.student?._id || result.student),
       )?.name;
       if (!childName) return;
       const entry = map.get(String(classId)) || {
@@ -56,15 +55,15 @@ export default function ChildAssessmentsPage() {
       const entry = classMap.get(classId);
       return {
         _id: assessment._id,
-        title: assessment.title || "—",
-        type: assessment.type || "—",
-        subject: assessment.classSubject?.subject?.name || "—",
-        class: entry?.label || "—",
-        child: entry ? Array.from(entry.children).join(", ") : "—",
-        marks: assessment.totalMarks ?? "—",
-        duration: assessment.duration ? `${assessment.duration} mins` : "—",
-        opens: formatDate(assessment.availableFrom) || "—",
-        closes: formatDate(assessment.availableTo) || "—",
+        title: assessment.title || "N/A",
+        type: assessment.type || "N/A",
+        subject: assessment.classSubject?.subject?.name || "N/A",
+        class: entry?.label || "N/A",
+        child: entry ? Array.from(entry.children).join(", ") : "N/A",
+        marks: assessment.totalMarks ?? "N/A",
+        duration: assessment.duration ? `${assessment.duration} mins` : "N/A",
+        opens: formatDate(assessment.availableFrom) || "N/A",
+        closes: formatDate(assessment.availableTo) || "N/A",
         __search:
           `${assessment.title} ${assessment.type} ${assessment.classSubject?.subject?.name} ${entry?.label}`.toLowerCase(),
       };

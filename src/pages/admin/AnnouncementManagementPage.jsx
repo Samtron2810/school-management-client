@@ -81,7 +81,7 @@ export default function AnnouncementManagementPage() {
     publishAt: formatDate(announcement.publishAt),
     expiresAt: announcement.expiresAt
       ? formatDate(announcement.expiresAt)
-      : "—",
+      : "N/A",
     pinned: announcement.isPinned,
     __search: `${announcement.title} ${announcement.message}`.toLowerCase(),
     __doc: announcement,
@@ -156,7 +156,7 @@ export default function AnnouncementManagementPage() {
             />
           </div>
         ) : (
-          <span className="text-xs text-slate-gray">—</span>
+          <span className="text-xs text-slate-gray">N/A</span>
         ),
     },
   ];

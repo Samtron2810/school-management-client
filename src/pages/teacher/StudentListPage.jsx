@@ -72,9 +72,9 @@ export default function StudentListPage() {
         return {
           id: student._id || entry.student,
           name: displayName(student.user) || "Student",
-          admissionNumber: student.admissionNumber || "—",
-          gender: student.gender || "—",
-          roll: entry.rollNumber ?? "—",
+          admissionNumber: student.admissionNumber || "N/A",
+          gender: student.gender || "N/A",
+          roll: entry.rollNumber ?? "N/A",
           status: student.isActive === false ? "inactive" : "active",
         };
       }),

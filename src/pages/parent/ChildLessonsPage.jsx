@@ -26,7 +26,7 @@ export default function ChildLessonsPage() {
         subject:
           lesson.classSubject?.subject?.name ||
           lesson.teacherAssignment?.subject?.name ||
-          "—",
+          "N/A",
         className: classLabel(
           lesson.classSubject?.schoolClass ||
             lesson.teacherAssignment?.schoolClass,
@@ -34,7 +34,7 @@ export default function ChildLessonsPage() {
         teacher:
           displayName(
             lesson.teacherAssignment?.teacher?.user || lesson.teacher?.user,
-          ) || "—",
+          ) || "N/A",
         week: lesson.week ?? null,
         files: Array.isArray(lesson.files) ? lesson.files.length : 0,
         description: lesson.description || "",

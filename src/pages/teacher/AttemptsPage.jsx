@@ -75,14 +75,16 @@ export default function AttemptsPage() {
   const rows = asArray(data).map((attempt) => ({
     _id: attempt._id,
     student: displayName(attempt.student?.user) || "Student",
-    admissionNumber: attempt.student?.admissionNumber || "—",
-    assessment: attempt.assessment?.title || "—",
-    type: attempt.assessment?.type || "—",
+    admissionNumber: attempt.student?.admissionNumber || "N/A",
+    assessment: attempt.assessment?.title || "N/A",
+    type: attempt.assessment?.type || "N/A",
     status: attempt.status,
     score: `${attempt.score ?? 0}/${attempt.totalMarks ?? 0}`,
     percentage: `${Math.round(attempt.percentage ?? 0)}%`,
     passed: attempt.passed,
-    submitted: attempt.submittedAt ? formatDateTime(attempt.submittedAt) : "—",
+    submitted: attempt.submittedAt
+      ? formatDateTime(attempt.submittedAt)
+      : "N/A",
     __doc: attempt,
     __search:
       `${displayName(attempt.student?.user)} ${attempt.assessment?.title} ${attempt.status}`.toLowerCase(),
@@ -200,7 +202,7 @@ export default function AttemptsPage() {
       <Modal
         isOpen={Boolean(reviewItem)}
         onClose={() => setReviewItem(null)}
-        title={`Attempt Review — ${displayName(reviewItem?.student?.user) || "Student"}`}
+        title={`Attempt Review: ${displayName(reviewItem?.student?.user) || "Student"}`}
         maxWidth="xl"
       >
         {reviewLoading ? (
@@ -266,8 +268,8 @@ export default function AttemptsPage() {
                             }`}
                           >
                             {option}
-                            {isChosen ? " — student's answer" : ""}
-                            {isCorrectOption ? " — correct" : ""}
+                            {isChosen ? " (student's answer)" : ""}
+                            {isCorrectOption ? " (correct)" : ""}
                           </li>
                         );
                       })}

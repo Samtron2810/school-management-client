@@ -18,7 +18,7 @@ export default function useMyTeaching() {
   const assignments = useMemo(() => {
     return asArray(assignmentsApi.data).map((assignment) => {
       const className = classLabel(assignment.schoolClass);
-      const subject = assignment.subject?.name || "—";
+      const subject = assignment.subject?.name || "N/A";
       return {
         id: assignment._id,
         classId: assignment.schoolClass?._id || assignment.schoolClass || null,
@@ -38,7 +38,9 @@ export default function useMyTeaching() {
   const subjects = useMemo(
     () => [
       ...new Set(
-        assignments.map((assignment) => assignment.subject).filter((s) => s !== "—"),
+        assignments
+          .map((assignment) => assignment.subject)
+          .filter((s) => s !== "N/A"),
       ),
     ],
     [assignments],
@@ -47,7 +49,9 @@ export default function useMyTeaching() {
   const classes = useMemo(
     () => [
       ...new Set(
-        assignments.map((assignment) => assignment.className).filter((c) => c !== "—"),
+        assignments
+          .map((assignment) => assignment.className)
+          .filter((c) => c !== "N/A"),
       ),
     ],
     [assignments],

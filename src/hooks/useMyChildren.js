@@ -29,11 +29,11 @@ export default function useMyChildren() {
         linkId,
         name: displayName(student.user) || "Child",
         className:
-          classLabel(entry.schoolClass) !== "—"
+          classLabel(entry.schoolClass) !== "N/A"
             ? classLabel(entry.schoolClass)
-            : "—",
+            : "N/A",
         schoolClass: entry.schoolClass || null,
-        admissionNumber: student.admissionNumber || "—",
+        admissionNumber: student.admissionNumber || "N/A",
         relationship: entry.relationship || null,
         isPrimaryContact: Boolean(entry.isPrimaryContact),
         results: resultCount,

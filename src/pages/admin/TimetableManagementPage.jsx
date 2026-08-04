@@ -252,7 +252,7 @@ export default function TimetableManagementPage() {
       ) : entries.length === 0 ? (
         <EmptyState
           title={`No periods for ${selectedClass ? classLabel(selectedClass) : "this class"}`}
-          description="Add the first period — pick the class subject (teacher assignment), a day, and a time slot."
+          description="Add the first period: pick the class subject (teacher assignment), a day, and a time slot."
           actionLabel="Add Period"
           onAction={openCreate}
         />

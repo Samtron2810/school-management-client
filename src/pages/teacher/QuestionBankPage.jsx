@@ -116,14 +116,14 @@ export default function QuestionBankPage() {
 
   const rows = questions.map((question) => ({
     _id: question._id,
-    question: question.question || "—",
-    subject: question.classSubject?.subject?.name || "—",
+    question: question.question || "N/A",
+    subject: question.classSubject?.subject?.name || "N/A",
     class: question.classSubject?.schoolClass
       ? `${question.classSubject.schoolClass.className || ""} ${question.classSubject.schoolClass.arm || ""}`.trim()
-      : "—",
-    answer: question.correctAnswer || "—",
-    marks: question.marks ?? "—",
-    difficulty: question.difficulty || "—",
+      : "N/A",
+    answer: question.correctAnswer || "N/A",
+    marks: question.marks ?? "N/A",
+    difficulty: question.difficulty || "N/A",
     date: formatDate(question.createdAt),
     __doc: question,
   }));

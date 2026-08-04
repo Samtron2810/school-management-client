@@ -36,8 +36,8 @@ export default function ClassManagementPage() {
   const rows = asArray(data).map((schoolClass) => ({
     _id: schoolClass._id,
     class: classLabel(schoolClass),
-    level: schoolClass.level || "—",
-    arm: schoolClass.arm || "—",
+    level: schoolClass.level || "N/A",
+    arm: schoolClass.arm || "N/A",
     status: schoolClass.isActive === false ? "inactive" : "active",
     __doc: schoolClass,
     __search:

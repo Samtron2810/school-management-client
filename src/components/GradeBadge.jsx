@@ -10,6 +10,6 @@ const gradeVariants = {
 };
 
 export default function GradeBadge({ grade }) {
-  const value = String(grade || "—").toUpperCase();
+  const value = String(grade || "N/A").toUpperCase();
   return <Badge variant={gradeVariants[value] || "default"}>{value}</Badge>;
 }

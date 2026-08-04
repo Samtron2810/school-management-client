@@ -52,10 +52,10 @@ export default function UserManagementPage() {
     return {
       _id: user._id,
       name: isSelf ? `${name} (you)` : name,
-      username: user.username || "—",
-      email: user.email || "—",
-      phoneNumber: user.phoneNumber || "—",
-      role: user.role || "—",
+      username: user.username || "N/A",
+      email: user.email || "N/A",
+      phoneNumber: user.phoneNumber || "N/A",
+      role: user.role || "N/A",
       status: user.isActive === false ? "inactive" : "active",
       __doc: user,
       __self: Boolean(isSelf),
@@ -209,7 +209,7 @@ export default function UserManagementPage() {
     try {
       await adminService.resetUserPassword(selected._id, { newPassword });
       toast.success(
-        `Password reset for ${displayName(selected)} — they've been signed out everywhere`,
+        `Password reset for ${displayName(selected)}, they've been signed out everywhere`,
       );
       setResetOpen(false);
       setSelected(null);
@@ -321,7 +321,7 @@ export default function UserManagementPage() {
         />
         {selected && (
           <p className="text-xs text-slate-gray">
-            Passwords are changed from the key icon on the row — the user is
+            Passwords are changed from the key icon on the row: the user is
             signed out everywhere when their password is reset.
           </p>
         )}
@@ -333,7 +333,7 @@ export default function UserManagementPage() {
           setResetOpen(false);
           setSelected(null);
         }}
-        title={`Reset Password — ${displayName(selected) || "User"}`}
+        title={`Reset Password: ${displayName(selected) || "User"}`}
         onSubmit={handleResetPassword}
         loading={saving}
         submitLabel="Reset Password"
@@ -349,8 +349,8 @@ export default function UserManagementPage() {
           required
         />
         <p className="text-xs text-slate-gray">
-          All of the user's existing sessions are invalidated — they will sign
-          in with the new password on their next visit.
+          All of the user's existing sessions are invalidated, they will sign in
+          with the new password on their next visit.
         </p>
       </FormModal>
     </>

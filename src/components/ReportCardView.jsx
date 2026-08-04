@@ -15,7 +15,7 @@ export default function ReportCardView({ card }) {
 
   const student = card.student || {};
   const user = student.user || student;
-  const name = displayName(user) || "—";
+  const name = displayName(user) || "N/A";
   const cls = classLabel(card.enrollment?.schoolClass);
   const summary = card.summary || {};
   const attendance = summary.attendance || {};
@@ -26,7 +26,7 @@ export default function ReportCardView({ card }) {
     {
       header: "Subject",
       accessor: "subject",
-      render: (row) => row.classSubject?.subject?.name || "—",
+      render: (row) => row.classSubject?.subject?.name || "N/A",
     },
     {
       header: "Score",
@@ -59,16 +59,24 @@ export default function ReportCardView({ card }) {
             )}
           </div>
           <p className="text-sm text-slate-gray">
-            {student.admissionNumber ? `Adm. No: ${student.admissionNumber} · ` : ""}
+            {student.admissionNumber
+              ? `Adm. No: ${student.admissionNumber} · `
+              : ""}
             {cls}
           </p>
         </div>
         <div className="text-sm text-slate-gray">
           <p>
-            Session: <span className="font-medium text-primary">{card.session?.name || "—"}</span>
+            Session:{" "}
+            <span className="font-medium text-primary">
+              {card.session?.name || "N/A"}
+            </span>
           </p>
           <p>
-            Term: <span className="font-medium text-primary">{card.term?.name || "—"}</span>
+            Term:{" "}
+            <span className="font-medium text-primary">
+              {card.term?.name || "N/A"}
+            </span>
           </p>
         </div>
       </div>
@@ -76,7 +84,9 @@ export default function ReportCardView({ card }) {
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         <Card>
           <p className="text-sm text-slate-gray">Subjects</p>
-          <p className="text-2xl font-bold text-primary mt-1">{summary.subjectCount ?? subjects.length}</p>
+          <p className="text-2xl font-bold text-primary mt-1">
+            {summary.subjectCount ?? subjects.length}
+          </p>
         </Card>
         <Card>
           <p className="text-sm text-slate-gray">Total Score</p>
@@ -86,22 +96,30 @@ export default function ReportCardView({ card }) {
         </Card>
         <Card>
           <p className="text-sm text-slate-gray">Average</p>
-          <p className="text-2xl font-bold text-accent mt-1">{summary.averagePercentage ?? 0}%</p>
+          <p className="text-2xl font-bold text-accent mt-1">
+            {summary.averagePercentage ?? 0}%
+          </p>
         </Card>
         <Card>
           <p className="text-sm text-slate-gray">Attendance</p>
-          <p className="text-2xl font-bold text-primary mt-1">{attendance.attendancePercentage ?? 0}%</p>
+          <p className="text-2xl font-bold text-primary mt-1">
+            {attendance.attendancePercentage ?? 0}%
+          </p>
         </Card>
       </div>
 
       <div>
-        <h2 className="text-base font-semibold text-primary mb-3">Subject Results</h2>
+        <h2 className="text-base font-semibold text-primary mb-3">
+          Subject Results
+        </h2>
         <DataTable columns={columns} data={subjects} pageSize={20} />
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <Card>
-          <h3 className="text-base font-semibold text-primary mb-3">Grade Distribution</h3>
+          <h3 className="text-base font-semibold text-primary mb-3">
+            Grade Distribution
+          </h3>
           <div className="flex flex-wrap gap-2">
             {Object.entries(gradeDistribution).map(([grade, count]) => (
               <span key={grade} className="text-sm text-slate-gray">
@@ -111,13 +129,17 @@ export default function ReportCardView({ card }) {
           </div>
         </Card>
         <Card>
-          <h3 className="text-base font-semibold text-primary mb-3">Attendance Summary</h3>
+          <h3 className="text-base font-semibold text-primary mb-3">
+            Attendance Summary
+          </h3>
           <div className="flex flex-wrap gap-2 text-sm text-slate-gray">
             <Badge variant="success">Present: {attendance.present ?? 0}</Badge>
             <Badge variant="danger">Absent: {attendance.absent ?? 0}</Badge>
             <Badge variant="warning">Late: {attendance.late ?? 0}</Badge>
             <Badge variant="info">Excused: {attendance.excused ?? 0}</Badge>
-            <span className="ml-1 text-slate-gray">of {attendance.total ?? 0} records</span>
+            <span className="ml-1 text-slate-gray">
+              of {attendance.total ?? 0} records
+            </span>
           </div>
         </Card>
       </div>

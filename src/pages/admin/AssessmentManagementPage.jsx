@@ -51,11 +51,11 @@ export default function AssessmentManagementPage() {
     }
     return {
       _id: assessment._id,
-      title: assessment.title || "—",
-      type: assessment.type || "—",
+      title: assessment.title || "N/A",
+      type: assessment.type || "N/A",
       class: classLabel(classSubject.schoolClass),
-      subject: classSubject.subject?.name || "—",
-      teacher: teacherName || "—",
+      subject: classSubject.subject?.name || "N/A",
+      teacher: teacherName || "N/A",
       window: `${formatDate(assessment.availableFrom)} → ${formatDate(assessment.availableTo)}`,
       status: assessment.isPublished ? "published" : "draft",
       __doc: assessment,
@@ -68,7 +68,7 @@ export default function AssessmentManagementPage() {
     const seen = new Set();
     const list = [];
     rows.forEach((row) => {
-      if (row.class && row.class !== "—") {
+      if (row.class && row.class !== "N/A") {
         if (!seen.has(row.class)) {
           seen.add(row.class);
           list.push(row.class);
@@ -225,19 +225,19 @@ export default function AssessmentManagementPage() {
               <div>
                 <dt className="text-xs text-slate-gray">Subject</dt>
                 <dd className="font-medium text-primary">
-                  {selected.classSubject?.subject?.name || "—"}
+                  {selected.classSubject?.subject?.name || "N/A"}
                 </dd>
               </div>
               <div>
                 <dt className="text-xs text-slate-gray">Duration</dt>
                 <dd className="font-medium text-primary">
-                  {selected.duration || "—"} mins
+                  {selected.duration || "N/A"} mins
                 </dd>
               </div>
               <div>
                 <dt className="text-xs text-slate-gray">Max Attempts</dt>
                 <dd className="font-medium text-primary">
-                  {selected.maxAttempts || "—"}
+                  {selected.maxAttempts || "N/A"}
                 </dd>
               </div>
               <div>
@@ -255,13 +255,13 @@ export default function AssessmentManagementPage() {
               <div>
                 <dt className="text-xs text-slate-gray">Session</dt>
                 <dd className="font-medium text-primary">
-                  {selected.session?.name || "—"}
+                  {selected.session?.name || "N/A"}
                 </dd>
               </div>
               <div>
                 <dt className="text-xs text-slate-gray">Term</dt>
                 <dd className="font-medium text-primary">
-                  {selected.term?.name || "—"}
+                  {selected.term?.name || "N/A"}
                 </dd>
               </div>
             </dl>

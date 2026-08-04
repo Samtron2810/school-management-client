@@ -43,13 +43,13 @@ export default function LessonPlanPage() {
       lesson.teacherAssignment?._id || lesson.teacherAssignment || "";
     return {
       _id: lesson._id,
-      title: lesson.title || "—",
-      topic: lesson.topic || "—",
+      title: lesson.title || "N/A",
+      topic: lesson.topic || "N/A",
       class: lesson.teacherAssignment?.schoolClass
         ? `${lesson.teacherAssignment.schoolClass.className || ""} ${lesson.teacherAssignment.schoolClass.arm || ""}`.trim()
-        : "—",
-      subject: lesson.teacherAssignment?.subject?.name || "—",
-      week: lesson.week || "—",
+        : "N/A",
+      subject: lesson.teacherAssignment?.subject?.name || "N/A",
+      week: lesson.week || "N/A",
       status: lesson.isPublished ? "published" : "draft",
       date: formatDate(lesson.createdAt),
       attachments: lesson.attachments?.length || 0,
@@ -160,7 +160,7 @@ export default function LessonPlanPage() {
             {row.attachments}
           </Badge>
         ) : (
-          "—"
+          "N/A"
         ),
     },
     { header: "Created", accessor: "date" },

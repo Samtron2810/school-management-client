@@ -89,9 +89,9 @@ export default function ChildAttendancePage() {
   const rows = (records || []).map((record) => ({
     _id: record._id,
     date: formatDate(record.date),
-    subject: record.classSubject?.subject?.name || "—",
+    subject: record.classSubject?.subject?.name || "N/A",
     status: record.status,
-    remark: record.remark || "—",
+    remark: record.remark || "N/A",
   }));
 
   const columns = [
@@ -171,7 +171,7 @@ export default function ChildAttendancePage() {
 
           <div className="flex items-center gap-2 mb-4">
             <h2 className="text-lg font-semibold text-primary">
-              History{selectedChild ? ` — ${selectedChild.name}` : ""}
+              History{selectedChild ? `: ${selectedChild.name}` : ""}
             </h2>
             <Badge variant="info">{rows.length} record(s)</Badge>
           </div>

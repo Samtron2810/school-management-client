@@ -27,16 +27,17 @@ export default function ChildResultsPage() {
     .map((result) => ({
       _id: result._id,
       child: displayName(result.student?.user) || "Child",
-      title: result.title || "—",
-      subject: result.classSubject?.subject?.name || "—",
-      type: result.type || "—",
+      title: result.title || "N/A",
+      subject: result.classSubject?.subject?.name || "N/A",
+      type: result.type || "N/A",
       class: classLabel(result.classSubject?.schoolClass),
       score: `${result.score ?? 0}/${result.totalMarks ?? 0}`,
       percentage: `${result.percentage ?? 0}%`,
       grade: result.grade,
-      remark: result.remark || "—",
+      remark: result.remark || "N/A",
       date: formatDate(result.generatedAt || result.createdAt),
-      __search: `${displayName(result.student?.user)} ${result.title} ${result.classSubject?.subject?.name} ${result.type}`.toLowerCase(),
+      __search:
+        `${displayName(result.student?.user)} ${result.title} ${result.classSubject?.subject?.name} ${result.type}`.toLowerCase(),
     }))
     .filter((row) => row.__search.includes(search.toLowerCase()));
 

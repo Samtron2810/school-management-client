@@ -35,15 +35,15 @@ export default function TeacherAssignmentPage() {
   const rows = asArray(data).map((assignment) => {
     const rawTeacher = assignment.teacher?.user || assignment.teacher;
     const teacherName =
-      typeof rawTeacher === "string" ? "—" : displayName(rawTeacher) || "—";
+      typeof rawTeacher === "string" ? "N/A" : displayName(rawTeacher) || "N/A";
     const cls = classLabel(assignment.schoolClass);
-    const subj = assignment.subject?.name || "—";
+    const subj = assignment.subject?.name || "N/A";
     return {
       _id: assignment._id,
       teacher: teacherName,
       class: cls,
       subject: subj,
-      code: assignment.subject?.code || "—",
+      code: assignment.subject?.code || "N/A",
       status: assignment.isActive === false ? "inactive" : "active",
       __doc: assignment,
       __search: `${teacherName} ${cls} ${subj}`.toLowerCase(),
@@ -180,7 +180,7 @@ export default function TeacherAssignmentPage() {
     <>
       <ManagePage
         title="Teacher Assignments"
-        subtitle="Assign teachers to class subjects — the key used by lessons, attendance and assessments"
+        subtitle="Assign teachers to class subjects: the key used by lessons, attendance and assessments"
         actionLabel="Assign Teacher"
         onAdd={openCreate}
         searchValue={search}

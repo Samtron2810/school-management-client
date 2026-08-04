@@ -21,7 +21,7 @@ export default function MySubjectsPage() {
       asArray(data).map((classSubject) => ({
         _id: classSubject._id,
         name: classSubject.subject?.name || "Subject",
-        code: classSubject.subject?.code || "—",
+        code: classSubject.subject?.code || "N/A",
         compulsory: classSubject.isCompulsory !== false,
         className: classLabel(classSubject.schoolClass),
       })),
@@ -38,7 +38,7 @@ export default function MySubjectsPage() {
       <PageHeader
         title="My Subjects"
         subtitle={
-          className && className !== "—"
+          className && className !== "N/A"
             ? `Subjects registered for ${className} this term`
             : "Subjects registered for your class this term"
         }

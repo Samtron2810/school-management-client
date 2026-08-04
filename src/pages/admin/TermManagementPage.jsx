@@ -44,10 +44,10 @@ export default function TermManagementPage() {
 
   const rows = asArray(data).map((term) => ({
     _id: term._id,
-    name: term.name || "—",
-    session: term.session?.name || "—",
-    startDate: formatDate(term.startDate) || "—",
-    endDate: formatDate(term.endDate) || "—",
+    name: term.name || "N/A",
+    session: term.session?.name || "N/A",
+    startDate: formatDate(term.startDate) || "N/A",
+    endDate: formatDate(term.endDate) || "N/A",
     status: term.isCurrent ? "current" : "inactive",
     __doc: term,
     __search: `${term.name} ${term.session?.name}`.toLowerCase(),
@@ -69,7 +69,7 @@ export default function TermManagementPage() {
         row.__doc.isCurrent ? (
           <StatusBadge status="active" />
         ) : (
-          <span className="text-xs text-slate-gray">—</span>
+          <span className="text-xs text-slate-gray">N/A</span>
         ),
     },
     {
@@ -230,7 +230,7 @@ export default function TermManagementPage() {
             />
             <p className="text-xs text-slate-gray">
               The term stays in its original session (
-              {selected.session?.name || "—"}).
+              {selected.session?.name || "N/A"}).
               {form.isCurrent &&
                 !selected.isCurrent &&
                 " Saving clears the flag on the session's other terms."}

@@ -15,7 +15,12 @@ import Badge from "../../components/ui/Badge";
 import StatusBadge from "../../components/common/StatusBadge";
 
 export default function AttendancePage() {
-  const { studentId, loading: enrollmentLoading, error: enrollmentError, refetch } = useMyEnrollment();
+  const {
+    studentId,
+    loading: enrollmentLoading,
+    error: enrollmentError,
+    refetch,
+  } = useMyEnrollment();
   const [summary, setSummary] = useState(null);
   const [records, setRecords] = useState(null);
   const [busy, setBusy] = useState(true);
@@ -53,15 +58,25 @@ export default function AttendancePage() {
     return (
       <div>
         <PageHeader title="Attendance" subtitle="Your attendance record" />
-        <EmptyState title="Not enrolled" description="Attendance unlocks once you're enrolled in a class for the current session and term." />
+        <EmptyState
+          title="Not enrolled"
+          description="Attendance unlocks once you're enrolled in a class for the current session and term."
+        />
       </div>
     );
   if (busy) return <Loader text="Loading attendance..." />;
   if (loadError) return <ErrorState onRetry={() => window.location.reload()} />;
 
   const s = summary || {};
-  const total = s.total ?? s.totalRecords ?? (s.present ?? 0) + (s.absent ?? 0) + (s.late ?? 0) + (s.excused ?? 0);
-  const percentage = s.attendancePercentage ?? (total > 0 ? Math.round((((s.present ?? 0) + (s.late ?? 0)) / total) * 100) : 0);
+  const total =
+    s.total ??
+    s.totalRecords ??
+    (s.present ?? 0) + (s.absent ?? 0) + (s.late ?? 0) + (s.excused ?? 0);
+  const percentage =
+    s.attendancePercentage ??
+    (total > 0
+      ? Math.round((((s.present ?? 0) + (s.late ?? 0)) / total) * 100)
+      : 0);
 
   const columns = [
     { header: "Date", accessor: "date" },
@@ -77,24 +92,45 @@ export default function AttendancePage() {
   const rows = (records || []).map((record) => ({
     _id: record._id,
     date: formatDate(record.date),
-    subject: record.classSubject?.subject?.name || "—",
+    subject: record.classSubject?.subject?.name || "N/A",
     status: record.status,
-    remark: record.remark || "—",
+    remark: record.remark || "N/A",
   }));
 
   return (
     <div>
-      <PageHeader title="Attendance" subtitle="Your attendance summary and history" />
+      <PageHeader
+        title="Attendance"
+        subtitle="Your attendance summary and history"
+      />
 
       <div className="grid grid-cols-2 lg:grid-cols-5 gap-4 mb-6">
         <Card>
           <p className="text-sm text-slate-gray">Attendance Rate</p>
           <p className="text-2xl font-bold text-accent mt-1">{percentage}%</p>
         </Card>
-        <Card><p className="text-sm text-slate-gray">Present</p><p className="text-2xl font-bold text-primary mt-1">{s.present ?? 0}</p></Card>
-        <Card><p className="text-sm text-slate-gray">Absent</p><p className="text-2xl font-bold text-danger mt-1">{s.absent ?? 0}</p></Card>
-        <Card><p className="text-sm text-slate-gray">Late</p><p className="text-2xl font-bold text-yellow-600 mt-1">{s.late ?? 0}</p></Card>
-        <Card><p className="text-sm text-slate-gray">Excused</p><p className="text-2xl font-bold text-primary mt-1">{s.excused ?? 0}</p></Card>
+        <Card>
+          <p className="text-sm text-slate-gray">Present</p>
+          <p className="text-2xl font-bold text-primary mt-1">
+            {s.present ?? 0}
+          </p>
+        </Card>
+        <Card>
+          <p className="text-sm text-slate-gray">Absent</p>
+          <p className="text-2xl font-bold text-danger mt-1">{s.absent ?? 0}</p>
+        </Card>
+        <Card>
+          <p className="text-sm text-slate-gray">Late</p>
+          <p className="text-2xl font-bold text-yellow-600 mt-1">
+            {s.late ?? 0}
+          </p>
+        </Card>
+        <Card>
+          <p className="text-sm text-slate-gray">Excused</p>
+          <p className="text-2xl font-bold text-primary mt-1">
+            {s.excused ?? 0}
+          </p>
+        </Card>
       </div>
 
       <div className="flex items-center gap-2 mb-4">
@@ -102,7 +138,10 @@ export default function AttendancePage() {
         <Badge variant="info">{rows.length} record(s)</Badge>
       </div>
       {rows.length === 0 ? (
-        <EmptyState title="No attendance records" description="No attendance has been recorded for you yet." />
+        <EmptyState
+          title="No attendance records"
+          description="No attendance has been recorded for you yet."
+        />
       ) : (
         <DataTable columns={columns} data={rows} pageSize={15} />
       )}

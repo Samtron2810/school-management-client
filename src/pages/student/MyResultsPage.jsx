@@ -14,18 +14,24 @@ export default function MyResultsPage() {
 
   const rows = asArray(data).map((result) => ({
     _id: result._id,
-    title: result.title || "—",
-    subject: result.classSubject?.subject?.name || result.metadata?.subjectName || "—",
-    type: result.type || "—",
+    title: result.title || "N/A",
+    subject:
+      result.classSubject?.subject?.name ||
+      result.metadata?.subjectName ||
+      "N/A",
+    type: result.type || "N/A",
     score: `${result.score ?? 0}/${result.totalMarks ?? 0}`,
     percentage: `${result.percentage ?? 0}%`,
     grade: result.grade,
-    remark: result.remark || "—",
+    remark: result.remark || "N/A",
     date: formatDate(result.generatedAt || result.createdAt),
-    __search: `${result.title} ${result.classSubject?.subject?.name} ${result.type}`.toLowerCase(),
+    __search:
+      `${result.title} ${result.classSubject?.subject?.name} ${result.type}`.toLowerCase(),
   }));
 
-  const filtered = rows.filter((row) => row.__search.includes(search.toLowerCase()));
+  const filtered = rows.filter((row) =>
+    row.__search.includes(search.toLowerCase()),
+  );
 
   const columns = [
     { header: "Title", accessor: "title" },

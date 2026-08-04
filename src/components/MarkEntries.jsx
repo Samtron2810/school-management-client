@@ -138,7 +138,9 @@ export default function MarkEntries({
             value={schoolClass}
             onChange={(e) => setSchoolClass(e.target.value)}
             options={classOptions}
-            placeholder={classOptionsLoading ? "Loading classes..." : "Select class"}
+            placeholder={
+              classOptionsLoading ? "Loading classes..." : "Select class"
+            }
           />
           <Select
             label="Subject"
@@ -184,7 +186,8 @@ export default function MarkEntries({
                 {grid.classSubject?.subject?.name}
               </h2>
               <p className="text-xs text-slate-gray mt-0.5">
-                {grid.session?.name} · {grid.term?.name} · {grid.students.length} student
+                {grid.session?.name} · {grid.term?.name} ·{" "}
+                {grid.students.length} student
                 {grid.students.length === 1 ? "" : "s"}
               </p>
             </div>
@@ -229,7 +232,7 @@ export default function MarkEntries({
                         title={
                           component.isActive
                             ? undefined
-                            : "Inactive — set by admin, read-only, excluded from the total"
+                            : "Inactive: set by admin, read-only, excluded from the total"
                         }
                       >
                         {component.label}
@@ -253,9 +256,12 @@ export default function MarkEntries({
                         {row.rollNumber ?? index + 1}
                       </td>
                       <td className="px-4 py-2 text-primary font-medium whitespace-nowrap">
-                        {displayName(row.student.user) || row.student.admissionNumber}
+                        {displayName(row.student.user) ||
+                          row.student.admissionNumber}
                         {row.isPublished && (
-                          <span className="ml-2 text-xs text-green-600">Published</span>
+                          <span className="ml-2 text-xs text-green-600">
+                            Published
+                          </span>
                         )}
                       </td>
                       {allComponents.map((component) => (
@@ -267,13 +273,17 @@ export default function MarkEntries({
                             step="0.01"
                             value={getValue(row.student._id, component.key)}
                             onChange={(e) =>
-                              setValue(row.student._id, component.key, e.target.value)
+                              setValue(
+                                row.student._id,
+                                component.key,
+                                e.target.value,
+                              )
                             }
                             disabled={!component.isActive}
                             title={
                               component.isActive
                                 ? undefined
-                                : "This column is inactive — set by admin"
+                                : "This column is inactive: set by admin"
                             }
                             className={`w-20 px-2 py-1.5 rounded-lg border text-sm text-primary focus:outline-none focus:ring-2 focus:ring-accent/20 focus:border-accent transition-colors ${
                               !component.isActive
@@ -286,7 +296,9 @@ export default function MarkEntries({
                       <td className="px-4 py-2 text-primary font-medium">
                         {row.total}/{row.totalMaxMarks}
                       </td>
-                      <td className="px-4 py-2 text-slate-gray">{row.percentage}%</td>
+                      <td className="px-4 py-2 text-slate-gray">
+                        {row.percentage}%
+                      </td>
                       <td className="px-4 py-2">
                         <GradeBadge grade={row.grade} />
                       </td>
@@ -298,7 +310,7 @@ export default function MarkEntries({
           )}
 
           <p className="text-xs text-slate-gray p-4 border-t border-gray-100">
-            Fill in any fields you have — you don't need to complete every column
+            Fill in any fields you have: you don't need to complete every column
             before saving. Scores from a published assessment (Quiz → CA 1,
             Assignment → CA 2, Test → Test, Examination → Exam) prefill
             automatically; the latest attempt always overwrites the column.

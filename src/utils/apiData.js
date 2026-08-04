@@ -32,17 +32,17 @@ export function displayName(user) {
 
 // Human-readable class label: "JSS 1 A", "SSS 2", etc.
 export function classLabel(schoolClass) {
-  if (!schoolClass) return "—";
+  if (!schoolClass) return "N/A";
   if (typeof schoolClass === "string") return schoolClass;
   const name = schoolClass.className || schoolClass.name || "";
   const arm = schoolClass.arm || "";
-  return [name, arm].filter(Boolean).join(" ").trim() || "—";
+  return [name, arm].filter(Boolean).join(" ").trim() || "N/A";
 }
 
 // Safe teacher name display - handles string IDs and unpopulated refs
-// Returns display name or "—" if teacher cannot be resolved
+// Returns display name or "N/A" if teacher cannot be resolved
 export function teacherNameDisplay(teacher) {
-  if (!teacher) return "—";
-  if (typeof teacher === "string") return "—"; // ID only, cannot display
-  return displayName(teacher.user || teacher) || "—";
+  if (!teacher) return "N/A";
+  if (typeof teacher === "string") return "N/A"; // ID only, cannot display
+  return displayName(teacher.user || teacher) || "N/A";
 }

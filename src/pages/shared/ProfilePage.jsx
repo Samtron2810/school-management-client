@@ -69,7 +69,10 @@ export default function ProfilePage() {
 
   return (
     <div>
-      <PageHeader title="My Profile" subtitle="Your account details and security" />
+      <PageHeader
+        title="My Profile"
+        subtitle="Your account details and security"
+      />
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <Card>
@@ -89,7 +92,7 @@ export default function ProfilePage() {
               <div>
                 <dt className="text-xs text-slate-gray">Username</dt>
                 <dd className="font-medium text-primary">
-                  {profile?.username || "—"}
+                  {profile?.username || "N/A"}
                 </dd>
               </div>
             </div>
@@ -98,7 +101,7 @@ export default function ProfilePage() {
               <div>
                 <dt className="text-xs text-slate-gray">Email</dt>
                 <dd className="font-medium text-primary">
-                  {profile?.email || "—"}
+                  {profile?.email || "N/A"}
                 </dd>
               </div>
             </div>
@@ -107,7 +110,7 @@ export default function ProfilePage() {
               <div>
                 <dt className="text-xs text-slate-gray">Phone</dt>
                 <dd className="font-medium text-primary">
-                  {profile?.phoneNumber || "—"}
+                  {profile?.phoneNumber || "N/A"}
                 </dd>
               </div>
             </div>
@@ -118,7 +121,7 @@ export default function ProfilePage() {
                 <dd className="font-medium text-primary">
                   {profile?.lastLogin
                     ? formatDateTime(profile.lastLogin)
-                    : "—"}
+                    : "N/A"}
                 </dd>
               </div>
             </div>

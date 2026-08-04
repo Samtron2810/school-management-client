@@ -67,7 +67,7 @@ export default function AttendanceOverviewPage() {
         name:
           displayName(enrollment.student?.user || enrollment.student) ||
           "Student",
-        admissionNumber: enrollment.student?.admissionNumber || "—",
+        admissionNumber: enrollment.student?.admissionNumber || "N/A",
       }));
   }, [enrollmentsApi.data, selectedAssignment]);
 
@@ -89,7 +89,7 @@ export default function AttendanceOverviewPage() {
           studentId: record.student?._id || record.student,
           name:
             displayName(record.student?.user || record.student) || "Student",
-          admissionNumber: record.student?.admissionNumber || "—",
+          admissionNumber: record.student?.admissionNumber || "N/A",
           status: record.status,
         })),
       );
@@ -356,9 +356,9 @@ function ClassRegisterView() {
             record.student ||
             `${targetDate}-${displayName(record.student?.user)}`,
           student: displayName(record.student?.user) || "Student",
-          admissionNumber: record.student?.admissionNumber || "—",
+          admissionNumber: record.student?.admissionNumber || "N/A",
           status: record.status,
-          remark: record.remark || "—",
+          remark: record.remark || "N/A",
         })),
       );
     } catch {
@@ -475,7 +475,7 @@ function ClassSummaryView() {
         asArray(payload).map((entry, index) => ({
           id: entry.student?._id || entry.student || index,
           student: displayName(entry.student?.user) || "Student",
-          admissionNumber: entry.student?.admissionNumber || "—",
+          admissionNumber: entry.student?.admissionNumber || "N/A",
           present: entry.present ?? entry.totals?.Present ?? 0,
           absent: entry.absent ?? entry.totals?.Absent ?? 0,
           late: entry.late ?? entry.totals?.Late ?? 0,
@@ -483,7 +483,7 @@ function ClassSummaryView() {
           percentage:
             entry.attendancePercentage != null
               ? `${entry.attendancePercentage}%`
-              : "—",
+              : "N/A",
         })),
       );
     } catch {

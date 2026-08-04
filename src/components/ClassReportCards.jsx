@@ -178,7 +178,7 @@ export default function ClassReportCards({ classOptions }) {
     },
     {
       header: "Admission No.",
-      render: (row) => row.student.admissionNumber || "—",
+      render: (row) => row.student.admissionNumber || "N/A",
     },
     { header: "Subjects", render: (row) => row.subjectCount },
     {

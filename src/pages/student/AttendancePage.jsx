@@ -92,9 +92,9 @@ export default function AttendancePage() {
   const rows = (records || []).map((record) => ({
     _id: record._id,
     date: formatDate(record.date),
-    subject: record.classSubject?.subject?.name || "—",
+    subject: record.classSubject?.subject?.name || "N/A",
     status: record.status,
-    remark: record.remark || "—",
+    remark: record.remark || "N/A",
   }));
 
   return (

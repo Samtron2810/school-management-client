@@ -141,7 +141,7 @@ const ParentChildResultsPage = lazy(
   () => import("./pages/parent/ChildResultsPage"),
 );
 
-// Auth Pages (the backend only supports login — accounts are created by admins)
+// Auth Pages (the backend only supports login: accounts are created by admins)
 import LoginPage from "./pages/auth/LoginPage";
 
 // Error Pages — kept eager: small, shared across every role, and may need

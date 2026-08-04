@@ -29,9 +29,9 @@ export default function SessionManagementPage() {
 
   const rows = asArray(data).map((session) => ({
     _id: session._id,
-    name: session.name || "—",
-    startDate: formatDate(session.startDate) || "—",
-    endDate: formatDate(session.endDate) || "—",
+    name: session.name || "N/A",
+    startDate: formatDate(session.startDate) || "N/A",
+    endDate: formatDate(session.endDate) || "N/A",
     status: session.isCurrent ? "current" : "inactive",
     __doc: session,
     __search: `${session.name}`.toLowerCase(),
@@ -52,7 +52,7 @@ export default function SessionManagementPage() {
         row.__doc.isCurrent ? (
           <StatusBadge status="active" />
         ) : (
-          <span className="text-xs text-slate-gray">—</span>
+          <span className="text-xs text-slate-gray">N/A</span>
         ),
     },
     {

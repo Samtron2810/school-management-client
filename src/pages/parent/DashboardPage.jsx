@@ -59,7 +59,7 @@ export default function ParentDashboardPage() {
         </div>
         {context && (
           <Badge variant="info">
-            {context.session?.name || "—"} · {context.term?.name || "—"}
+            {context.session?.name || "N/A"} · {context.term?.name || "N/A"}
           </Badge>
         )}
       </div>

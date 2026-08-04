@@ -38,12 +38,12 @@ export default function ClassSubjectPage() {
     const schoolClass = link.schoolClass;
     const subject = link.subject;
     const cls = classLabel(schoolClass);
-    const subj = subject?.name || "—";
+    const subj = subject?.name || "N/A";
     return {
       _id: link._id,
       class: cls,
       subject: subj,
-      code: subject?.code || "—",
+      code: subject?.code || "N/A",
       compulsory: link.isCompulsory === false ? "Elective" : "Compulsory",
       __doc: link,
       __search: `${cls} ${subj} ${subject?.code}`.toLowerCase(),
