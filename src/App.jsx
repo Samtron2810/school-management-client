@@ -146,6 +146,7 @@ import LoginPage from "./pages/auth/LoginPage";
 const ForgotPasswordPage = lazy(() => import("./pages/auth/ForgotPasswordPage"));
 const ResetPasswordPage = lazy(() => import("./pages/auth/ResetPasswordPage"));
 const PrivacyPolicyPage = lazy(() => import("./pages/legal/PrivacyPolicyPage"));
+const VerifyEmailPage = lazy(() => import("./pages/auth/VerifyEmailPage"));
 const TermsOfServicePage = lazy(() => import("./pages/legal/TermsOfServicePage"));
 
 // Error Pages — kept eager: small, shared across every role, and may need
@@ -174,6 +175,7 @@ function App() {
                 <Route path="/login" element={<LoginPage />} />
                 <Route path="/forgot-password" element={<ForgotPasswordPage />} />
                 <Route path="/reset-password" element={<ResetPasswordPage />} />
+                <Route path="/verify-email" element={<VerifyEmailPage />} />
                 <Route path="/privacy" element={<PrivacyPolicyPage />} />
                 <Route path="/terms" element={<TermsOfServicePage />} />
               </Route>

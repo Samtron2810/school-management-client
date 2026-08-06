@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Outlet } from "react-router-dom";
 import Header from "../components/layout/Header";
+import EmailVerificationBanner from "../components/common/EmailVerificationBanner";
 import ParentSidebar from "../components/layout/ParentSidebar";
 
 export default function ParentLayout() {
@@ -9,6 +10,7 @@ export default function ParentLayout() {
   return (
     <div className="min-h-screen bg-white">
       <Header onToggleMobile={() => setMobileOpen((prev) => !prev)} />
+      <EmailVerificationBanner />
       <div className="flex">
         <ParentSidebar mobileOpen={mobileOpen} onToggleMobile={setMobileOpen} />
         <main className="flex-1 p-6 overflow-y-auto">
