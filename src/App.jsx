@@ -141,8 +141,10 @@ const ParentChildResultsPage = lazy(
   () => import("./pages/parent/ChildResultsPage"),
 );
 
-// Auth Pages (the backend only supports login: accounts are created by admins)
+// Auth Pages
 import LoginPage from "./pages/auth/LoginPage";
+const ForgotPasswordPage = lazy(() => import("./pages/auth/ForgotPasswordPage"));
+const ResetPasswordPage = lazy(() => import("./pages/auth/ResetPasswordPage"));
 
 // Error Pages — kept eager: small, shared across every role, and may need
 // to render even if a lazy chunk itself fails to load.
@@ -168,6 +170,8 @@ function App() {
               <Route path="/" element={<Navigate to="/login" replace />} />
               <Route element={<AuthLayout />}>
                 <Route path="/login" element={<LoginPage />} />
+                <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+                <Route path="/reset-password" element={<ResetPasswordPage />} />
               </Route>
 
               {/* Error Routes */}

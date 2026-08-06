@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useNavigate, useLocation, Link } from "react-router-dom";
 import { FaEnvelope, FaLock } from "react-icons/fa";
 import Input from "../../components/ui/Input";
 import SubmitButton from "../../components/buttons/SubmitButton";
@@ -96,7 +96,16 @@ export default function LoginPage() {
           <SubmitButton label="Sign In" loading={loading} />
         </form>
 
-        <p className="text-center text-xs text-slate-gray mt-6">
+        <div className="mt-4 text-center">
+          <Link
+            to="/forgot-password"
+            className="text-xs text-coral hover:underline"
+          >
+            Forgot your password?
+          </Link>
+        </div>
+
+        <p className="text-center text-xs text-slate-gray mt-4">
           Accounts are created by the school administrator. Contact your school
           if you can't sign in.
         </p>

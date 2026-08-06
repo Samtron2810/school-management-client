@@ -166,11 +166,27 @@ export async function changePassword({ currentPassword, newPassword }) {
 
 export default {
   changePassword,
+  forgotPassword,
   getStoredToken,
   getStoredUser,
   isTokenExpired,
   login,
   logout,
   me,
+  resetPassword,
   updateMe,
 };
+
+// POST /auth/forgot-password — always 200 (never reveals if email exists)
+export async function forgotPassword(email) {
+  return unwrap(
+    api.post("/auth/forgot-password", { email }, { skipErrorToast: true }),
+  );
+}
+
+// POST /auth/reset-password — { token, newPassword }
+export async function resetPassword({ token, newPassword }) {
+  return unwrap(
+    api.post("/auth/reset-password", { token, newPassword }, { skipErrorToast: true }),
+  );
+}
