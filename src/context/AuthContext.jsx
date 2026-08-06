@@ -33,16 +33,25 @@ export function AuthProvider({ children }) {
     setToken(null);
   }, []);
 
+  const refreshUser = useCallback(async () => {
+    const freshUser = await authService.me();
+    if (freshUser) {
+      setUser(freshUser);
+    }
+    return freshUser;
+  }, []);
+
   const value = useMemo(
     () => ({
       isAuthenticated: Boolean(token && user),
       loading,
       login,
       logout,
+      refreshUser,
       token,
       user,
     }),
-    [loading, login, logout, token, user],
+    [loading, login, logout, refreshUser, token, user],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

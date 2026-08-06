@@ -3,6 +3,8 @@ import { Link, useSearchParams } from "react-router-dom";
 import { FaCheckCircle, FaTimesCircle, FaSpinner } from "react-icons/fa";
 import logo from "../../assets/logos/Tronschool-logo.png";
 import api, { unwrap } from "../../services/api";
+import useAuth from "../../hooks/useAuth";
+import authService from "../../services/authService";
 
 export default function VerifyEmailPage() {
   const [searchParams] = useSearchParams();
@@ -18,8 +20,19 @@ export default function VerifyEmailPage() {
       return;
     }
 
-    unwrap(api.get(`/auth/verify-email?token=${token}`, { skipErrorToast: true }))
-      .then(() => {
+    unwrap(
+      api.get(`/auth/verify-email?token=${token}`, { skipErrorToast: true }),
+    )
+      .then(async () => {
+        // If the user is already logged in, refresh their data so the
+        // EmailVerificationBanner picks up isEmailVerified === true immediately.
+        if (authService.getStoredToken()) {
+          try {
+            await useAuth().refreshUser();
+          } catch {
+            // Silently ignore — the banner will still disappear on next login.
+          }
+        }
         setStatus("success");
       })
       .catch((err) => {
