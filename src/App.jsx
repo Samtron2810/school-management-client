@@ -145,6 +145,8 @@ const ParentChildResultsPage = lazy(
 import LoginPage from "./pages/auth/LoginPage";
 const ForgotPasswordPage = lazy(() => import("./pages/auth/ForgotPasswordPage"));
 const ResetPasswordPage = lazy(() => import("./pages/auth/ResetPasswordPage"));
+const PrivacyPolicyPage = lazy(() => import("./pages/legal/PrivacyPolicyPage"));
+const TermsOfServicePage = lazy(() => import("./pages/legal/TermsOfServicePage"));
 
 // Error Pages — kept eager: small, shared across every role, and may need
 // to render even if a lazy chunk itself fails to load.
@@ -172,6 +174,8 @@ function App() {
                 <Route path="/login" element={<LoginPage />} />
                 <Route path="/forgot-password" element={<ForgotPasswordPage />} />
                 <Route path="/reset-password" element={<ResetPasswordPage />} />
+                <Route path="/privacy" element={<PrivacyPolicyPage />} />
+                <Route path="/terms" element={<TermsOfServicePage />} />
               </Route>
 
               {/* Error Routes */}
