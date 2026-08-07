@@ -111,6 +111,16 @@ export default function ForgotPasswordPage() {
             </div>
           </>
         )}
+
+        <div className="mt-4 pt-4 border-t border-gray-100 flex items-center justify-center gap-4">
+          <Link to="/privacy" className="text-xs text-slate-gray hover:text-coral transition-colors">
+            Privacy Policy
+          </Link>
+          <span className="text-gray-200 text-xs">|</span>
+          <Link to="/terms" className="text-xs text-slate-gray hover:text-coral transition-colors">
+            Terms of Service
+          </Link>
+        </div>
       </div>
     </div>
   );

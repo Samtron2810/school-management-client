@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { NavLink, useNavigate } from "react-router-dom";
+import { NavLink, Link, useNavigate } from "react-router-dom";
 import {
   FaTachometerAlt, FaUserGraduate, FaChalkboardTeacher, FaSchool,
   FaBook, FaCalendarCheck, FaClipboardList, FaBullhorn, FaCalendarAlt,
@@ -105,6 +105,25 @@ export default function Sidebar({ mobileOpen, onToggleMobile }) {
         </nav>
 
         <div className="px-2 pb-4 pt-2" style={{ borderTop: "1px solid rgba(255,255,255,0.1)" }}>
+          {!collapsed && (
+            <div className="flex items-center justify-center gap-3 px-3 py-2 mb-1">
+              <Link
+                to="/privacy"
+                className="text-xs transition-colors hover:text-white"
+                style={{ color: "rgba(255,255,255,0.35)" }}
+              >
+                Privacy
+              </Link>
+              <span style={{ color: "rgba(255,255,255,0.2)" }} className="text-xs">·</span>
+              <Link
+                to="/terms"
+                className="text-xs transition-colors hover:text-white"
+                style={{ color: "rgba(255,255,255,0.35)" }}
+              >
+                Terms
+              </Link>
+            </div>
+          )}
           <button
             onClick={handleLogout}
             className="flex items-center gap-3 w-full px-3 py-2.5 rounded-lg transition-all duration-150"

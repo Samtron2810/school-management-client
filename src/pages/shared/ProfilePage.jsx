@@ -1,6 +1,7 @@
 import { useState } from "react";
+import { Link } from "react-router-dom";
 import toast from "react-hot-toast";
-import { FaEnvelope, FaLock, FaPhone, FaUserTag } from "react-icons/fa";
+import { FaEnvelope, FaLock, FaPhone, FaUserTag, FaShieldAlt, FaFileContract } from "react-icons/fa";
 
 import authService from "../../services/authService";
 import useApi from "../../hooks/useApi";
@@ -178,6 +179,35 @@ export default function ProfilePage() {
           </form>
         </Card>
       </div>
+
+      <Card className="mt-6">
+        <h2 className="text-base font-semibold text-primary mb-1">Legal</h2>
+        <p className="text-xs text-slate-gray mb-4">
+          Review our policies governing use of TronSchool.
+        </p>
+        <div className="flex flex-col sm:flex-row gap-3">
+          <Link
+            to="/privacy"
+            className="flex items-center gap-3 px-4 py-3 rounded-lg border border-gray-100 hover:border-accent hover:bg-accent-light transition-all group"
+          >
+            <FaShieldAlt className="text-accent text-lg shrink-0" />
+            <div>
+              <p className="text-sm font-medium text-primary group-hover:text-accent transition-colors">Privacy Policy</p>
+              <p className="text-xs text-slate-gray">How we handle your data</p>
+            </div>
+          </Link>
+          <Link
+            to="/terms"
+            className="flex items-center gap-3 px-4 py-3 rounded-lg border border-gray-100 hover:border-accent hover:bg-accent-light transition-all group"
+          >
+            <FaFileContract className="text-accent text-lg shrink-0" />
+            <div>
+              <p className="text-sm font-medium text-primary group-hover:text-accent transition-colors">Terms of Service</p>
+              <p className="text-xs text-slate-gray">Platform usage terms</p>
+            </div>
+          </Link>
+        </div>
+      </Card>
     </div>
   );
 }
