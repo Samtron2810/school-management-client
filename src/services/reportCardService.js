@@ -40,6 +40,17 @@ export const reportCardService = {
       responseType: "blob",
     }),
 
+  // Whole-class zip, built server-side in a few queries. Staff only.
+  // payload: { session?, term?: id | "all", students?: [id, ...] }
+  //   term "all" -> one folder per term of the session.
+  // Errors come back as a Blob; pass { skipErrorToast: true } in config and
+  // read the message from the blob (see ClassReportCards).
+  downloadClass: (schoolClassId, payload = {}, config = {}) =>
+    api.post(`/report-cards/class/${schoolClassId}/download`, payload, {
+      responseType: "blob",
+      ...config,
+    }),
+
   // payload: { students: [id, ...], session?, term? }
   // Returns a raw axios response with blob data -- caller handles the
   // download (see utils/downloadBlob.js).

@@ -126,6 +126,7 @@ export default function ResetPasswordPage() {
             <FaArrowLeft className="text-xs" />
             Back to sign in
           </Link>
+        </div>
 
         <div className="mt-4 pt-4 border-t border-gray-100 flex items-center justify-center gap-4">
           <Link to="/privacy" className="text-xs text-slate-gray hover:text-coral transition-colors">

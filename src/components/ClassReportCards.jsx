@@ -1,9 +1,18 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
-import { FaCheckCircle, FaDownload, FaLockOpen, FaLock } from "react-icons/fa";
+import {
+  FaCheckCircle,
+  FaDownload,
+  FaFileArchive,
+  FaLockOpen,
+  FaLock,
+} from "react-icons/fa";
 
 import reportCardService from "../services/reportCardService";
-import { displayName } from "../utils/apiData";
+import sessionService from "../services/sessionService";
+import termService from "../services/termService";
+import useApi from "../hooks/useApi";
+import { asArray, displayName } from "../utils/apiData";
 import downloadBlobResponse from "../utils/downloadBlob";
 
 import Loader from "./common/Loader";
@@ -17,10 +26,67 @@ import Button from "./ui/Button";
 import Select from "./ui/Select";
 import ReportCardView from "./ReportCardView";
 
+// Blob responses hide the JSON error body; read the server's message from it.
+const blobErrorMessage = async (error, fallback) => {
+  try {
+    const text = await error?.response?.data?.text?.();
+    return JSON.parse(text)?.message || fallback;
+  } catch {
+    return fallback;
+  }
+};
+
 // Class-wide report card list + publish controls, shared by the admin and
 // teacher report pages. classOptions: [{ value, label }].
 export default function ClassReportCards({ classOptions }) {
   const [classId, setClassId] = useState("");
+
+  // Session / term default to the current ones; picking others lets staff
+  // generate or reprint any past term.
+  const sessionsApi = useApi(sessionService.list);
+  const sessionList = asArray(sessionsApi.data);
+  const [sessionChoice, setSessionChoice] = useState("");
+  const [termChoice, setTermChoice] = useState("");
+  const activeSessionId =
+    sessionChoice || sessionList.find((s) => s.isCurrent)?._id || "";
+
+  const [termsState, setTermsState] = useState({ sessionId: "", list: [] });
+  useEffect(() => {
+    if (!activeSessionId) return undefined;
+    let cancelled = false;
+    termService
+      .list({ session: activeSessionId })
+      .then((data) => {
+        if (!cancelled) {
+          setTermsState({ sessionId: activeSessionId, list: asArray(data) });
+        }
+      })
+      .catch(() => {});
+    return () => {
+      cancelled = true;
+    };
+  }, [activeSessionId]);
+
+  const termList = (
+    termsState.sessionId === activeSessionId ? termsState.list : []
+  )
+    .slice()
+    .sort((a, b) => new Date(a.startDate) - new Date(b.startDate));
+  const activeTermId = termList.some((t) => t._id === termChoice)
+    ? termChoice
+    : termList.find((t) => t.isCurrent)?._id || termList[0]?._id || "";
+
+  const period = {
+    ...(activeSessionId && { session: activeSessionId }),
+    ...(activeTermId && { term: activeTermId }),
+  };
+
+  const sessionOptions = sessionList.map((s) => ({
+    value: s._id,
+    label: s.isCurrent ? `${s.name} (current)` : s.name,
+  }));
+  const termOptions = termList.map((t) => ({ value: t._id, label: t.name }));
+
   const [payload, setPayload] = useState(null); // { schoolClass, session, term, batch, students }
   const [busy, setBusy] = useState(false);
   const [loadError, setLoadError] = useState(false);
@@ -37,7 +103,10 @@ export default function ClassReportCards({ classOptions }) {
     setLoadError(false);
     setSelectedIds([]);
     try {
-      const data = await reportCardService.list({ schoolClass: targetClassId });
+      const data = await reportCardService.list({
+        schoolClass: targetClassId,
+        ...period,
+      });
       setPayload(data);
     } catch {
       setPayload(null);
@@ -67,7 +136,7 @@ export default function ClassReportCards({ classOptions }) {
     setActiveStudentId(studentId);
     setCardLoading(true);
     try {
-      const card = await reportCardService.get(studentId);
+      const card = await reportCardService.get(studentId, period);
       setActiveCard(card);
     } catch {
       setActiveCard(null);
@@ -80,7 +149,7 @@ export default function ClassReportCards({ classOptions }) {
   const downloadOne = async (studentId, name) => {
     setDownloading(true);
     try {
-      const response = await reportCardService.download(studentId);
+      const response = await reportCardService.download(studentId, period);
       downloadBlobResponse(response, `${name || "report-card"}.pdf`);
     } catch {
       toast.error("Download failed");
@@ -89,29 +158,36 @@ export default function ClassReportCards({ classOptions }) {
     }
   };
 
-  const downloadSelected = async () => {
+  // One request builds the whole zip server-side; `extra` narrows it.
+  const downloadClassZip = async (extra, fallbackName) => {
+    setDownloading(true);
+    try {
+      const response = await reportCardService.downloadClass(
+        classId,
+        { ...period, ...extra },
+        { skipErrorToast: true },
+      );
+      downloadBlobResponse(response, fallbackName);
+    } catch (error) {
+      toast.error(await blobErrorMessage(error, "Download failed"));
+    } finally {
+      setDownloading(false);
+    }
+  };
+
+  const downloadSelected = () => {
     if (selectedIds.length === 0) {
       toast.error("Select at least one student first.");
       return;
     }
-    setDownloading(true);
-    try {
-      const response = await reportCardService.bulkDownload({
-        students: selectedIds,
-      });
-      downloadBlobResponse(response, "report-cards.zip");
-    } catch {
-      toast.error("Bulk download failed");
-    } finally {
-      setDownloading(false);
-    }
+    downloadClassZip({ students: selectedIds }, "report-cards.zip");
   };
 
   const publishClass = async () => {
     if (!classId) return;
     setPublishing(true);
     try {
-      await reportCardService.publishClass(classId);
+      await reportCardService.publishClass(classId, period);
       toast.success("Report cards published for this class");
       await load();
     } catch {
@@ -125,7 +201,7 @@ export default function ClassReportCards({ classOptions }) {
     if (!classId) return;
     setPublishing(true);
     try {
-      await reportCardService.unpublishClass(classId);
+      await reportCardService.unpublishClass(classId, period);
       toast.success("Report cards unpublished for this class");
       await load();
     } catch {
@@ -139,6 +215,7 @@ export default function ClassReportCards({ classOptions }) {
     try {
       await reportCardService.setStudentPublishState(studentId, {
         isPublished: nextValue,
+        ...period,
       });
       toast.success(
         nextValue
@@ -259,6 +336,33 @@ export default function ClassReportCards({ classOptions }) {
             }
           />
         </div>
+        <div className="sm:w-44">
+          <Select
+            label="Session"
+            name="report-session"
+            value={activeSessionId}
+            onChange={(e) => {
+              setSessionChoice(e.target.value);
+              setTermChoice("");
+              setPayload(null);
+            }}
+            options={sessionOptions}
+            placeholder="Session"
+          />
+        </div>
+        <div className="sm:w-40">
+          <Select
+            label="Term"
+            name="report-term"
+            value={activeTermId}
+            onChange={(e) => {
+              setTermChoice(e.target.value);
+              setPayload(null);
+            }}
+            options={termOptions}
+            placeholder="Term"
+          />
+        </div>
         <Button
           onClick={() => load()}
           disabled={!classId || busy}
@@ -274,9 +378,9 @@ export default function ClassReportCards({ classOptions }) {
         <ErrorState onRetry={() => load()} />
       ) : payload === null ? (
         <p className="text-sm text-slate-gray">
-          Pick a class to see every student who has at least one score recorded
-          this term — complete or incomplete — and to publish or download their
-          report cards.
+          Pick a class, session and term, then load it to see every student with
+          at least one score recorded — complete or incomplete — and to publish
+          or download their report cards.
         </p>
       ) : students.length === 0 ? (
         <EmptyState
@@ -297,7 +401,29 @@ export default function ClassReportCards({ classOptions }) {
                 <span className="text-slate-gray">Class not published</span>
               )}
             </p>
-            <div className="flex items-center gap-2">
+            <div className="flex flex-wrap items-center gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                icon={FaFileArchive}
+                onClick={() =>
+                  downloadClassZip({}, "class-report-cards.zip")
+                }
+                loading={downloading}
+              >
+                Class ZIP
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                icon={FaFileArchive}
+                onClick={() =>
+                  downloadClassZip({ term: "all" }, "class-report-cards.zip")
+                }
+                loading={downloading}
+              >
+                All Terms ZIP
+              </Button>
               <Button
                 variant="outline"
                 size="sm"
