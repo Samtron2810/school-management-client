@@ -7,6 +7,7 @@ const widthClasses = {
   lg: "max-w-lg",
   xl: "max-w-xl",
   "2xl": "max-w-2xl",
+  "4xl": "max-w-4xl",
 };
 
 // Shared modal shell — every modal in the app renders through this.

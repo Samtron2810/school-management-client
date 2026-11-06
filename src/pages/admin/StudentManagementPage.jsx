@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import toast from "react-hot-toast";
-import { FaEdit } from "react-icons/fa";
+import { FaEdit, FaFileUpload } from "react-icons/fa";
 
 import studentService from "../../services/studentService";
 import enrollmentService from "../../services/enrollmentService";
@@ -24,6 +24,7 @@ import Input from "../../components/ui/Input";
 import Select from "../../components/ui/Select";
 import Button from "../../components/ui/Button";
 import StatusBadge from "../../components/common/StatusBadge";
+import BulkStudentImport from "../../components/students/BulkStudentImport";
 
 const ID_PREFIX = "STU-";
 
@@ -47,6 +48,7 @@ export default function StudentManagementPage() {
   const [search, setSearch] = useState("");
   const [classFilter, setClassFilter] = useState("");
   const [formOpen, setFormOpen] = useState(false);
+  const [bulkOpen, setBulkOpen] = useState(false);
   const [selected, setSelected] = useState(null);
   const [form, setForm] = useState(emptyForm);
   const [saving, setSaving] = useState(false);
@@ -230,7 +232,12 @@ export default function StudentManagementPage() {
         title="Student Management"
         subtitle="View and register students, grouped by class"
         actions={
-          <ActionButton label="Add Student" icon={FaPlus} onClick={openForm} />
+          <div className="flex items-center gap-2">
+            <Button variant="secondary" icon={FaFileUpload} onClick={() => setBulkOpen(true)}>
+              Bulk Add
+            </Button>
+            <ActionButton label="Add Student" icon={FaPlus} onClick={openForm} />
+          </div>
         }
       />
 
@@ -281,6 +288,15 @@ export default function StudentManagementPage() {
           ))}
         </div>
       )}
+
+      <BulkStudentImport
+        isOpen={bulkOpen}
+        onClose={() => setBulkOpen(false)}
+        onDone={() => {
+          refetch();
+          enrollmentsApi.refetch();
+        }}
+      />
 
       <FormModal
         isOpen={formOpen}
