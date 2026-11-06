@@ -7,6 +7,8 @@ export const enrollmentService = {
   // payload: { students: [id, ...], schoolClass } — all-or-nothing
   bulkCreate: (payload) => unwrap(api.post("/enrollments/bulk", payload)),
   list: (params) => unwrap(api.get("/enrollments", { params })),
+  // Active students with no class yet this session (for the pickers).
+  unenrolled: () => unwrap(api.get("/enrollments/unenrolled")),
   get: (id) => unwrap(api.get(`/enrollments/${id}`)),
   // payload: { schoolClass?, status?: "Active"|"Transferred"|"Graduated"|
   //            "Withdrawn"|"Suspended", rollNumber?, enrollmentNumber? }

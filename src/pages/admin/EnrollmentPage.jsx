@@ -3,7 +3,6 @@ import toast from "react-hot-toast";
 import { FaEdit, FaTrashAlt } from "react-icons/fa";
 
 import enrollmentService from "../../services/enrollmentService";
-import studentService from "../../services/studentService";
 import classService from "../../services/classService";
 import useApi from "../../hooks/useApi";
 import { asArray, classLabel, displayName } from "../../utils/apiData";
@@ -15,6 +14,7 @@ import Select from "../../components/ui/Select";
 import Input from "../../components/ui/Input";
 import Button from "../../components/ui/Button";
 import StatusBadge from "../../components/common/StatusBadge";
+import StudentPicker from "../../components/common/StudentPicker";
 
 const statusOptions = [
   { value: "Active", label: "Active" },
@@ -35,7 +35,8 @@ const emptyBulkForm = { students: [], schoolClass: "" };
 
 export default function EnrollmentPage() {
   const { data, loading, error, refetch } = useApi(enrollmentService.list);
-  const studentsApi = useApi(studentService.list);
+  // Only students with no class yet this session — keeps the pickers short.
+  const unenrolledApi = useApi(enrollmentService.unenrolled);
   const classesApi = useApi(classService.list);
 
   const [search, setSearch] = useState("");
@@ -74,9 +75,10 @@ export default function EnrollmentPage() {
     row.__search.includes(search.toLowerCase()),
   );
 
-  const studentOptions = asArray(studentsApi.data).map((student) => ({
+  const studentOptions = asArray(unenrolledApi.data).map((student) => ({
     value: student._id,
     label: displayName(student.user || student),
+    sub: student.admissionNumber,
   }));
   const classOptions = asArray(classesApi.data).map((schoolClass) => ({
     value: schoolClass._id,
@@ -125,6 +127,7 @@ export default function EnrollmentPage() {
     setForm((prev) => ({ ...prev, [field]: e.target.value }));
 
   const openCreate = () => {
+    unenrolledApi.refetch();
     setSelected(null);
     setForm(emptyForm);
     setFormOpen(true);
@@ -163,6 +166,7 @@ export default function EnrollmentPage() {
       setSelected(null);
       setForm(emptyForm);
       refetch();
+      unenrolledApi.refetch();
     } catch {
       // handled by the axios interceptor toast
     } finally {
@@ -170,19 +174,8 @@ export default function EnrollmentPage() {
     }
   };
 
-  const toggleBulkStudent = (studentId) => {
-    setBulkForm((prev) => {
-      const exists = prev.students.includes(studentId);
-      return {
-        ...prev,
-        students: exists
-          ? prev.students.filter((id) => id !== studentId)
-          : [...prev.students, studentId],
-      };
-    });
-  };
-
   const openBulk = () => {
+    unenrolledApi.refetch();
     setBulkForm(emptyBulkForm);
     setBulkOpen(true);
   };
@@ -204,12 +197,16 @@ export default function EnrollmentPage() {
       setBulkOpen(false);
       setBulkForm(emptyBulkForm);
       refetch();
+      unenrolledApi.refetch();
     } catch {
       // handled by the axios interceptor toast; batch fully rolled back on any failure
     } finally {
       setBulkSaving(false);
     }
   };
+
+  const bulkClassName =
+    classOptions.find((c) => c.value === bulkForm.schoolClass)?.label || "";
 
   const handleDelete = async () => {
     setSaving(true);
@@ -332,48 +329,49 @@ export default function EnrollmentPage() {
         title="Bulk Enroll Students"
         onSubmit={handleBulkSubmit}
         loading={bulkSaving}
-        submitLabel={`Enroll ${bulkForm.students.length || ""} Student${bulkForm.students.length === 1 ? "" : "s"}`}
+        submitLabel={
+          bulkForm.students.length > 0 && bulkClassName
+            ? `Enroll ${bulkForm.students.length} into ${bulkClassName}`
+            : "Enroll Students"
+        }
       >
         <Select
           label="Class"
           name="bulkSchoolClass"
           value={bulkForm.schoolClass}
           onChange={(e) =>
-            setBulkForm((prev) => ({ ...prev, schoolClass: e.target.value }))
+            setBulkForm({ students: [], schoolClass: e.target.value })
           }
           options={classOptions}
           placeholder="Select class"
           required
         />
-        <div className="space-y-1">
-          <label className="block text-sm font-medium text-primary">
-            Students <span className="text-danger">*</span>
-          </label>
-          <div className="max-h-64 overflow-y-auto border border-gray-200 rounded-lg divide-y divide-gray-100">
-            {studentOptions.length === 0 ? (
-              <p className="p-3 text-sm text-slate-gray">No students found.</p>
-            ) : (
-              studentOptions.map((option) => (
-                <label
-                  key={option.value}
-                  className="flex items-center gap-3 px-3 py-2 text-sm text-primary hover:bg-gray-50 cursor-pointer"
-                >
-                  <input
-                    type="checkbox"
-                    checked={bulkForm.students.includes(option.value)}
-                    onChange={() => toggleBulkStudent(option.value)}
-                    className="w-4 h-4 accent-coral"
-                  />
-                  {option.label}
-                </label>
-              ))
-            )}
-          </div>
-        </div>
+        {bulkForm.schoolClass ? (
+          <>
+            <div className="rounded-lg border border-accent bg-accent-light px-3 py-2 text-sm text-primary">
+              {bulkForm.students.length === 0
+                ? `Pick the students for ${bulkClassName}`
+                : `${bulkForm.students.length} student${bulkForm.students.length === 1 ? "" : "s"} → ${bulkClassName}`}
+            </div>
+            <StudentPicker
+              options={studentOptions}
+              selected={bulkForm.students}
+              onChange={(students) =>
+                setBulkForm((prev) => ({ ...prev, students }))
+              }
+              loading={unenrolledApi.loading}
+              emptyText="Every student is already enrolled."
+            />
+          </>
+        ) : (
+          <p className="text-sm text-slate-gray">
+            Choose the class first, then pick its students.
+          </p>
+        )}
         <p className="text-xs text-slate-gray">
           Enrolls into the current session and term. If any selected student
-          can't be enrolled (already enrolled, etc.), the whole batch is rolled
-          back and nothing is saved.
+          can't be enrolled, the whole batch is rolled back and nothing is saved.
+          Enrolled students leave the list, so repeat for each class.
         </p>
       </FormModal>
     </>
